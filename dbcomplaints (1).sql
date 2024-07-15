@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 05, 2024 at 05:05 PM
+-- Generation Time: Jul 15, 2024 at 05:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,13 +24,26 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tbl_baranggay`
+-- Table structure for table `tbl_brg_official`
 --
 
-CREATE TABLE `tbl_baranggay` (
-  `barangay_id` int(10) NOT NULL,
-  `barangay_name` varchar(15) NOT NULL
+CREATE TABLE `tbl_brg_official` (
+  `offcial_id` int(11) NOT NULL,
+  `name` text NOT NULL,
+  `position` varchar(255) NOT NULL,
+  `image` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_brg_official`
+--
+
+INSERT INTO `tbl_brg_official` (`offcial_id`, `name`, `position`, `image`) VALUES
+(1, 'bj', 'captain', 'uploads/bj.jpg'),
+(5, 'excel', 'Kagawad 1', 'uploads/excel.jpg'),
+(6, 'aneluv', 'Kagawad 2', 'uploads/profile_668bfe5787a96.jpg'),
+(7, 'haryl', 'Kagawad 3', 'uploads/bj.jpg'),
+(8, 'robert', 'kagawad4', 'uploads/387067447_1944047915954275_4632907408411000112_n.jpg');
 
 -- --------------------------------------------------------
 
@@ -40,7 +53,7 @@ CREATE TABLE `tbl_baranggay` (
 
 CREATE TABLE `tbl_complaintcategories` (
   `category_id` int(10) NOT NULL,
-  `complaints_category` varchar(15) NOT NULL
+  `complaints_category` varchar(25) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -48,7 +61,8 @@ CREATE TABLE `tbl_complaintcategories` (
 --
 
 INSERT INTO `tbl_complaintcategories` (`category_id`, `complaints_category`) VALUES
-(183, 'Noise Complaint');
+(229, 'Noise Complaints'),
+(230, 'Sanitation and Cleanlines');
 
 -- --------------------------------------------------------
 
@@ -61,16 +75,26 @@ CREATE TABLE `tbl_complaints` (
   `complaint_name` varchar(255) NOT NULL,
   `cp_number` varchar(10) NOT NULL,
   `complaints_person` varchar(15) NOT NULL,
-  `status` varchar(15) NOT NULL DEFAULT '''unresolved''',
+  `status` varchar(20) NOT NULL DEFAULT '''unresolved''',
   `complaints` text NOT NULL,
   `responds` enum('barangay','pnp') NOT NULL,
   `date_filed` date NOT NULL,
+  `approved` tinyint(1) NOT NULL,
   `category_id` int(1) NOT NULL,
-  `barangay_id` int(10) NOT NULL,
+  `barangays_id` int(10) NOT NULL,
   `image_id` int(10) NOT NULL,
   `info_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_complaints`
+--
+
+INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `complaints_person`, `status`, `complaints`, `responds`, `date_filed`, `approved`, `category_id`, `barangays_id`, `image_id`, `info_id`, `user_id`) VALUES
+(243, 'denver castillio Concepcion ', '0955151515', 'bj', 'settled', 'dsfsfsf', 'barangay', '2024-07-15', 0, 229, 80, 257, 172, 0),
+(244, 'denver castillio Concepcion ', '0955151515', 'bj', 'Approved', 'daadaa', '', '2024-07-15', 0, 230, 80, 258, 173, 0),
+(245, 'trishaaaaaaaaaaaaa nnnn yaranon ', '0955151515', 'scd', 'Unresolved', 'dnsdnsnds', 'barangay', '2024-07-15', 0, 229, 74, 259, 174, 0);
 
 -- --------------------------------------------------------
 
@@ -82,7 +106,7 @@ CREATE TABLE `tbl_image` (
   `image_id` int(10) NOT NULL,
   `complaint_id` int(10) NOT NULL,
   `image_type` enum('ID') NOT NULL,
-  `image_path` varchar(10) NOT NULL,
+  `image_path` varchar(255) NOT NULL,
   `date_uploaded` datetime(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -91,7 +115,9 @@ CREATE TABLE `tbl_image` (
 --
 
 INSERT INTO `tbl_image` (`image_id`, `complaint_id`, `image_type`, `image_path`, `date_uploaded`) VALUES
-(169, 0, 'ID', 'uploads/43', '2024-07-05 14:26:55.000000');
+(257, 0, 'ID', 'uploads/PhilID-specimen-Front_highres1-1024x576.png', '2024-07-15 14:46:31.000000'),
+(258, 0, 'ID', 'uploads/PhilID-specimen-Front_highres1-1024x576.png', '2024-07-15 14:50:25.000000'),
+(259, 0, 'ID', 'uploads/PhilID-specimen-Front_highres1-1024x576.png', '2024-07-15 15:00:42.000000');
 
 -- --------------------------------------------------------
 
@@ -110,7 +136,9 @@ CREATE TABLE `tbl_info` (
 --
 
 INSERT INTO `tbl_info` (`info_id`, `age`, `gender`) VALUES
-(79, 21, 'Female');
+(172, 21, 'Male'),
+(173, 21, 'Male'),
+(174, 21, 'Male');
 
 -- --------------------------------------------------------
 
@@ -128,7 +156,7 @@ CREATE TABLE `tbl_users` (
   `password` varchar(255) NOT NULL,
   `accountType` enum('Resident','Barangay Official','PNP Officer') NOT NULL,
   `barangays_id` int(11) NOT NULL,
-  `pic_data` blob NOT NULL
+  `pic_data` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -136,9 +164,16 @@ CREATE TABLE `tbl_users` (
 --
 
 INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `extension_name`, `email`, `password`, `accountType`, `barangays_id`, `pic_data`) VALUES
-(46, 'leslie', 'pascual', 'Rigor', '', 'leslie05@gmail.com', '$2y$10$aFflB9lKvyHqucMoGLUel.DfvZ3Fn8wdRwmeHXBY.S8.AC8PTrVma', 'Resident', 57, 0x75706c6f6164732f70726f66696c655f363638376439626434616663652e6a7067),
-(47, 'bj', 'villanueva', 'Aquino', '', 'bj@gmail.com', '$2y$10$PBI6D0aBSLfE4XKFSC5wfO7WYT.8RLy9E3G46f3UQiTsxP4stoXDy', 'Barangay Official', 58, 0x75706c6f6164732f70726f66696c655f363638376463373038643532302e6a7067),
-(48, 'excel', 'nnnn', 'preza', '', 'excel27@gmail.com', '$2y$10$WLu08orlgF/sN.5qRv/Bo.ea0G3WVNt6MojMZ1/8rfz5gcTqqvfo2', 'PNP Officer', 59, 0x75706c6f6164732f70726f66696c655f363638376466616333613033612e6a7067);
+(57, 'leslie', 'pascual', 'Rigor', '', 'leslie05@gmail.com', '$2y$10$QLUcTwKAuuZuydlC523K3OEues.Nj.KJ2XsbvPkmOUK8FaMErXda6', 'Barangay Official', 69, 'uploads/profile_668c193bcead3.jpg'),
+(58, 'bj', 'villanueva', 'Aquino', '', 'bj@gmail.com', '$2y$10$F75Q4yMI6q.A4vmireAKK.1v6hC2KIvBipBhIZ99477Ahk6rBhVZu', 'Barangay Official', 70, 'uploads/profile_668c1962cbf04.jpg'),
+(59, 'aneluv', 'castillio', 'Gamet', '', 'robert@gmail.com', '$2y$10$eNbLG2VeNQsi46wuU6whAu9sDQgpxYpZ/A6EA6gRd7S8UCzpuH62S', 'Barangay Official', 71, 'uploads/profile_668cb126dad1b.jpg'),
+(61, 'denver', 'na', 'gorospe', '', 'denver@gmail.com', '$2y$10$gsUUOjhIG/GXQh.YMaq6Z.MHh0/wEObcN9BBm9KSFqOB0l07xLaJ.', 'Resident', 73, 'uploads/profile_668d495dec94d.jpg'),
+(62, 'trishaaaaaaaaaaaaa', 'nnnn', 'yaranon', '', 'trisha@gmail.com', '$2y$10$MmYfrZzXkar1VHzijB9OneKRsN/PLLtx3qOBg7CuFS6m13dPokHRK', 'Resident', 74, 'uploads/profile_668d4c0ed50c7.jpg'),
+(64, 'excel', 'nnnn', 'preza', '', 'excel27@gmail.com', '$2y$10$G6zRwH9OBvvZgkCDr2vK1.64/o4fmaTqPCyAjYorUqMw.AXEd/SyC', 'Resident', 76, 'uploads/profile_668d5cd866fa4.jpg'),
+(65, 'bj', 'villanueva', 'Aquino', '', 'bjaquinovanz26@gmail.com', '$2y$10$NHlNig5GFhZ6wKq/kpXrF.nJwbf4rlQToSHPqm00667sAGS7hAp/.', 'Resident', 77, 'uploads/profile_668d5d8ed14d5.jpg'),
+(66, 'haryl', 'Balla', 'Concepcion', '', 'haryl@gmail.com', '$2y$10$7zswhrBiqL2hihRsdzwi8.sCTP6gJW9D1yp90AEV76M0IdaevVbNO', 'PNP Officer', 78, 'uploads/profile_668e06d10cca2.jpg'),
+(67, 'trishaaaaaaaaaaaaa', 'castillio', 'Rigor', '', 'barangay@gmail.com', '$2y$10$BtDlN/zXB.z5GdeDBs9CbOBaYE6kAIvmhqoUruY5xO1gNnfYqiWBC', 'Barangay Official', 79, 'uploads/profile_668e0a02d6931.jpg'),
+(68, 'denver', 'castillio', 'Concepcion', '', 'resident@gmail.com', '$2y$10$oJlU4KqM8OgM5R30B19ZLeVaGrljY51NCuAh2GuAMglbEmWEq4CYK', 'Resident', 80, 'uploads/profile_668e0a3d79c36.jpg');
 
 -- --------------------------------------------------------
 
@@ -156,20 +191,27 @@ CREATE TABLE `tbl_users_barangay` (
 --
 
 INSERT INTO `tbl_users_barangay` (`barangays_id`, `barangay_name`) VALUES
-(57, 'San Fabian'),
-(58, 'San Fabian'),
-(59, 'Angoluan'),
-(60, 'Aromin');
+(69, 'Angoluan'),
+(70, 'Angoluan'),
+(71, 'Benguet'),
+(73, 'Benguet'),
+(74, 'Angoluan'),
+(75, 'Angoluan'),
+(76, 'Angoluan'),
+(77, 'Angoluan'),
+(78, 'Benguet'),
+(79, 'Villa Tanza'),
+(80, 'Villa Tanza');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `tbl_baranggay`
+-- Indexes for table `tbl_brg_official`
 --
-ALTER TABLE `tbl_baranggay`
-  ADD PRIMARY KEY (`barangay_id`);
+ALTER TABLE `tbl_brg_official`
+  ADD PRIMARY KEY (`offcial_id`);
 
 --
 -- Indexes for table `tbl_complaintcategories`
@@ -186,7 +228,7 @@ ALTER TABLE `tbl_complaints`
   ADD KEY `tbl_complaints_ibfk_3` (`image_id`),
   ADD KEY `tbl_complaints_ibfk_4` (`info_id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `tbl_complaints_ibfk_5` (`barangay_id`);
+  ADD KEY `tbl_complaints_ibfk_5` (`barangays_id`);
 
 --
 -- Indexes for table `tbl_image`
@@ -206,7 +248,7 @@ ALTER TABLE `tbl_info`
 ALTER TABLE `tbl_users`
   ADD PRIMARY KEY (`user_id`),
   ADD KEY `tbl_users_ibfk_2` (`barangays_id`),
-  ADD KEY `tbl_users_ibfk_3` (`pic_data`(3072));
+  ADD KEY `tbl_users_ibfk_3` (`pic_data`);
 
 --
 -- Indexes for table `tbl_users_barangay`
@@ -219,46 +261,46 @@ ALTER TABLE `tbl_users_barangay`
 --
 
 --
--- AUTO_INCREMENT for table `tbl_baranggay`
+-- AUTO_INCREMENT for table `tbl_brg_official`
 --
-ALTER TABLE `tbl_baranggay`
-  MODIFY `barangay_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+ALTER TABLE `tbl_brg_official`
+  MODIFY `offcial_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `tbl_complaintcategories`
 --
 ALTER TABLE `tbl_complaintcategories`
-  MODIFY `category_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
+  MODIFY `category_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=231;
 
 --
 -- AUTO_INCREMENT for table `tbl_complaints`
 --
 ALTER TABLE `tbl_complaints`
-  MODIFY `complaints_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
+  MODIFY `complaints_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=246;
 
 --
 -- AUTO_INCREMENT for table `tbl_image`
 --
 ALTER TABLE `tbl_image`
-  MODIFY `image_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=170;
+  MODIFY `image_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=260;
 
 --
 -- AUTO_INCREMENT for table `tbl_info`
 --
 ALTER TABLE `tbl_info`
-  MODIFY `info_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `info_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=175;
 
 --
 -- AUTO_INCREMENT for table `tbl_users`
 --
 ALTER TABLE `tbl_users`
-  MODIFY `user_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `user_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `tbl_users_barangay`
 --
 ALTER TABLE `tbl_users_barangay`
-  MODIFY `barangays_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `barangays_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- Constraints for dumped tables
@@ -271,7 +313,7 @@ ALTER TABLE `tbl_complaints`
   ADD CONSTRAINT `tbl_complaints_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `tbl_complaintcategories` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `tbl_complaints_ibfk_3` FOREIGN KEY (`image_id`) REFERENCES `tbl_image` (`image_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `tbl_complaints_ibfk_4` FOREIGN KEY (`info_id`) REFERENCES `tbl_info` (`info_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `tbl_complaints_ibfk_5` FOREIGN KEY (`barangay_id`) REFERENCES `tbl_baranggay` (`barangay_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `tbl_complaints_ibfk_5` FOREIGN KEY (`barangays_id`) REFERENCES `tbl_users_barangay` (`barangays_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tbl_users`
