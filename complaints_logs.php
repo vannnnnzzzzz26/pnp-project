@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +8,14 @@
     <title>Uploaded Complaints</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            setInterval(function(){
+                location.reload();
+            }, 5000);
+        });
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -84,8 +94,8 @@
                                     $category_name = htmlspecialchars($stmtCat->fetchColumn());
 
                                     // Fetch barangay name
-                                    $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_baranggay WHERE barangay_id = ?");
-                                    $stmtBar->execute([$row['barangay_id']]);
+                                    $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                                    $stmtBar->execute([$row['barangays_id']]);
                                     $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
 
                                     // Fetch contact number and complaints person
@@ -159,20 +169,58 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h4 class="px-3">Menu</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="index.php">Complaints</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="complaints_logs.php">Complaints Logs</a>
-            </li>
-        </ul>
-    </div>
+   <!-- Sidebar -->
+<div class="sidebar">
+    <h4 class="px-3">Menu</h4>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link active" href="">Complaints</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">Complaints Logs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">Complaints Responder</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">PNP</a>
+        </li>
+    </ul>
+
+      <!-- Logout Form -->
+      <form action="logout.php" method="post" id="logoutForm">
+            <div class="logout-btn">
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
+                    <i class="bi bi-box-arrow-left"></i> Logout
+                </button>
+            </div>
+        </form>
+
+</div>
+
+
+
 
     <!-- Bootstrap JS (Optional) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
 </body>
 </html>
+<script>
+function confirmLogout() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#212529",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, logout"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to logout URL
+                    document.getElementById('logoutForm').submit();
+                }
+            });
+        }
+    </script>
