@@ -1,83 +1,72 @@
 <?php
-// view_complaint.php
+// Ensure session is started at the very beginning
+session_start();
 
 // Include your database connection file
 include_once 'dbconn.php';
 
-// Check if complaint ID is provided in the URL
-if (isset($_GET['id'])) {
-    $complaint_id = $_GET['id'];
+// Get the complaint ID from the query string
+$complaint_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-    try {
-        // Fetch complaint details from database
-        $stmt = $pdo->prepare("SELECT * FROM tbl_complaints WHERE complaints_id = ?");
-        $stmt->execute([$complaint_id]);
-        $complaint = $stmt->fetch(PDO::FETCH_ASSOC);
+// Check if complaint ID is valid
+if ($complaint_id <= 0) {
+    echo "Invalid complaint ID.";
+    exit;
+}
 
-        // Check if complaint exists
-        if ($complaint) {
-            // Extract fields
-            $complaint_name = isset($complaint['complaint_name']) ? htmlspecialchars($complaint['complaint_name']) : '';
-            $complaints = isset($complaint['complaints']) ? htmlspecialchars($complaint['complaints']) : '';
-            $date_filed = isset($complaint['date_filed']) ? htmlspecialchars($complaint['date_filed']) : '';
+try {
+    // Prepare SQL statement to fetch complaint details
+    $stmt = $pdo->prepare("
+        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, GROUP_CONCAT(e.evidence_path SEPARATOR ', ') AS evidence_paths
+        FROM tbl_complaints c
+        JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+        JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+        JOIN tbl_info i ON c.info_id = i.info_id
+        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+        WHERE c.complaints_id = ?
+        GROUP BY c.complaints_id
+    ");
 
-            // Fetch category name
-            $stmtCat = $pdo->prepare("SELECT complaints_category FROM tbl_complaintcategories WHERE category_id = ?");
-            $stmtCat->execute([$complaint['category_id']]);
-            $category_name = htmlspecialchars($stmtCat->fetchColumn());
+    // Bind the complaint ID parameter and execute the query
+    $stmt->execute([$complaint_id]);
 
-            // Fetch barangay name
-            $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-            $stmtBar->execute([$complaint['barangays_id']]);
-            $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
+    // Fetch the complaint details
+    if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $complaint_name = htmlspecialchars($row['complaint_name']);
+        $complaints = htmlspecialchars($row['complaints']);
+        $date_filed = htmlspecialchars($row['date_filed']);
+        $category_name = htmlspecialchars($row['complaints_category']);
+        $barangay_name = htmlspecialchars($row['barangay_name']);
+        $cp_number = htmlspecialchars($row['cp_number']);
+        $complaints_person = htmlspecialchars($row['complaints_person']);
+        $gender = htmlspecialchars($row['gender']);
+        $place_of_birth = htmlspecialchars($row['place_of_birth']);
+        $age = htmlspecialchars($row['age']);
+        $educational_background = htmlspecialchars($row['educational_background']);
+        $civil_status = htmlspecialchars($row['civil_status']);
+        $evidence_paths = htmlspecialchars($row['evidence_paths']); // For multiple evidence paths
 
-            // Fetch contact number and complaints person
-            $cp_number = isset($complaint['cp_number']) ? htmlspecialchars($complaint['cp_number']) : '';
-            $complaints_person = isset($complaint['complaints_person']) ? htmlspecialchars($complaint['complaints_person']) : '';
-
-            // Fetch status
-            $status = isset($complaint['status']) ? htmlspecialchars($complaint['status']) : '';
-
-            // Display complaint details
-            echo "<!DOCTYPE html>
-                <html lang='en'>
-                <head>
-                    <meta charset='UTF-8'>
-                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                    <title>View Complaint Details</title>
-                    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH' crossorigin='anonymous'>
-                    <link rel='stylesheet' href='style.css'>
-                </head>
-                <body>
-                
-                    <div class='container mt-4'>
-                        <h2>Complaint Details</h2>
-                        <div class='card'>
-                            <div class='card-body'>
-                                <h5 class='card-title'>{$complaint_name}</h5>
-                                <p class='card-text'><strong>Description:</strong> {$complaints}</p>
-                                <p class='card-text'><strong>Category:</strong> {$category_name}</p>
-                                <p class='card-text'><strong>Barangay:</strong> {$barangay_name}</p>
-                                <p class='card-text'><strong>Contact Number:</strong> {$cp_number}</p>
-                                <p class='card-text'><strong>Complaints Person:</strong> {$complaints_person}</p>
-                                <p class='card-text'><strong>Date Filed:</strong> {$date_filed}</p>
-                                <p class='card-text'><strong>Status:</strong> {$status}</p>
-                               
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Bootstrap JS and dependencies -->
-                    <script src='https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js' integrity='sha384-KyZXEAg3QhqLMpG8r+H9RHlVho9Uv95TE0Yjl0w9utO6oLjGwkskDZ3M2vpXskxq' crossorigin='anonymous'></script>
-                    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js' integrity='sha384-7F5kFf1FyZ0QOW+D5FlrbkVCyImqH8R0b79Teja2tvw5StyiJ6Tga4G+M8C5vQgq' crossorigin='anonymous'></script>
-                </body>
-                </html>";
-        } else {
-            echo "<p>Complaint not found.</p>";
-        }
-    } catch (PDOException $e) {
-        echo "<p>Error fetching complaint details: " . $e->getMessage() . "</p>";
+        // Display the complaint details
+        echo "
+            <strong>Complaint Name:</strong> $complaint_name<br>
+            <strong>Description:</strong> $complaints<br>
+            <strong>Date Filed:</strong> $date_filed<br>
+            <strong>Category:</strong> $category_name<br>
+            <strong>Barangay:</strong> $barangay_name<br>
+            <strong>Contact Number:</strong> $cp_number<br>
+            <strong>Complaints Person:</strong> $complaints_person<br>
+            <strong>Gender:</strong> $gender<br>
+            <strong>Place of Birth:</strong> $place_of_birth<br>
+            <strong>Age:</strong> $age<br>
+            <strong>Educational Background:</strong> $educational_background<br>
+            <strong>Civil Status:</strong> $civil_status<br>
+            <strong>Evidence:</strong> <a href='$evidence_paths' target='_blank'>View Evidence</a><br>
+            <strong>Date Filed:</strong> $date_filed<br>
+        ";
+    } else {
+        echo "No complaint found with the provided ID.";
     }
-} else {
-    echo "<p>Complaint ID not provided.</p>";
+} catch (PDOException $e) {
+    echo "Error fetching complaint details: " . $e->getMessage();
 }
 ?>

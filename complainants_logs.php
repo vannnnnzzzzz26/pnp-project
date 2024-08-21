@@ -33,6 +33,7 @@ try {
         FROM tbl_complaints c
         LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
         LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+        LEFT JOIN tbl_info i ON c.info_id = i.info_id
         WHERE c.complaint_name = ?
     ");
     $stmt->execute([$userFullName]);
@@ -106,13 +107,13 @@ table {
     </div>
     <ul class="nav flex-column">
         <li class="nav-item menu-item">
-            <a class="nav-link active" href="index.php"><i class="bi bi-house-door-fill"></i><span class="nav-text">Complaints</span></a>
+            <a class="nav-link active" href="resident.php"><i class="bi bi-house-door-fill"></i><span class="nav-text">Complaints</span></a>
         </li>
         <li class="nav-item menu-item">
             <a class="nav-link" href="complainants_logs.php"><i class="bi bi-journal-text"></i><span class="nav-text">Complaints Logs</span></a>
         </li>
         <li class="nav-item menu-item">
-            <a class="nav-link" href=""><i class="bi bi-person-check-fill"></i><span class="nav-text">Complaints Responder</span></a>
+            <a class="nav-link" href=""><i class="bi bi-person-check-fill"></i><span class="nav-text">Barangay Official</span></a>
         </li>
     </ul>
 
@@ -142,21 +143,26 @@ table {
                         <table class="table table-striped table-bordered text-center">
                             <thead class="table-dark">
                                 <tr>
+                                    <th scope="col">#</th> <!-- New column for numbers -->
                                     <th scope="col">Date Filed</th>
                                     <th scope="col">Complaint Name</th>
-                                    
+                                  
                                     <th scope="col">Complaint Description</th>
                                     <th scope="col">Category</th>
                                     <th scope="col">Barangay</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Complaints Person</th>
+                                  
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php $counter = 1; ?> <!-- Initialize counter -->
                                 <?php foreach ($complaints as $complaint): ?>
                                     <tr>
+                                        <td><?php echo $counter++; ?></td> <!-- Display counter and increment -->
                                         <td><?php echo $complaint['date_filed']; ?></td>
                                         <td><?php echo $complaint['complaint_name']; ?></td>
+                                    
                                         <td><?php echo $complaint['complaints']; ?></td>
                                         <td><?php echo $complaint['complaints_category']; ?></td>
                                         <td><?php echo $complaint['barangay_name']; ?></td>

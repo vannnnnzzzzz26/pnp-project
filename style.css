@@ -178,3 +178,10 @@ table {
     text-align: center;
 }
 
+.image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem; /* Add some space below the image */
+}
+
+

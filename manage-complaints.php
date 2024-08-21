@@ -24,11 +24,12 @@ $barangay_name = isset($_SESSION['barangay_name']) ? $_SESSION['barangay_name'] 
 $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 // Handle status update
+// Handle status update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && isset($_POST['action'])) {
     try {
         $complaint_id = $_POST['complaint_id'];
         $action = $_POST['action'];
-        $status = ($action == 'approve') ? 'Approved' : 'Unresolved'; // Adjust status values as needed
+        $status = ($action == 'approve') ? 'Approved' : 'Rejected'; // Updated status for rejected
 
         // Update complaint status
         $stmt = $pdo->prepare("UPDATE tbl_complaints SET status = ? WHERE complaints_id = ?");
@@ -37,34 +38,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && iss
         // Set success message using session
         $_SESSION['success'] = "Complaint status updated successfully.";
 
-        // Redirect to manage complaints page to prevent form resubmission (optional)
+        // Redirect to manage complaints page to prevent form resubmission
         header("Location: manage-complaints.php");
         exit();
     } catch (PDOException $e) {
         // Set error message using session
         $_SESSION['error'] = "Error updating complaint status: " . $e->getMessage();
 
-        // Redirect to manage complaints page to prevent form resubmission (optional)
+        // Redirect to manage complaints page to prevent form resubmission
         header("Location: manage-complaints.php");
         exit();
     }
 }
 
-// Fetch complaints with status 'Approved' or 'Unresolved' from the user's barangay
-// Fetch complaints excluding 'Approved' ones from the user's barangay
+// Fetch complaints with status 'Unresolved' from the user's barangay
 try {
-    $stmt = $pdo->prepare("SELECT c.*, u.barangay_name, i.image_path
-                           FROM tbl_complaints c 
-                           LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id 
-                           LEFT JOIN tbl_image i ON c.image_id = i.image_id
-                           WHERE c.status = 'Unresolved' 
-                           AND u.barangay_name = ?");
+    $stmt = $pdo->prepare("
+    SELECT c.*, u.barangay_name, i.image_path, info.gender, info.place_of_birth, info.age, info.educational_background, info.civil_status,
+           e.evidence_id, e.evidence_path, cc.complaints_category
+    FROM tbl_complaints c
+    LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id
+    LEFT JOIN tbl_image i ON c.image_id = i.image_id
+    LEFT JOIN tbl_info info ON c.info_id = info.info_id
+    LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+    LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id  -- Ensure this join
+    WHERE c.status = 'Unresolved' AND u.barangay_name = ? AND c.status != 'Rejected'
+");
+
     $stmt->execute([$barangay_name]);
     $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error fetching complaints: " . $e->getMessage();
     $complaints = []; // Initialize complaints array if fetch fails
 }
+
 
 ?>
 
@@ -98,7 +105,6 @@ try {
 
     <!-- Display success or error messages using SweetAlert -->
     <script>
-        // Function to show SweetAlert success message
         <?php if (isset($_SESSION['success'])): ?>
         Swal.fire({
             icon: 'success',
@@ -110,7 +116,6 @@ try {
         <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 
-        // Function to show SweetAlert error message
         <?php if (isset($_SESSION['error'])): ?>
         Swal.fire({
             icon: 'error',
@@ -123,59 +128,81 @@ try {
         <?php endif; ?>
     </script>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-dark">
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Complaint Name</th>
+            <th>Barangay</th>
+            <th>Action</th> <!-- Adjusted to have one less column -->
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($complaints as $complaint): ?>
             <tr>
-                <th>ID</th>
-                <th>Complaint Name</th>
-                <th>Complaints</th>
-                <th>Date Filed</th>
-                <th>Category</th>
-                <th>Barangay</th>
-                <th>Contact Number</th>
-                <th>Complaints Person</th>
-                <th>Status</th>
-                <th>Image</th> <!-- New column for Image -->
-                <th>Action</th>
+                <td><?php echo htmlspecialchars($complaint['complaints_id']); ?></td>
+                <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
+                <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo json_encode($complaint); ?>'>View</button>
+                    <form action="manage-complaints.php" method="post" style="display: inline-block;">
+                        <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
+                  
+                    </form>
+                    <form action="manage-complaints.php" method="post" style="display: inline-block;">
+                        <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
+                       
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($complaints as $complaint): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($complaint['complaints_id']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['complaints']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['date_filed']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['category_id']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['cp_number']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['complaints_person']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['status']); ?></td>
-                    <td>
-                        <?php if (!empty($complaint['image_path'])): ?>
-                            <img src="<?php echo htmlspecialchars($complaint['image_path']); ?>" alt="Complaint Image" class="img-fluid complaint-image" style="width: 100px; height: 100px; cursor: pointer; border-radius: 50px;">
-                        <?php else: ?>
-                            <span>No Image</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <form action="manage-complaints.php" method="post" style="display: inline-block;">
-                            <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
-                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-                        </form>
-                        <form action="manage-complaints.php" method="post" style="display: inline-block;">
-                            <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
-                            <button type="submit" name="action" value="reject" class="btn btn-warning btn-sm">Reject</button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
 </div>
 </div>
 
-<!-- Modal -->
+<!-- Complaint Details Modal -->
+<div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewComplaintModalLabel">Complaint Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Complaint details will be populated here using JavaScript -->
+                <p><strong>Complaint Name:</strong> <span id="complaintName"></span></p>
+                <p><strong>Complaint:</strong> <span id="Complaints"></span></p>
+                <p><strong>Date Filed:</strong> <span id="dateFiled"></span></p>
+                <p><strong>Category:</strong> <span id="category"></span></p>
+                <p><strong>Barangay:</strong> <span id="barangay"></span></p>
+                <p><strong>Contact Number:</strong> <span id="contactNumber"></span></p>
+                <p><strong>Complaints Person:</strong> <span id="complaintsPerson"></span></p>
+                <p><strong>Gender:</strong> <span id="gender"></span></p>
+                <p><strong>Place of Birth:</strong> <span id="placeOfBirth"></span></p>
+                <p><strong>Age:</strong> <span id="age"></span></p>
+                <p><strong>Educational Background:</strong> <span id="educationalBackground"></span></p>
+                <p><strong>Civil Status:</strong> <span id="civilStatus"></span></p>
+                <p><strong>Image:</strong> 
+                    <img id="image" src="" alt="Complaint Image" style="max-width: 100px; cursor: pointer;">
+                </p>
+                <p><strong>Documents:</strong> <span id="documents"></span></p>
+                <p><strong>Evidence:</strong> <span id="evidence"></span></p> <!-- Evidence field -->
+            </div>
+            <div class="modal-footer">
+                <form action="manage-complaints.php" method="post" class="d-inline-block">
+                    <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                    <button type="submit" name="action" value="reject" class="btn btn-warning">Reject</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -189,6 +216,25 @@ try {
         </div>
     </div>
 </div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Evidence Video</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="modalVideo" controls class="w-100">
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
     <!-- Toggle button inside sidebar -->
@@ -278,6 +324,81 @@ try {
             }
         });
     }
+
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const viewComplaintModal = document.getElementById('viewComplaintModal');
+    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+
+    viewComplaintModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const complaint = JSON.parse(button.getAttribute('data-complaint'));
+
+        document.getElementById('complaintName').textContent = complaint.complaint_name;
+        document.getElementById('Complaints').textContent = complaint.complaints;
+        document.getElementById('dateFiled').textContent = complaint.date_filed;
+        document.getElementById('category').textContent = complaint.complaints_category;
+        document.getElementById('barangay').textContent = complaint.barangay_name;
+        document.getElementById('contactNumber').textContent = complaint.cp_number;
+        document.getElementById('complaintsPerson').textContent = complaint.complaints_person;
+        document.getElementById('gender').textContent = complaint.gender;
+        document.getElementById('placeOfBirth').textContent = complaint.place_of_birth;
+        document.getElementById('age').textContent = complaint.age;
+        document.getElementById('educationalBackground').textContent = complaint.educational_background;
+        document.getElementById('civilStatus').textContent = complaint.civil_status;
+        document.getElementById('image').src = complaint.image_path;
+
+        // Handle evidence
+        let evidenceHtml = '';
+        if (complaint.evidence_path) {
+            const evidenceArray = complaint.evidence_path.split(','); // assuming multiple paths are comma-separated
+            evidenceArray.forEach(evidencePath => {
+                if (evidencePath.endsWith('.mp4')) {
+                    evidenceHtml += `<a href="#" data-video="${evidencePath}" class="view-media" data-type="video">View Video</a><br>`;
+                } else if (evidencePath.endsWith('.jpg') || evidencePath.endsWith('.png')) {
+                    evidenceHtml += `<a href="#" data-image="${evidencePath}" class="view-media" data-type="image">View Image</a><br>`;
+                } else {
+                    evidenceHtml += `<a href="${evidencePath}" target="_blank">View Evidence</a><br>`;
+                }
+            });
+        } else {
+            evidenceHtml = 'No evidence available';
+        }
+        document.getElementById('evidence').innerHTML = evidenceHtml;
+    });
+
+    // Handle image click to open it in the image modal
+    document.getElementById('image').addEventListener('click', function () {
+        const imgSrc = this.src;
+        document.getElementById('modalImage').src = imgSrc;
+        imageModal.show();
+    });
+
+    // Handle evidence click to open it in the appropriate modal
+    document.getElementById('evidence').addEventListener('click', function (event) {
+        if (event.target.classList.contains('view-media')) {
+            const mediaType = event.target.getAttribute('data-type');
+            if (mediaType === 'video') {
+                const videoUrl = event.target.getAttribute('data-video');
+                document.getElementById('videoSource').src = videoUrl;
+                document.getElementById('modalVideo').load(); // Load new video source
+                videoModal.show();
+            } else if (mediaType === 'image') {
+                const imageUrl = event.target.getAttribute('data-image');
+                document.getElementById('modalImage').src = imageUrl;
+                imageModal.show();
+            }
+            event.preventDefault();
+        }
+    });
+});
+
+
 </script>
+
+      
 </body>
 </html>

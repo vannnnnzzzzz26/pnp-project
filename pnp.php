@@ -21,39 +21,30 @@
         </div>
     </nav>
 
-
-    <!-- Page Content -->
-   
     <!-- Sidebar -->
-    <div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
+    <div style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
         <!-- Toggle button inside sidebar -->
         <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
+            <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
         </button>
 
         <!-- User Information -->
         <div class="user-info px-3 py-2 text-center">
-        <?php
-    // Ensure session is started
-    session_start();
-
-    // Check if user information is available in session
-    if (isset($_SESSION['email'])) {
-        $email = $_SESSION['email'];
-        $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
-        $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
-        $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
-        $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
-        $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : '';
-        // Display user profile picture if available
-        if (isset($_SESSION['pic_data'])) {
-            $pic_data = $_SESSION['pic_data'];
-            echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-        }
-
-        // Display user information with CSS class
-    }
-    ?>
+            <?php
+            session_start();
+            if (isset($_SESSION['email'])) {
+                $email = $_SESSION['email'];
+                $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
+                $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
+                $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
+                $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+                $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : '';
+                if (isset($_SESSION['pic_data'])) {
+                    $pic_data = $_SESSION['pic_data'];
+                    echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
+                }
+            }
+            ?>
             <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
             <h5 class='white-text'>User Information</h5>
             <p class='white-text'><?php echo $email; ?></p>
@@ -61,18 +52,26 @@
         </div>
 
         <!-- Menu items -->
-        <div class="menu-header">
-            <h4 class="white-text">Menu</h4>
-        </div>
         <ul class="nav flex-column">
-            <li class="nav-item menu-item">
-                <a class="nav-link active" href="pnp.php"><i class="bi bi-house-door-fill"></i><span class="nav-text">Complaints</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="pnp.php">
+                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
+                </a>
             </li>
-            <li class="nav-item menu-item">
-                <a class="nav-link" href="pnplogs.php"><i class="bi bi-journal-text"></i><span class="nav-text">Complaints Logs</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="pnplogs.php">
+                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
+                </a>
             </li>
-            <li class="nav-item menu-item">
-                <a class="nav-link" href=""><i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="pnp-announcement.php">
+                    <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Announcement</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard.php">
+                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard</span>
+                </a>
             </li>
         </ul>
 
@@ -85,172 +84,199 @@
             </div>
         </form>
     </div>
+
     <div class="content">
         <div class="container">
             <h2 class="mt-3 mb-4">PNP Complaints</h2>
-            <div class="table-responsive">
+            <div class="table">
                 <table class="table table-striped table-bordered table-center">
                     <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Name</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Barangay</th>
-                            <th>Contact Number</th>
-                            <th>Complaints Person</th>
-                            <th>Date Filed</th>
-                            <th>Status</th>
+                            <th>Address</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        // Start output buffering
-                        ob_start();
+                    <?php
+                    include_once 'dbconn.php';
 
-                        // Include your database connection file
-                        include_once 'dbconn.php';
+                    function displayPNPComplaints($pdo) {
+                        try {
+                            $stmt = $pdo->prepare("
+                                SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
+                                       c.barangays_id, c.cp_number, c.complaints_person
+                                FROM tbl_complaints c
+                                WHERE c.status = 'pnp'
+                                ORDER BY c.date_filed ASC
+                            ");
+                            $stmt->execute();
 
-                        // Function to display PNP complaints
-                        function displayPNPComplaints($pdo) {
-                            try {
-                                // Fetch PNP complaints from tbl_complaints table only
-                                $stmt = $pdo->prepare("
-                                    SELECT c.complaints_id, c.complaint_name, c.complaints, c.date_filed, c.status, c.category_id, c.barangays_id, c.cp_number, c.complaints_person, c.responds
-                                    FROM tbl_complaints c
-                                    WHERE c.status = 'pnp'
-                                    ORDER BY date_filed ASC
-                                ");
-                                $stmt->execute();
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                $complaint_id = $row['complaints_id'];
+                                $complaint_name = htmlspecialchars($row['complaint_name']);
 
-                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                    // Display complaint details
-                                    $complaint_id = $row['complaints_id'];
-                                    $complaint_name = htmlspecialchars($row['complaint_name']);
-                                    $complaints = htmlspecialchars($row['complaints']);
-                                    $date_filed = htmlspecialchars($row['date_filed']);
-                                    $status = htmlspecialchars($row['status']);
-                                    $category_id = $row['category_id'];
-                                    $barangay_name = '';
-                                    $cp_number = '';
-                                    $complaints_person = '';
-
-                                    if (!empty($row['barangay_id'])) {
-                                        // Fetch barangay name if available
-                                        $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                                        $stmtBar->execute([$row['barangays_id']]);
-                                        $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
-                                    }
-
-                                    if (!empty($row['cp_number'])) {
-                                        // Fetch contact number if available
-                                        $cp_number = htmlspecialchars($row['cp_number']);
-                                    }
-
-                                    if (!empty($row['complaints_person'])) {
-                                        // Fetch complaints person if available
-                                        $complaints_person = htmlspecialchars($row['complaints_person']);
-                                    }
-
-                                    // Fetch category name
-                                    $stmtCat = $pdo->prepare("SELECT complaints_category FROM tbl_complaintcategories WHERE category_id = ?");
-                                    $stmtCat->execute([$category_id]);
-                                    $category_name = htmlspecialchars($stmtCat->fetchColumn());
-
-                                    // Determine the appropriate option in the status dropdown
-                                    $optionSettled = ($status === 'settled') ? 'selected' : '';
-                                    $optionPending = ($status === 'pending') ? 'selected' : '';
-
-                                    echo "<tr>";
-                                    echo "<td>{$complaint_id}</td>";
-                                    echo "<td>{$complaint_name}</td>";
-                                    echo "<td>{$complaints}</td>";
-                                    echo "<td>{$category_name}</td>";
-                                    echo "<td>{$barangay_name}</td>";
-                                    echo "<td>{$cp_number}</td>";
-                                    echo "<td>{$complaints_person}</td>";
-                                    echo "<td>{$date_filed}</td>";
-                                    echo "<td>{$status}</td>";
-                                    echo "<td>";
-                                    
-                                    // Display appropriate action based on status
-                                    if ($status === 'pnp') {
-                                        echo "<form action='{$_SERVER['PHP_SELF']}' method='post'>";
-                                        echo "<input type='hidden' name='complaint_id' value='{$complaint_id}'>";
-                                        echo "<select name='new_status' class='form-select'>";
-                                        echo "<option value='unresolved' {$optionPending}>Pending</option>";
-                                        echo "<option value='settled' {$optionSettled}>Settle</option>";
-                                        echo "</select>";
-                                        echo "<button type='submit' name='update_status' class='btn btn-sm btn-primary'>Update</button>";
-                                        echo "</form>";
-                                    } elseif ($status === 'settled') {
-                                        echo "Settled"; // Display different action for settled complaints
-                                    }
-                                    
-                                    echo "</td>";
-                                    echo "</tr>";
+                                if (!empty($row['barangays_id'])) {
+                                    $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                                    $stmtBar->execute([$row['barangays_id']]);
+                                    $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
+                                } else {
+                                    $barangay_name = 'Unknown';
                                 }
-                            } catch (PDOException $e) {
-                                echo "<tr><td colspan='10'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
+                                
+                                $address = $barangay_name;
+
+                                echo "<tr>";
+                                echo "<td>{$complaint_name}</td>";
+                                echo "<td>{$address}</td>";
+                                echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
+                                echo "</tr>";
                             }
+                        } catch (PDOException $e) {
+                            echo "<tr><td colspan='3'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
                         }
+                    }
 
-                        // Handle status update submission
-                        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-                            $complaint_id = $_POST['complaint_id'];
-                            $new_status = $_POST['new_status'];
-
-                            try {
-                                if ($new_status === 'settled') { // Only update if 'settled' is selected
-                                    // Update status and responds in tbl_complaints
-                                    $stmtUpdate = $pdo->prepare("UPDATE tbl_complaints SET status = ?, responds = 'pnp' WHERE complaints_id = ?");
-                                    $stmtUpdate->execute([$new_status, $complaint_id]);
-                                }
-
-                                // Redirect to prevent resubmission on page refresh
-                                header("Location: {$_SERVER['PHP_SELF']}");
-                                exit();
-                            } catch (PDOException $e) {
-                                echo "Error updating status: " . $e->getMessage();
-                            }
-                        }
-
-                        // Function call to display PNP complaints
-                        displayPNPComplaints($pdo);
-
-                        // End output buffering and flush output
-                        ob_end_flush();
-                        ?>
+                    displayPNPComplaints($pdo);
+                    ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+SBgBEd9FHfVf0tj+3/Jp7ldO+tJsGz5gYTKwQ4gDlHhT56" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-z4K1jpxJ2r5LkhRGsqw5YRt5P/joWtDgLJRBg/EjFggQFS2Ua90kE/KcZkshNoE5" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
+    <!-- Modal for Viewing Details -->
+    <div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewDetailsModalLabel">Complaint Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalContent">
+                        <!-- Content will be loaded here via JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
 
-</body>
-</html>
-<script>
-function confirmLogout() {
+                <button type="button" class="btn btn-success" id="settleComplaintBtn">Settle Complaint</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script>
+ document.addEventListener('DOMContentLoaded', function () {
+    var viewDetailsButtons = document.querySelectorAll('button[data-bs-target="#viewDetailsModal"]');
+
+    viewDetailsButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            var complaintId = this.getAttribute('data-id');
+
+            fetch('get_complaint_details.php?id=' + complaintId)
+                .then(response => response.json())
+                .then(data => {
+                    var modalContent = document.getElementById('modalContent');
+                    if (data.error) {
+                        modalContent.innerHTML = `<p>Error: ${data.error}</p>`;
+                    } else {
+                        modalContent.innerHTML = `
+                            <p><strong>Complaint Name:</strong> ${data.complaint_name}</p>
+                            <p><strong>Description:</strong> ${data.description}</p>
+                            <p><strong>Date Filed:</strong> ${data.date_filed}</p>
+                            <p><strong>Category:</strong> ${data.category}</p>
+                            <p><strong>Barangay:</strong> ${data.barangay_name}</p>
+                            <p><strong>Contact Number:</strong> ${data.cp_number}</p>
+                            <p><strong>Complaints Person:</strong> ${data.complaints_person}</p>
+                            <p><strong>Gender:</strong> ${data.gender}</p>
+                            <p><strong>Place of Birth:</strong> ${data.place_of_birth}</p>
+                            <p><strong>Age:</strong> ${data.age}</p>
+                            <p><strong>Educational Background:</strong> ${data.educational_background}</p>
+                            <p><strong>Civil Status:</strong> ${data.civil_status}</p>
+                           
+                        `;
+
+                        // Add complaint ID to the settle button
+                        var settleButton = document.getElementById('settleComplaintBtn');
+                        settleButton.setAttribute('data-id', complaintId);
+                    }
+                })
+                .catch(error => {
+                    var modalContent = document.getElementById('modalContent');
+                    modalContent.innerHTML = `<p>Error fetching details: ${error}</p>`;
+                });
+        });
+    });
+
+
+    // Handle "Settle Complaint" button click with SweetAlert
+    document.getElementById('settleComplaintBtn').addEventListener('click', function () {
+        var complaintId = this.getAttribute('data-id');
+
+        if (complaintId) {
             Swal.fire({
-                title: "Are you sure?",
-                text: "You will be logged out.",
-                icon: "warning",
+                title: 'Are you sure?',
+                text: "Do you want to settle this complaint?",
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: "#212529",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, logout"
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, settle it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirect to logout URL
-                    document.getElementById('logoutForm').submit();
+                    fetch('settle_complaint.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: complaintId })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Settled!',
+                                'The complaint has been settled.',
+                                'success'
+                            ).then(() => {
+                                location.reload(); // Refresh the page to update the complaints table
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Failed to settle the complaint: ' + data.error,
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred: ' + error.message,
+                            'error'
+                        );
+                    });
                 }
             });
         }
+    });
+});
+
+
+     
     </script>
+</body>
+</html>

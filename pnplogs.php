@@ -5,15 +5,14 @@ ob_start();
 // Include your database connection file
 include_once 'dbconn.php';
 
-// Function to display detailed complaint information in a modal
+// Function to display basic complaint information in the table
 function displayComplaintDetails($pdo) {
     try {
-        // Fetch settled complaints from tbl_complaints table
+        // Fetch settled complaints from tbl_complaints table with additional information
         $stmt = $pdo->prepare("
-            SELECT c.complaints_id, c.complaint_name, c.complaints, c.date_filed, c.status, c.category_id, c.barangays_id, c.cp_number, c.complaints_person, b.barangay_name, cat.complaints_category
+            SELECT c.complaints_id, c.complaint_name, b.barangay_name
             FROM tbl_complaints c
             LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-            LEFT JOIN tbl_complaintcategories cat ON c.category_id = cat.category_id
             WHERE c.responds = 'pnp'
             ORDER BY c.date_filed ASC
         ");
@@ -23,31 +22,18 @@ function displayComplaintDetails($pdo) {
             // Display complaint details
             $complaint_id = $row['complaints_id'];
             $complaint_name = htmlspecialchars($row['complaint_name']);
-            $complaints = htmlspecialchars($row['complaints']);
-            $date_filed = htmlspecialchars($row['date_filed']);
-            $status = htmlspecialchars($row['status']);
-            $category_name = htmlspecialchars($row['complaints_category']);
             $barangay_name = htmlspecialchars($row['barangay_name']);
-            $cp_number = !empty($row['cp_number']) ? htmlspecialchars($row['cp_number']) : '-';
-            $complaints_person = !empty($row['complaints_person']) ? htmlspecialchars($row['complaints_person']) : '-';
 
             echo "<tr>";
-            echo "<td>{$complaint_id}</td>";
             echo "<td>{$complaint_name}</td>";
-            echo "<td>{$complaints}</td>";
-            echo "<td>{$category_name}</td>";
             echo "<td>{$barangay_name}</td>";
-            echo "<td>{$cp_number}</td>";
-            echo "<td>{$complaints_person}</td>";
-            echo "<td>{$date_filed}</td>";
-            echo "<td><button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button></td>"; // Modified button to trigger modal
+            echo "<td><button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button></td>";
             echo "</tr>";
         }
     } catch (PDOException $e) {
-        echo "<tr><td colspan='9'>Error fetching PNP complaints logs: " . $e->getMessage() . "</td></tr>";
+        echo "<tr><td colspan='3'>Error fetching PNP complaints logs: " . $e->getMessage() . "</td></tr>";
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -75,39 +61,36 @@ function displayComplaintDetails($pdo) {
         </div>
     </nav>
 
-    <!-- Page Content -->
- 
-
-
-    <div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
+    <!-- Sidebar -->
+    <div style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
         <!-- Toggle button inside sidebar -->
         <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
+            <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
         </button>
 
         <!-- User Information -->
         <div class="user-info px-3 py-2 text-center">
-        <?php
-    // Ensure session is started
-    session_start();
+            <?php
+            // Ensure session is started
+            session_start();
 
-    // Check if user information is available in session
-    if (isset($_SESSION['email'])) {
-        $email = $_SESSION['email'];
-        $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
-        $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
-        $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
-        $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
-        $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : '';
-        // Display user profile picture if available
-        if (isset($_SESSION['pic_data'])) {
-            $pic_data = $_SESSION['pic_data'];
-            echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-        }
+            // Check if user information is available in session
+            if (isset($_SESSION['email'])) {
+                $email = $_SESSION['email'];
+                $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
+                $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
+                $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
+                $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+                $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : '';
+                // Display user profile picture if available
+                if (isset($_SESSION['pic_data'])) {
+                    $pic_data = $_SESSION['pic_data'];
+                    echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
+                }
 
-        // Display user information with CSS class
-    }
-    ?>
+                // Display user information with CSS class
+            }
+            ?>
             <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
             <h5 class='white-text'>User Information</h5>
             <p class='white-text'><?php echo $email; ?></p>
@@ -115,18 +98,26 @@ function displayComplaintDetails($pdo) {
         </div>
 
         <!-- Menu items -->
-        <div class="menu-header">
-            <h4 class="white-text">Menu</h4>
-        </div>
         <ul class="nav flex-column">
-            <li class="nav-item menu-item">
-                <a class="nav-link active" href="pnp.php"><i class="bi bi-house-door-fill"></i><span class="nav-text">Complaints</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="pnp.php">
+                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
+                </a>
             </li>
-            <li class="nav-item menu-item">
-                <a class="nav-link" href="pnplogs.php"><i class="bi bi-journal-text"></i><span class="nav-text">Complaints Logs</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="pnplogs.php">
+                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
+                </a>
             </li>
-            <li class="nav-item menu-item">
-                <a class="nav-link" href=""><i class="bi bi-graph-up"></i><span class="nav-text">Dashboard</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="pnp-announcement.php">
+                    <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Announcement</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard.php">
+                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard</span>
+                </a>
             </li>
         </ul>
 
@@ -139,21 +130,17 @@ function displayComplaintDetails($pdo) {
             </div>
         </form>
     </div>
+
+    <!-- Page Content -->
     <div class="content">
         <div class="container">
             <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
-            <div class="table-responsive">
+            <div class="table">
                 <table class="table table-striped table-bordered">
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Name</th>
-                            <th>Description</th>
-                            <th>Category</th>
                             <th>Barangay</th>
-                            <th>Contact Number</th>
-                            <th>Complaints Person</th>
-                            <th>Date Filed</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -185,13 +172,14 @@ function displayComplaintDetails($pdo) {
             </div>
         </div>
     </div>
+
     <!-- jQuery and Bootstrap JS -->
-<!-- JavaScript to handle modal content dynamically -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
     <script src="script.js"></script>
+
     <!-- JavaScript to handle modal content dynamically -->
     <script>
         function loadComplaintDetails(complaintId) {
@@ -201,30 +189,34 @@ function displayComplaintDetails($pdo) {
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('complaintDetails').innerHTML = data;
-                    $('#viewComplaintModal').modal('show'); // Ensure $() refers to jQuery
+                    // Show the modal
+                    var complaintModal = new bootstrap.Modal(document.getElementById('viewComplaintModal'));
+                    complaintModal.show();
                 })
-                .catch(error => console.error('Error fetching complaint details:', error));
+                .catch(error => {
+                    console.error('Error fetching complaint details:', error);
+                    document.getElementById('complaintDetails').innerHTML = "Error loading details.";
+                });
         }
     </script>
 
-<script>
-function confirmLogout() {
+    <!-- Toggle Sidebar Script -->
+    <script>
+    
+
+        function confirmLogout() {
             Swal.fire({
-                title: "Are you sure?",
-                text: "You will be logged out.",
-                icon: "warning",
+                title: 'Are you sure you want to logout?',
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: "#212529",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, logout"
+                confirmButtonText: 'Yes, logout',
+                cancelButtonText: 'No, stay logged in',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirect to logout URL
                     document.getElementById('logoutForm').submit();
                 }
             });
         }
     </script>
-
 </body>
 </html>
