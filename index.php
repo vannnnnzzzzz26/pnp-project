@@ -1,5 +1,6 @@
 <?php
-require 'dbconn.php';
+
+include './connection/dbconn.php';
 session_start();
 
 // Initialize the $announcements variable as an empty array

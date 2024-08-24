@@ -1,11 +1,11 @@
 <?php
-require 'dbconn.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/autoload.php';
-
+include 'connection/dbconn.php';
 session_start();
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -15,6 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
+        // Clear any previous session data
+        session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
+        session_unset(); // Unset all session variables
+
+        // Set session variables
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['first_name'] = $user['first_name'];
@@ -26,24 +31,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $_SESSION['login_success'] = "Welcome " . $user['first_name'] . "!";
 
+        // Redirect based on account type
         if ($user['accountType'] == 'Barangay Official') {
-            $_SESSION['redirect_url'] = "barangay-responder.php";
+            $redirectUrl = "barangay/barangay-responder.php";
         } elseif ($user['accountType'] == 'PNP Officer') {
-            $_SESSION['redirect_url'] = "pnp.php";
+            $redirectUrl = "pnp/pnp.php";
         } elseif ($user['accountType'] == 'Resident') {
-            $_SESSION['redirect_url'] = "resident.php";
+            $redirectUrl = "resident/resident.php";
         } else {
             $_SESSION['login_error'] = "Invalid account type!";
             header("Location: login.php");
             exit();
         }
-        header("Location: " . $_SESSION['redirect_url']);
+
+        // Redirect to the appropriate dashboard
+        header("Location: $redirectUrl");
         exit();
     } else {
         $_SESSION['login_error'] = "Invalid email or password!";
+        header("Location: login.php");
+        exit();
     }
-    header("Location: login.php");
-    exit();
 }
 ?>
 

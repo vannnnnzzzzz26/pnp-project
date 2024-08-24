@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once 'dbconn.php';
+include '../connection/dbconn.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complaint_id']) && isset($_POST['new_status'])) {
     $complaint_id = $_POST['complaint_id'];

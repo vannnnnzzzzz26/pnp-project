@@ -3,8 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Include your database connection file
-include 'dbconn.php'; // Adjust the path to your actual connection file
-
+include '../connection/dbconn.php'; 
 // Get the JSON data from the POST request
 $data = json_decode(file_get_contents('php://input'), true);
 

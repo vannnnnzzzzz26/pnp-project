@@ -1,7 +1,6 @@
 <?php
 session_start();
-require 'dbconn.php';
-
+include '../connection/dbconn.php'; 
 // Check if user is logged in and set barangay information in session
 if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
     $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
@@ -151,80 +150,15 @@ $officials = $stmt->fetchAll();
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="#">Excel</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Add Navbar items if needed -->
-        </div>
-    </div>
-</nav>
+<?php 
 
-
-
-<div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
-    <!-- Toggle button inside sidebar -->
-    <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-    </button>
-
-    <!-- User Information -->
-    <div class="user-info px-3 py-2 text-center">
-        <!-- Your PHP session-based content -->
-        <?php
-        if (isset($_SESSION['pic_data'])) {
-            $pic_data = $_SESSION['pic_data'];
-            echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-        }
-        ?>
-        <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-        <h5 class="white-text"><?php echo "$firstName $middleName $lastName $extensionName"; ?></h5>
-        <p class="user-email white-text"><?php echo "$email"; ?></p>
-    </div>
-    
-    <!-- Sidebar Links -->
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="manage-complaints.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="barangay-responder.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="barangaylogs.php">
-            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Responder</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="barangay-official.php">
-                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Official</span>
-            </a>
-        </li>
-     
-    </ul>
-    
-    <!-- Logout -->
-               <!-- Logout Form -->
-        <form action="logout.php" method="post" id="logoutForm">
-            <div class="logout-btn">
-                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
-                    <i class="bi bi-box-arrow-left"></i><span class="nav-text">Logout</span>
-                </button>
-            </div>
-        </form>
-</div>
+include '../includes/navbar.php';
+include '../includes/sidebar.php';
+?>
 
 <div class="content">
     <div class="container mt-4">
@@ -359,7 +293,7 @@ $officials = $stmt->fetchAll();
         });
     }
     </script>
- <script src="script.js"></script>
+<script src="../scripts/script.js"></script>
 
 
 

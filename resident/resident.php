@@ -1,5 +1,10 @@
+
+
+
 <?php
-require 'dbconn.php';
+include '../connection/dbconn.php'; 
+
+
 session_start();
 
 
@@ -145,225 +150,167 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
+
 </head>
 <body>
 
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">Excel</a>
-            <!-- Button to toggle sidebar visibility -->
-            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
 
+<?php 
 
+include '../includes/navbar.php';
+include '../includes/resident-bar.php';
+?>
 
     <!-- Page Content -->
  
 
-    <div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
-        <!-- Toggle button inside sidebar -->
-        <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-        </button>
-
-        <!-- User Information -->
-        <div class="user-info px-3 py-2 text-center">
-            <!-- Your PHP session-based content -->
-            <?php
-            if (isset($_SESSION['pic_data'])) {
-                $pic_data = $_SESSION['pic_data'];
-                echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-            }
-            ?>
-            <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-            <h5 class='white-text'>User Information</h5>
-            <p class='white-text'><?php echo $email; ?></p>
-            <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
-        </div>
-
-        <!-- Menu items -->
-        <div class="menu-header">
-            <h4 class="white-text">Menu</h4>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item menu-item">
-                <a class="nav-link active" href="resident.php"><i class="bi bi-house-door-fill"></i><span class="nav-text">Complaints</span></a>
-            </li>
-            <li class="nav-item menu-item">
-                <a class="nav-link" href="complainants_logs.php"><i class="bi bi-journal-text"></i><span class="nav-text">Complaints Logs</span></a>
-            </li>
-            <li class="nav-item menu-item">
-            <a class="nav-link" href=""><i class="bi bi-person-check-fill"></i><span class="nav-text">Barangay Official</span></a>
-        </li>
-        </ul>
-
-        <!-- Logout Form -->
-        <form action="logout.php" method="post" id="logoutForm">
-            <div class="logout-btn">
-                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
-                    <i class="bi bi-box-arrow-left"></i><span class="nav-text">Logout</span>
-                </button>
-            </div>
-        </form>
-
-        
+   
+ <div class="content">
+   
+    
+    <div class="card">
+    <div class="card-header text-center">
+        <h3>Complaint Form</h3>
     </div>
-    <div class="content">
-    <center><h1>Submit a Complaint</h1></center>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
-        
-        <div class="row">
-            <div class="col-md-6">
-                <label for="complaint_name">Complaint Name:</label>
-                <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
-            </div>
-            <div class="col-md-6">
-                <label for="barangay">Barangay:</label>
-                <?php 
-                include 'dbconn.php';
-                try {
-                    $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                    $stmt->execute([$barangay]);
-                    $barangay = $stmt->fetchColumn();
-                    if ($barangay) {
-                        echo "<p>" . htmlspecialchars($barangay) . "</p>";
-                    } else {
-                        echo "<p>No barangay found.</p>";
-                    }
-                } catch (PDOException $e) {
-                    echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
-                }
-                ?>
-            </div>
-        </div>
+    <div class="card-body">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
+            <div class="form-box">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <label for="complaint_name">Complaint Name:</label>
+                        <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <label for="barangay">Barangay:</label>
+                        <?php 
+                      include '../connection/dbconn.php'; 
+                        try {
+                            $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                            $stmt->execute([$barangay]);
+                            $barangay = $stmt->fetchColumn();
+                            if ($barangay) {
+                                echo "<p>" . htmlspecialchars($barangay) . "</p>";
+                            } else {
+                                echo "<p>No barangay found.</p>";
+                            }
+                        } catch (PDOException $e) {
+                            echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
+                        }
+                        ?>
+                    </div>
+                </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <label for="complaints">Complaint:</label>
-                <textarea id="complaints" name="complaints" class="form-control" required></textarea>
-            </div>
-            <div class="col-md-6">
-                <label for="category">Category:</label>
-                <select id="category" name="category" class="form-control" required>
-                    <option value="Rape">Rape</option>
-                    <option value="Incestuous Rape">Incestuous Rape</option>
-                    <option value="Attempted Rape">Attempted Rape</option>
-                    <option value="Acts of Lasciviousness">Acts of Lasciviousness</option>
-                    <option value="Sexual Harassment">Sexual Harassment</option>
-                    <option value="Illegal Recruitment">Illegal Recruitment</option>
-                    <option value="Prostitution/White Slave Trade">Prostitution/White Slave Trade</option>
-                    <option value="Trafficking in Persons">Trafficking in Persons</option>
-                    <option value="Physical Injuries (Domestic Violence)">Physical Injuries (Domestic Violence)</option>
-                    <option value="Physical Injuries (Other Circumstances)">Physical Injuries (Other Circumstances)</option>
-                    <option value="Abduction/Kidnapping/Arbitrary Detention">Abduction/Kidnapping/Arbitrary Detention</option>
-                    <option value="Child Labor">Child Labor</option>
-                    <option value="Child Trafficking (RA 7610)">Child Trafficking (RA 7610)</option>
-                    <option value="Homicide">Homicide</option>
-                    <option value="Parricide">Parricide</option>
-                    <option value="Murder">Murder</option>
-                    <option value="Theft/Robbery">Theft/Robbery</option>
-                    <option value="Estafa">Estafa</option>
-                    <option value="Other">Other</option>
-                </select>
-                <div id="other-category-group" style="display: none;">
-                    <label for="other-category">Please specify:</label>
-                    <input type="text" id="other-category" name="other-category" class="form-control" placeholder="Specify your complaint" />
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="complaints">Complaint:</label>
+                        <textarea id="complaints" name="complaints" class="form-control" required></textarea>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="category">Category:</label>
+                        <select id="category" name="category" class="form-control" required>
+                            <!-- Category options -->
+                            <option value="Rape">Rape</option>
+                            <!-- Other options here -->
+                            <option value="Other">Other</option>
+                        </select>
+                        <div id="other-category-group" style="display: none;">
+                            <label for="other-category">Please specify:</label>
+                            <input type="text" id="other-category" name="other-category" class="form-control" placeholder="Specify your complaint" />
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.getElementById('category').addEventListener('change', function() {
+                        var otherCategoryGroup = document.getElementById('other-category-group');
+                        if (this.value === 'Other') {
+                            otherCategoryGroup.style.display = 'block';
+                        } else {
+                            otherCategoryGroup.style.display = 'none';
+                            document.getElementById('other-category').value = ''; // Clear the input field
+                        }
+                    });
+                </script>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="evidence">Upload Evidence:</label>
+                        <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="complaints_person">Person Complained Against:</label>
+                        <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="cp_number">CP Number:</label>
+                        <input type="text" id="cp_number" name="cp_number" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" name="age" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="gender">Gender:</label>
+                        <select id="gender" name="gender" class="form-control" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="birth_date">Birth Date:</label>
+                        <input type="date" id="birth_date" name="birth_date" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <label for="place_of_birth">Place of Birth:</label>
+                        <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3">
+                        <label for="civil_status">Civil Status:</label>
+                        <select id="civil_status" name="civil_status" class="form-control" required>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <label for="educational_background">Educational Background:</label>
+                        <select id="educational_background" name="educational_background" class="form-control" required>
+                            <option value="Primary">Primary</option>
+                            <option value="Secondary">Secondary</option>
+                            <option value="Tertiary">Tertiary</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <label for="image">Upload Image (if any):</label>
+                        <input type="file" id="image" name="image" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <script>
-            document.getElementById('category').addEventListener('change', function() {
-                var otherCategoryGroup = document.getElementById('other-category-group');
-                if (this.value === 'Other') {
-                    otherCategoryGroup.style.display = 'block';
-                } else {
-                    otherCategoryGroup.style.display = 'none';
-                    document.getElementById('other-category').value = ''; // Clear the input field
-                }
-            });
-        </script>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="evidence">Upload Evidence:</label>
-                <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
-            </div>
-            <div class="col-md-6">
-                <label for="complaints_person">Person Complained Against:</label>
-                <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="cp_number">CP Number:</label>
-                <input type="text" id="cp_number" name="cp_number" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" class="form-control" readonly>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="gender">Gender:</label>
-                <select id="gender" name="gender" class="form-control" required>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="birth_date">Birth Date:</label>
-                <input type="date" id="birth_date" name="birth_date" class="form-control" required>
-            </div>
-    
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="place_of_birth">Place of Birth:</label>
-                <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label for="civil_status">Civil Status:</label>
-                <select id="civil_status" name="civil_status" class="form-control" required>
-                    <option value="Single">Single</option>
-                    <option value="Married">Married</option>
-                    <option value="Divorced">Divorced</option>
-                    <option value="Widowed">Widowed</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="educational_background">Educational Background:</label>
-                <select id="educational_background" name="educational_background" class="form-control" required>
-                    <option value="Primary">Primary</option>
-                    <option value="Secondary">Secondary</option>
-                    <option value="Tertiary">Tertiary</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="image">Upload Image (if any):</label>
-                <input type="file" id="image" name="image" class="form-control">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <button type="submit" name="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
+
 
 
 <!-- Edit Profile Modal -->
@@ -408,20 +355,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var profilePic = document.querySelector('.profile');
-        var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
 
-        profilePic.addEventListener('click', function () {
-            editProfileModal.show();
-        });
-    });
-</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <script src="script.js"></script>
+    <script src="../scripts/script.js"></script>
   
     <!-- Include jQuery and Bootstrap JavaScript -->
 
@@ -460,40 +398,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
         function confirmLogout() {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "You will be logged out.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#212529",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, logout"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect to logout URL
-            window.location.href = "login.php?logout=<?php echo $_SESSION['user_id']; ?>";
-        }
-    });
-}
-
- 
-
-function confirmLogout() {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "You will be logged out.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#212529",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, logout"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect to logout URL
-            window.location.href = "login.php?logout=<?php echo $_SESSION['user_id']; ?>";
-        }
-    });
-}
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#212529",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout URL
+                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            }
+        });
+    }
+  
 
     </script>
 
@@ -530,6 +450,15 @@ function confirmLogout() {
 
 
 
+
+            document.addEventListener('DOMContentLoaded', function () {
+        var profilePic = document.querySelector('.profile');
+        var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+
+        profilePic.addEventListener('click', function () {
+            editProfileModal.show();
+        });
+    });
 
 
             

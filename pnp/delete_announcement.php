@@ -1,5 +1,5 @@
 <?php
-require 'dbconn.php';
+  include '../connection/dbconn.php'; 
 
 if (isset($_GET['id'])) {
     $announcement_id = $_GET['id'];

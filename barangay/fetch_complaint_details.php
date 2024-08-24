@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include_once 'dbconn.php';
+include '../connection/dbconn.php'; ;
 
 $complaint_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 

@@ -1,5 +1,5 @@
 <?php
-require 'dbconn.php';
+  include '../connection/dbconn.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $announcement_id = $_POST['announcement_id'];

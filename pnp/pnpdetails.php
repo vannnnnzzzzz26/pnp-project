@@ -1,6 +1,5 @@
 <?php
-// Include your database connection file
-include_once 'dbconn.php';
+  include '../connection/dbconn.php'; 
 
 // Check if complaint ID is provided via GET parameter
 if (isset($_GET['id'])) {

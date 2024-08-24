@@ -3,7 +3,7 @@
 session_start();
 
 // Include your database connection file
-include_once 'dbconn.php';
+include '../connection/dbconn.php'; 
 
 // Fetch barangay name if not already set in session
 if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
@@ -134,23 +134,16 @@ $total_pages = ceil($row['total'] / $results_per_page);
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">Excel</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Add Navbar items if needed -->
-            </div>
-        </div>
-    </nav>
+    
+<?php 
 
+include '../includes/navbar.php';
+include '../includes/sidebar.php';
+?>
     <!-- Page Content -->
     <div class="content">
         <div class="container">
@@ -171,8 +164,7 @@ $total_pages = ceil($row['total'] / $results_per_page);
 
     </div>
 
-<!-- Complaint Modal -->
-<div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
+    <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -181,25 +173,31 @@ $total_pages = ceil($row['total'] / $results_per_page);
             </div>
             <div class="modal-body">
                 <!-- Existing fields -->
-                <p><strong>Name:</strong> <span id="modal-name"></span></p>
-                <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
-                <p><strong>Status:</strong> <span id="modal-status"></span></p>
 
-                <!-- Hearing Section -->
                 <div id="hearingSection" style="display: none;">
-                    <h5 class="mt-4">Set Hearing Date and Time</h5>
-                    <form id="hearingForm">
-                        <div class="mb-3">
-                            <label for="hearing-date" class="form-label">Hearing Date</label>
-                            <input type="date" class="form-control" id="hearing-date" name="hearing_date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="hearing-time" class="form-label">Hearing Time</label>
-                            <input type="time" class="form-control" id="hearing-time" name="hearing_time" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Set Hearing</button>
-                    </form>
-                </div>
+    <h5 class="mt-4">Set Hearing Date and Time</h5>
+    <form id="hearingForm">
+        <div class="mb-3">
+            <label for="hearing-date" class="form-label">Hearing Date</label>
+            <input type="date" class="form-control" id="hearing-date" name="hearing_date" required>
+        </div>
+        <div class="mb-3">
+            <label for="hearing-time" class="form-label">Hearing Time</label>
+            <input type="time" class="form-control" id="hearing-time" name="hearing_time" required>
+        </div>
+        <div class="mb-3">
+            <label for="hearing-type" class="form-label">Hearing Type</label>
+            <select class="form-select" id="hearing-type" name="hearing_type" required>
+                <option value="" disabled selected>Select Hearing Type</option>
+                <option value="First Hearing">First Hearing</option>
+                <option value="Second Hearing">Second Hearing</option>
+                <option value="Third Hearing">Third Hearing</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Set Hearing</button>
+    </form>
+</div>
+
 
                 <!-- Additional fields as needed -->
             </div>
@@ -275,67 +273,12 @@ $total_pages = ceil($row['total'] / $results_per_page);
 </div>
 
 
-    <div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
-    <!-- Toggle button inside sidebar -->
-    <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-    </button>
-
-    <!-- User Information -->
-    <div class="user-info px-3 py-2 text-center">
-        <!-- Your PHP session-based content -->
-        <?php
-        if (isset($_SESSION['pic_data'])) {
-            $pic_data = $_SESSION['pic_data'];
-            echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-        }
-        ?>
-        <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-        <h5 class="white-text"><?php echo "$firstName $middleName $lastName $extensionName"; ?></h5>
-        <p class="user-email white-text"><?php echo "$email"; ?></p>
-    </div>
-    
-    <!-- Sidebar Links -->
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="manage-complaints.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="barangay-responder.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="barangaylogs.php">
-            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Responder</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="barangay-official.php">
-                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Official</span>
-            </a>
-        </li>
-     
-    </ul>
-    
-    <!-- Logout -->
-               <!-- Logout Form -->
-        <form action="logout.php" method="post" id="logoutForm">
-            <div class="logout-btn">
-                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
-                    <i class="bi bi-box-arrow-left"></i><span class="nav-text">Logout</span>
-                </button>
-            </div>
-        </form>
-</div>
+   
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
-    <script src="script.js"></script>
+    <script src="../scripts/script.js"></script>
 
 
 
@@ -422,7 +365,6 @@ $total_pages = ceil($row['total'] / $results_per_page);
 });
 
 
-
 document.addEventListener('DOMContentLoaded', function() {
     const viewButtons = document.querySelectorAll('.view-details-btn');
     viewButtons.forEach(button => {
@@ -454,13 +396,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const complaintId = document.getElementById('viewComplaintModal').getAttribute('data-complaint-id');
         const hearingDate = document.getElementById('hearing-date').value;
         const hearingTime = document.getElementById('hearing-time').value;
+        const hearingType = document.getElementById('hearing-type').value;
 
-        fetch('set_hearing_date.php', {
+        fetch('set_hearing.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `complaint_id=${complaintId}&hearing_date=${hearingDate}&hearing_time=${hearingTime}`
+            body: `complaint_id=${complaintId}&hearing_date=${hearingDate}&hearing_time=${hearingTime}&hearing_type=${hearingType}`
         })
         .then(response => response.text())
         .then(result => {
@@ -472,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 
 
 

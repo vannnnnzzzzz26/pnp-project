@@ -1,3 +1,19 @@
+
+<?php 
+session_start(); 
+
+
+
+$firstName = $_SESSION['first_name'] ?? '';
+$middleName = $_SESSION['middle_name'] ?? '';
+$lastName = $_SESSION['last_name'] ?? '';
+$extensionName = $_SESSION['extension_name'] ?? '';
+$email = $_SESSION['email'] ?? '';
+$barangay_name = $_SESSION['barangay_name'] ?? '';
+$pic_data = $_SESSION['pic_data'] ?? '';
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,83 +23,17 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">Excel</a>
-            <!-- Button to toggle sidebar visibility -->
-            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
+ 
 
-    <!-- Sidebar -->
-    <div style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
-        <!-- Toggle button inside sidebar -->
-        <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-            <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-        </button>
+<?php 
 
-        <!-- User Information -->
-        <div class="user-info px-3 py-2 text-center">
-            <?php
-            session_start();
-            if (isset($_SESSION['email'])) {
-                $email = $_SESSION['email'];
-                $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
-                $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
-                $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
-                $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
-                $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : '';
-                if (isset($_SESSION['pic_data'])) {
-                    $pic_data = $_SESSION['pic_data'];
-                    echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-                }
-            }
-            ?>
-            <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-            <h5 class='white-text'>User Information</h5>
-            <p class='white-text'><?php echo $email; ?></p>
-            <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
-        </div>
+include '../includes/pnp-nav.php';
+include '../includes/pnp-bar.php';
+?>
 
-        <!-- Menu items -->
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="pnp.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="pnplogs.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="pnp-announcement.php">
-                    <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Announcement</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.php">
-                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-        </ul>
-
-        <!-- Logout Form -->
-        <form action="logout.php" method="post" id="logoutForm">
-            <div class="logout-btn">
-                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
-                    <i class="bi bi-box-arrow-left"></i><span class="nav-text">Logout</span>
-                </button>
-            </div>
-        </form>
-    </div>
 
     <div class="content">
         <div class="container">
@@ -99,46 +49,53 @@
                     </thead>
                     <tbody>
                     <?php
-                    include_once 'dbconn.php';
 
-                    function displayPNPComplaints($pdo) {
-                        try {
-                            $stmt = $pdo->prepare("
-                                SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
-                                       c.barangays_id, c.cp_number, c.complaints_person
-                                FROM tbl_complaints c
-                                WHERE c.status = 'pnp'
-                                ORDER BY c.date_filed ASC
-                            ");
-                            $stmt->execute();
 
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                $complaint_id = $row['complaints_id'];
-                                $complaint_name = htmlspecialchars($row['complaint_name']);
+include '../connection/dbconn.php'; 
 
-                                if (!empty($row['barangays_id'])) {
-                                    $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                                    $stmtBar->execute([$row['barangays_id']]);
-                                    $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
-                                } else {
-                                    $barangay_name = 'Unknown';
-                                }
-                                
-                                $address = $barangay_name;
+// Use null coalescing operators to provide default values
+;
 
-                                echo "<tr>";
-                                echo "<td>{$complaint_name}</td>";
-                                echo "<td>{$address}</td>";
-                                echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
-                                echo "</tr>";
-                            }
-                        } catch (PDOException $e) {
-                            echo "<tr><td colspan='3'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
-                        }
-                    }
+// Function to display PNP complaints
+function displayPNPComplaints($pdo) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
+                   c.barangays_id, c.cp_number, c.complaints_person
+            FROM tbl_complaints c
+            WHERE c.status = 'pnp'
+            ORDER BY c.date_filed ASC
+        ");
+        $stmt->execute();
 
-                    displayPNPComplaints($pdo);
-                    ?>
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $complaint_id = $row['complaints_id'];
+            $complaint_name = htmlspecialchars($row['complaint_name']);
+
+            if (!empty($row['barangays_id'])) {
+                $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                $stmtBar->execute([$row['barangays_id']]);
+                $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
+            } else {
+                $barangay_name = 'Unknown';
+            }
+            
+            $address = $barangay_name;
+
+            echo "<tr>";
+            echo "<td>{$complaint_name}</td>";
+            echo "<td>{$address}</td>";
+            echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
+            echo "</tr>";
+        }
+    } catch (PDOException $e) {
+        echo "<tr><td colspan='3'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
+    }
+}
+
+displayPNPComplaints($pdo);
+?>
+
                     </tbody>
                 </table>
             </div>
@@ -172,7 +129,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script src="script.js"></script>
+    <script src="../scripts/script.js"></script>
     <script>
  document.addEventListener('DOMContentLoaded', function () {
     var viewDetailsButtons = document.querySelectorAll('button[data-bs-target="#viewDetailsModal"]');
@@ -275,7 +232,14 @@
     });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+        var profilePic = document.querySelector('.profile');
+        var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
 
+        profilePic.addEventListener('click', function () {
+            editProfileModal.show();
+        });
+    });
      
     </script>
 </body>

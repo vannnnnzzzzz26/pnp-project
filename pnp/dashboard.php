@@ -1,5 +1,15 @@
 <?php
-require 'dbconn.php';
+session_start(); // Add this line to start the session
+
+include '../connection/dbconn.php'; 
+
+$firstName = $_SESSION['first_name'] ?? '';
+$middleName = $_SESSION['middle_name'] ?? '';
+$lastName = $_SESSION['last_name'] ?? '';
+$extensionName = $_SESSION['extension_name'] ?? '';
+$email = $_SESSION['email'] ?? '';
+$barangay_name = $_SESSION['barangay_name'] ?? '';
+$pic_data = $_SESSION['pic_data'] ?? '';
 
 // Fetch the dashboard data
 function fetchDashboardData($pdo) {
@@ -93,6 +103,7 @@ function fetchComplaintCategoriesData($pdo) {
 $categoryData = fetchComplaintCategoriesData($pdo);
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,7 +112,8 @@ $categoryData = fetchComplaintCategoriesData($pdo);
     <title>Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .card {
@@ -152,14 +164,12 @@ $categoryData = fetchComplaintCategoriesData($pdo);
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="#">Excel</a>
-        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</nav>
+<?php 
+
+include '../includes/pnp-nav.php';
+include '../includes/pnp-bar.php';
+?>
+
 
 <div class="content">
     <div class="container">
@@ -208,80 +218,32 @@ $categoryData = fetchComplaintCategoriesData($pdo);
     </div>
 </div>
 
-<div style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
-    <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-    </button>
-
-    <div class="user-info px-3 py-2 text-center">
-        <?php
-        session_start();
-
-        if (isset($_SESSION['email'])) {
-            $email = $_SESSION['email'];
-            $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
-            $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
-            $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
-            $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
-            $accountType = isset($_SESSION['accountType']) ? $_SESSION['accountType'] : '';
-            if (isset($_SESSION['pic_data'])) {
-                $pic_data = $_SESSION['pic_data'];
-                echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-            }
-        }
-        ?>
-        <p class='white-text'><?php echo $_SESSION['accountType']; ?></p>
-        <h5 class='white-text'>User Information</h5>
-        <p class='white-text'><?php echo $email; ?></p>
-        <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
-    </div>
-    <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="pnp.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="pnplogs.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="pnp-announcement.php">
-                <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Announcement</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.php">
-                <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-        </ul>
-    
-
-        <!-- Logout Form -->
-        <form action="logout.php" method="post" id="logoutForm">
-            <div class="logout-btn">
-                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
-                    <i class="bi bi-box-arrow-left"></i><span class="nav-text">Logout</span>
-                </button>
-            </div>
-        </form>
-    </div>
-
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     var ctxBarangay = document.getElementById('barangayChartSmall').getContext('2d');
     var barangayChart = new Chart(ctxBarangay, {
-        type: 'line', // Changed to 'line'
+        type: 'line', // Line chart
         data: {
             labels: <?php echo json_encode(array_column($barangayData, 'barangay_name')); ?>,
             datasets: [{
                 label: 'Number of Complaints',
                 data: <?php echo json_encode(array_column($barangayData, 'complaint_count')); ?>,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Light blue background
-                borderColor: 'rgba(54, 162, 235, 1)', // Darker blue border
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
                 borderWidth: 2,
                 fill: false // Do not fill under the line
             }]
@@ -332,14 +294,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var ctxCategory = document.getElementById('categoryChart').getContext('2d');
     var categoryChart = new Chart(ctxCategory, {
-        type: 'bar', // Kept as 'bar'
+        type: 'bar', // Bar chart
         data: {
             labels: <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>,
             datasets: [{
                 label: 'Number of Complaints',
                 data: <?php echo json_encode(array_column($categoryData, 'category_count')); ?>,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
                 borderWidth: 1
             }]
         },
@@ -364,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 </script>
 
 

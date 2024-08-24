@@ -1,7 +1,7 @@
 <?php
 // Start session and include database connection
 session_start();
-require 'dbconn.php';
+include '../connection/dbconn.php'; 
 
 // Redirect to login if user is not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -85,20 +85,16 @@ try {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> <!-- Adjust as per your CSS file -->
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
     <!-- SweetAlert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="#">Excel</a>
-        <!-- Button to toggle sidebar visibility -->
-        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</nav>
+<?php 
+
+include '../includes/navbar.php';
+include '../includes/sidebar.php';
+?>
 <div class="content">
 <div class="container mt-5">
     <h1>Manage Complaints</h1>
@@ -236,65 +232,8 @@ try {
 </div>
 
 
-<div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
-    <!-- Toggle button inside sidebar -->
-    <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-    </button>
-
-    <!-- User Information -->
-    <div class="user-info px-3 py-2 text-center">
-        <!-- Your PHP session-based content -->
-        <?php
-        if (isset($_SESSION['pic_data'])) {
-            $pic_data = $_SESSION['pic_data'];
-            echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
-        }
-        ?>
-        <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-        <h5 class="white-text"><?php echo "$firstName $middleName $lastName $extensionName"; ?></h5>
-        <p class="user-email white-text"><?php echo "$email"; ?></p>
-    </div>
-    
-    <!-- Sidebar Links -->
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="manage-complaints.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="barangay-responder.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="barangaylogs.php">
-            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Responder</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="barangay-official.php">
-                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Official</span>
-            </a>
-        </li>
-     
-    </ul>
-    
-    <!-- Logout -->
-               <!-- Logout Form -->
-        <form action="logout.php" method="post" id="logoutForm">
-            <div class="logout-btn">
-                <button type="button" class="btn btn-danger btn-sm" onclick="confirmLogout()">
-                    <i class="bi bi-box-arrow-left"></i><span class="nav-text">Logout</span>
-                </button>
-            </div>
-        </form>
-</div>
-
 <!-- Bootstrap JS and dependencies -->
-<script src="script.js"></script>
+<script src="../scripts/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // JavaScript to handle image click and show modal
