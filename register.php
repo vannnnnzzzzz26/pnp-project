@@ -98,6 +98,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.4/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         body {
+            background-image: url('poles.jpg');
+            background-size: cover;
+            background-position: center top;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -115,6 +120,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .form-label {
             font-weight: bold;
         }
+        .form-control, .form-select {
+            border-radius: 25px; /* Make inputs and selects round */
+        }
+        .btn {
+            border-radius: 25px; /* Make button round */
+        }
+        .btn-primary {
+            border-radius: 50px;
+            background-color: #5bc0de;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -125,37 +145,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- First Name and Middle Name -->
                 <div class="col-md-6 mb-3">
                     <label for="first_name" class="form-label">First Name:</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" required>
+                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Enter your first name" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="middle_name" class="form-label">Middle Name:</label>
-                    <input type="text" id="middle_name" name="middle_name" class="form-control" required>
+                    <input type="text" id="middle_name" name="middle_name" class="form-control" placeholder="Enter your middle name" required>
                 </div>
 
                 <!-- Last Name and Extension Name -->
                 <div class="col-md-6 mb-3">
                     <label for="last_name" class="form-label">Last Name:</label>
-                    <input type="text" id="last_name" name="last_name" class="form-control" required>
+                    <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Enter your last name" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="extension_name" class="form-label">Extension Name:</label>
-                    <input type="text" id="extension_name" name="extension_name" class="form-control">
+                    <input type="text" id="extension_name" name="extension_name" class="form-control" placeholder="Enter your extension name">
                 </div>
 
                 <!-- Email -->
                 <div class="col-12 mb-3">
                     <label for="email" class="form-label">Email:</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
                 </div>
 
                 <!-- Password and Confirm Password -->
                 <div class="col-md-6 mb-3">
                     <label for="password" class="form-label">Password:</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="confirm_password" class="form-label">Re-enter Password:</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter your password" required>
                 </div>
 
                 <!-- Account Type -->
@@ -195,16 +215,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
 
                 <!-- Profile Picture Upload -->
-<div class="col-md-6 mb-3">
-    <label for="profile_picture" class="form-label">Profile Picture:</label>
-    <input type="file" id="profile_picture" name="profile_picture" class="form-control">
-</div>
-
+                <div class="col-md-6 mb-3">
+                    <label for="profile_picture" class="form-label">Profile Picture:</label>
+                    <input type="file" id="profile_picture" name="profile_picture" class="form-control">
+                </div>
             </div>
 
             <!-- Submit Button -->
             <div class="text-center">
-                <button type="submit" class="btn btn-primary">Register</button>
+            <button type="submit" class="btn btn-primary">Register</button>
             </div>
         </form>
     </div>

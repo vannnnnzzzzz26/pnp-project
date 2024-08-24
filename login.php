@@ -1,5 +1,9 @@
 <?php
-require 'dbconn.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
+include 'connection/dbconn.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -11,6 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
+        // Clear any previous session data
+        session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
+        session_unset(); // Unset all session variables
+
+        // Set session variables
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['first_name'] = $user['first_name'];
@@ -20,24 +29,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['accountType'] = $user['accountType'];
         $_SESSION['barangays_id'] = $user['barangays_id'];
 
-       
-       
-
-        // Set success message
         $_SESSION['login_success'] = "Welcome " . $user['first_name'] . "!";
 
-        // Set the redirection URL based on account type
+        // Redirect based on account type
         if ($user['accountType'] == 'Barangay Official') {
-            $_SESSION['redirect_url'] = "barangay-responder.php";
+            $redirectUrl = "barangay/barangay-responder.php";
         } elseif ($user['accountType'] == 'PNP Officer') {
-            $_SESSION['redirect_url'] = "pnp.php";
+            $redirectUrl = "pnp/pnp.php";
         } elseif ($user['accountType'] == 'Resident') {
-            $_SESSION['redirect_url'] = "index.php";
+            $redirectUrl = "resident/resident.php";
         } else {
             $_SESSION['login_error'] = "Invalid account type!";
             header("Location: login.php");
             exit();
         }
+
+        // Redirect to the appropriate dashboard
+        header("Location: $redirectUrl");
+        exit();
     } else {
         $_SESSION['login_error'] = "Invalid email or password!";
         header("Location: login.php");
@@ -53,15 +62,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
     <style>
+        html, body {
+            overflow: hidden;
+            height: 100%;
+        }
+
         body {
+            background-image: url('poles.jpg');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: #f8f9fa;
+            background-color: whitesmoke;
         }
+
         .container {
             max-width: 400px;
             width: 100%;
@@ -70,29 +90,117 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .form-label {
-            font-weight: bold;
+
+        .container h1 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .input-group-text {
+            background-color: transparent;
+            border: none;
+        }
+
+        .input-group-text i {
+            color: #5bc0de; 
+        }
+
+        .form-control {
+            border-radius: 50px;
+            border: 1px solid #ddd;
+            padding-left: 2.5rem;
+            background-color: #f5f5f5;
+        }
+
+        .form-check-label {
+            margin-left: 0.3rem;
+        }
+
+        .form-check {
+            margin: 0.5rem 0;
+        }
+
+        .btn-primary {
+            border-radius: 50px;
+            background-color: #5bc0de;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #31b0d5;
+        }
+
+        .link {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .link a {
+            color: #5bc0de;
+            text-decoration: none;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-password,
+        .register {
+            display: block;
+            margin: 0.5rem 0;
+            color: #5bc0de;
+            text-align: center;
+        }
+
+        .forgot-password:hover,
+        .register:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-password {
+            text-decoration: none;
+            color: #007bff; 
+            font-size: 0.9rem; 
+        }
+
+        .forgot-password:hover {
+             text-decoration: underline; 
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-4">Login</h1>
+        <img src="complaint.jpg" alt="Illustration" class="img-fluid mb-4"> 
+        <h1>Log in</h1>
         <form method="post">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" id="email" name="email" class="form-control" required>
+
+            <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" id="password" name="password" class="form-control" required>
+
+            <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
+
+            <div class="mb-3 form-check d-flex justify-content-start">
+                <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                <label class="form-check-label" for="rememberMe">Remember Me</label>
+                <a href="forgot-password.php" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Log in</button>
+            <div class="link">
+                <span>Don't Have an Account?</span>
+                <a href="register.php" class="register">Create a new account</a>
+            </div>
         </form>
-        <p class="mt-3 text-center">
-            Don't have an account? <a href="register.php">Register here</a><br>
-            <a href="forgot-password.php">Forgot Password?</a>
-        </p>
     </div>
 
     <script>

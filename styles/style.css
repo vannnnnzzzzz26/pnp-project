@@ -1,0 +1,187 @@
+.large-icon {
+    font-size: 2rem;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px; /* Adjust width as needed */
+    background-color: #343a40;
+    transition: width 0.3s ease;
+    overflow: hidden;
+    padding: 1rem 0.5rem;
+    z-index: 1;
+}
+
+
+.sidebar.collapsed {
+    width: 80px; /* Width when collapsed */
+}
+.content {
+    margin-left: 250px; /* Same as initial width of the sidebar */
+    transition: margin-left 0.3s ease;
+    padding: 20px; /* Adjust padding as needed */
+    width: calc(100% - 250px); /* Calculate remaining width */
+}
+.content.expanded {
+    margin-left: 75px; /* Adjust content margin when sidebar expands */
+}
+.sidebar .user-info, .sidebar .nav, .sidebar h4, .sidebar .logout-btn {
+    transition: opacity 0.3s ease;
+}
+.sidebar.collapsed .user-info, .sidebar.collapsed .nav .nav-text, .sidebar.collapsed h4, .sidebar.collapsed .logout-btn .nav-text {
+    opacity: 0; /* Hide text when collapsed */
+    display: none; /* Ensure elements do not take up space */
+}
+.sidebar .profile {
+    width: 100px; /* Adjust profile picture size */
+    height: 100px;
+    border-radius: 50%;
+}
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #2f3337;
+    border: none;
+    cursor: pointer;
+    color: white;
+    width: 100%;
+    text-align: left;
+}
+.white-text {
+    color: white;
+}
+.nav-link i {
+    font-size: 1.5em;
+    margin-right: 0.5em;
+}
+
+.nav-text {
+    display: inline-block;
+    vertical-align: middle;
+}
+.menu-icon {
+    font-size: 2em; /* Increase the icon size */
+    color: white;
+    margin-left: 0.5rem;
+}
+.sidebar.collapsed .menu-icon-text {
+    display: none; /* Hide the text when the sidebar is collapsed */
+}
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: white;
+}
+.menu-item a {
+    color: white;
+    text-decoration: none;
+    width: 100%;
+}
+.menu-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px; /* Adjust padding for alignment */
+    color: white;
+}
+/* Expanded state: Sidebar visible */
+.sidebar.active {
+    left: 0; /* Show the sidebar */
+}
+
+/* User Info and Menu styling */
+.user-info {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Divider line */
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+}
+
+.user-info img.profile {
+    width: 80px; /* Adjust profile image size */
+    height: 80px;
+    border-radius: 50%; /* Round profile image */
+    margin-bottom: 10px;
+}
+
+.user-info p {
+    margin: 0;
+}
+
+.sidebar h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding-left: 15px; /* Left padding for heading */
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.75); /* Menu item text color */
+    padding: 10px 15px;
+    
+    display: block;
+    transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
+}
+
+.white-text {
+    color: #fff; /* Text color */
+}
+
+.logout-btn {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.nav-link {
+    color: white;
+}
+
+.profile {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.user-info-heading {
+    color: rgb(255, 255, 255);
+}
+
+table, th, td {
+    border: none;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.card {
+    margin-bottom: 20px;
+    border-radius:15px ;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+}
+.card-img-top {
+    height: 250px; /* Adjust as necessary */
+    object-fit: cover;
+    
+    border-radius: 15px;
+}
+.card-title, .card-text {
+    text-align: center;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem; /* Add some space below the image */
+}
+
+
