@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['email'] = $email;
 
         // Redirect back to profile page or wherever appropriate
-        header("Location: resident/resident.php");
+        header("Location: ./resident.php");
         exit();
 
     } catch (PDOException $e) {

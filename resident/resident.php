@@ -322,7 +322,7 @@ include '../includes/resident-bar.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editProfileForm" action="update_profile.php" method="post" enctype="multipart/form-data">
+                <form id="editProfileForm" action="../update_profile.php" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="editFirstName" class="form-label">First Name</label>
                         <input type="text" class="form-control" id="editFirstName" name="first_name" value="<?php echo htmlspecialchars($firstName); ?>" required>
