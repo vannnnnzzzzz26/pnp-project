@@ -34,7 +34,6 @@ include '../includes/pnp-nav.php';
 include '../includes/pnp-bar.php';
 ?>
 
-
     <div class="content">
         <div class="container">
             <h2 class="mt-3 mb-4">PNP Complaints</h2>
@@ -284,6 +283,24 @@ document.addEventListener('DOMContentLoaded', function () {
             editProfileModal.show();
         });
     });
+
+
+    function confirmLogout() {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#212529",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout URL
+                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            }
+        });
+    }
      
     </script>
 </body>

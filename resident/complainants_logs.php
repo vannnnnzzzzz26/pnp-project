@@ -53,19 +53,10 @@ try {
 </head>
 <body>
 
-<style>
-    table, th, td {
-    border: none;
-}
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-</style>
 
 <?php 
 
-include '../includes/navbar.php';
+include '../includes/resident-nav.php';
 include '../includes/resident-bar.php';
 ?>
 
@@ -170,20 +161,20 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function confirmLogout() {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "You will be logged out.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#212529",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, logout"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect to logout URL
-            window.location.href = "login.php?logout=<?php echo $_SESSION['user_id']; ?>";
-        }
-    });
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#212529",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout URL
+                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            }
+        });
 }
 </script>
 </body>

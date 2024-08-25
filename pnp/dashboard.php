@@ -218,7 +218,62 @@ include '../includes/pnp-bar.php';
     </div>
 </div>
 
+
+
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm" action="update_profile.php" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="editFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="editFirstName" name="first_name" value="<?php echo htmlspecialchars($firstName); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMiddleName" class="form-label">Middle Name</label>
+                        <input type="text" class="form-control" id="editMiddleName" name="middle_name" value="<?php echo htmlspecialchars($middleName); ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="editLastName" name="last_name" value="<?php echo htmlspecialchars($lastName); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editExtensionName" class="form-label">Extension Name</label>
+                        <input type="text" class="form-control" id="editExtensionName" name="extension_name" value="<?php echo htmlspecialchars($extensionName); ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProfilePic" class="form-label">Profile Picture</label>
+                        <input type="file" class="form-control" id="editProfilePic" name="profile_pic">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <script>
+
+
+document.addEventListener('DOMContentLoaded', function () {
+        var profilePic = document.querySelector('.profile');
+        var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+
+        profilePic.addEventListener('click', function () {
+            editProfileModal.show();
+        });
+    });
+     
+
 document.addEventListener('DOMContentLoaded', function() {
     var ctxBarangay = document.getElementById('barangayChartSmall').getContext('2d');
     var barangayChart = new Chart(ctxBarangay, {
@@ -341,9 +396,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+
+function confirmLogout() {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#212529",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout URL
+                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            }
+        });
+    }
+
 </script>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="../scripts/script.js"></script>
 
-<script src="script.js"></script>
 </body>
 </html>
