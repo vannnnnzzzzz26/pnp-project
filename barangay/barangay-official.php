@@ -180,7 +180,7 @@ include '../includes/sidebar.php';
         <div class="row">
             <div class="col-md-4">
                 <h2 class="mb-4">Barangay Officials</h2>
-                <h4>Add New Official</h4>
+               
                 <form action="barangay-official.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="add_official">
                     <div class="form-group">
@@ -188,9 +188,15 @@ include '../includes/sidebar.php';
                         <input type="text" id="name" name="name" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="position">Position:</label>
-                        <input type="text" id="position" name="position" class="form-control" required>
-                    </div>
+                <label for="position">Position:</label>
+                <select id="position" name="position" class="form-control" required>
+                    <option value="">Select Position</option>
+                    <option value="Barangay Captain">Barangay Captain</option>
+                    <?php for ($i = 1; $i <= 7; $i++): ?>
+                        <option value="Kagawad <?php echo $i; ?>">Kagawad <?php echo $i; ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
                     <div class="form-group">
                         <label for="image">Image:</label>
                         <input type="file" id="image" name="image" class="form-control-file" accept="image/*" required>
@@ -201,34 +207,98 @@ include '../includes/sidebar.php';
 
             <!-- Officials List -->
             <div class="col-md-8">
-                <h4>Officials List</h4>
-                <div class="row">
-                    <?php foreach ($officials as $official): ?>
-                        <div class="col-md-4 mb-4">
-                            <div class="card">
-                                <?php if (!empty($official['image'])): ?>
-                                    <img src="<?php echo htmlspecialchars($official['image']); ?>" class="card-img-top" alt="Official Image">
-                                <?php else: ?>
-                                    <img src="default-image.jpg" class="card-img-top" alt="Default Image">
-                                <?php endif; ?>
-                                <div class="card-body">
-                                    <h5 class="card-title"><?php echo htmlspecialchars($official['name']); ?></h5>
-                                    <p class="card-text"><?php echo htmlspecialchars($official['position']); ?></p>
-                                    <a href="#" class="btn btn-primary btn-sm edit-official-btn" data-bs-toggle="modal" data-bs-target="#editOfficialModal"
-                                        data-official-id="<?php echo $official['official_id']; ?>"
-                                        data-name="<?php echo htmlspecialchars($official['name']); ?>"
-                                        data-position="<?php echo htmlspecialchars($official['position']); ?>"
-                                        data-image="<?php echo htmlspecialchars($official['image']); ?>">
-                                        Edit
-                                    </a>
-                                    <a href="barangay-official.php?action=delete&official_id=<?php echo $official['official_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+    <h4>Officials List</h4>
+    <div class="row">
+    <?php 
+    // Separate barangay captains and kagawads
+    $captains = array_filter($officials, function($official) {
+        return $official['position'] === 'Barangay Captain';
+    });
+    $kagawads = array_filter($officials, function($official) {
+        return strpos($official['position'], 'Kagawad') === 0;
+    });
+
+    // Sort kagawads based on their position number
+    usort($kagawads, function($a, $b) {
+        $a_num = (int) str_replace('Kagawad ', '', $a['position']);
+        $b_num = (int) str_replace('Kagawad ', '', $b['position']);
+        return $a_num - $b_num;
+    });
+
+    // Display barangay captains
+    foreach ($captains as $official): ?>
+       <center> 
+        
+       <label for="barangay">Barangay</label>
+<?php 
+try {
+    $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+    $stmt->execute([$_SESSION['barangays_id']]); // Use session variable here
+    $barangay = $stmt->fetchColumn();
+    if ($barangay) {
+        echo "<p class='fs-4 fw-bold'>" . htmlspecialchars($barangay) . "</p>"; // Use Bootstrap's font-size and font-weight classes
+    } else {
+        echo "<p class='fs-8'>No barangay found.</p>";
+    }
+} catch (PDOException $e) {
+    echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
+}
+?>
+
+       
+       <div class="col-md-4 mb-4">
+            <div class="card">
+                <?php if (!empty($official['image'])): ?>
+                    <img src="<?php echo htmlspecialchars($official['image']); ?>" class="card-img-top" alt="Official Image">
+                <?php else: ?>
+                    <img src="default-image.jpg" class="card-img-top" alt="Default Image">
+                <?php endif; ?>
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo htmlspecialchars($official['name']); ?></h5>
+                    <p class="card-text"><?php echo htmlspecialchars($official['position']); ?></p>
+                    <a href="#" class="btn btn-primary btn-sm edit-official-btn" data-bs-toggle="modal" data-bs-target="#editOfficialModal"
+                        data-official-id="<?php echo $official['official_id']; ?>"
+                        data-name="<?php echo htmlspecialchars($official['name']); ?>"
+                        data-position="<?php echo htmlspecialchars($official['position']); ?>"
+                        data-image="<?php echo htmlspecialchars($official['image']); ?>">
+                        Edit
+                    </a>
+                    <a href="barangay-official.php?action=delete&official_id=<?php echo $official['official_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
                 </div>
             </div>
-        </div>
+        </div></center>
+    <?php endforeach; ?>
+
+   
+    <div class="row">
+        <?php 
+        // Display kagawads
+        foreach (array_slice($kagawads, 0, 7) as $official): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <?php if (!empty($official['image'])): ?>
+                        <img src="<?php echo htmlspecialchars($official['image']); ?>" class="card-img-top" alt="Official Image">
+                    <?php else: ?>
+                        <img src="default-image.jpg" class="card-img-top" alt="Default Image">
+                    <?php endif; ?>
+                    <div class="card-body">
+                        <h5 class="card-title"><?php echo htmlspecialchars($official['name']); ?></h5>
+                        <p class="card-text"><?php echo htmlspecialchars($official['position']); ?></p>
+                        <a href="#" class="btn btn-primary btn-sm edit-official-btn" data-bs-toggle="modal" data-bs-target="#editOfficialModal"
+                            data-official-id="<?php echo $official['official_id']; ?>"
+                            data-name="<?php echo htmlspecialchars($official['name']); ?>"
+                            data-position="<?php echo htmlspecialchars($official['position']); ?>"
+                            data-image="<?php echo htmlspecialchars($official['image']); ?>">
+                            Edit
+                        </a>
+                        <a href="barangay-official.php?action=delete&official_id=<?php echo $official['official_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
 
         <!-- Edit Official Modal -->
         <div class="modal fade" id="editOfficialModal" tabindex="-1" aria-labelledby="editOfficialModalLabel" aria-hidden="true">

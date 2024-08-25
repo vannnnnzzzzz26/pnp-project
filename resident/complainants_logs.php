@@ -45,17 +45,12 @@ try {
     <title>Complaints Status</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 <body>
 
-
 <?php 
-
 include '../includes/resident-nav.php';
 include '../includes/resident-bar.php';
 ?>
@@ -64,58 +59,34 @@ include '../includes/resident-bar.php';
 <div class="content" id="content">
     <div class="container mt-4">
         <h1 class="text-center">Complaints Status</h1>
-        <div class="row">
-            <div class="col-md-9">
+        <div class="row justify-content-center">
+            <div class="col-md-9 mx-auto">
                 <?php if (empty($complaints)): ?>
                     <div class="alert alert-info text-center" role="alert">
                         You haven't submitted any complaints yet.
                     </div>
                 <?php else: ?>
-                    <div class="table">
+                    <div class="table"> <!-- Added to make the table responsive -->
                         <table class="table table-striped table-bordered text-center">
                             <thead class="table-dark">
                                 <tr>
-                                    <th scope="col">#</th> <!-- New column for numbers -->
-                                    <th scope="col">Date Filed</th>
                                     <th scope="col">Complaint Name</th>
-                                    <th scope="col">Complaint Description</th>
-                                    <th scope="col">Category</th>
                                     <th scope="col">Barangay</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Complaints Person</th>
-                                    <th scope="col">Gender</th>
-                                    <th scope="col">Place Of Birth </th>
-                                    <th scope="col">Age</th>
-                                    <th scope="col">Education</th>
-                                    <th scope="col">Civil Status</th>
-                                    <th scope="col">Evidence</th>
+                                    <th scope="col">View Details</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $counter = 1; ?> <!-- Initialize counter -->
                                 <?php foreach ($complaints as $complaint): ?>
                                     <tr>
-                                        <td><?php echo $counter++; ?></td> <!-- Display counter and increment -->
-                                        <td><?php echo htmlspecialchars($complaint['date_filed']); ?></td>
                                         <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['complaints']); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['complaints_category']); ?></td>
                                         <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['status']); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['complaints_person']); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['gender'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['place_of_birth'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['age'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['educational_background'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['civil_status'] ?? 'N/A'); ?></td>
                                         <td>
-                                            <?php if (!empty($complaint['evidence_path'])): ?>
-                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewEvidenceModal" data-evidence-path="<?php echo htmlspecialchars($complaint['evidence_path']); ?>">
-                                                    View Evidence
-                                                </button>
-                                            <?php else: ?>
-                                                N/A
-                                            <?php endif; ?>
+                                            <button type="button" class="btn btn-primary btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#viewComplaintModal" 
+                                                    data-complaint='<?php echo json_encode($complaint); ?>'>
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -128,16 +99,34 @@ include '../includes/resident-bar.php';
     </div>
 </div>
 
-<!-- Evidence Modal -->
-<div class="modal fade" id="viewEvidenceModal" tabindex="-1" aria-labelledby="viewEvidenceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+
+<!-- Complaint Details Modal -->
+<div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg"> <!-- Make modal larger -->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewEvidenceModalLabel">Evidence</h5>
+                <h5 class="modal-title" id="viewComplaintModalLabel">Complaint Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <img id="evidenceImage" src="" alt="Evidence" class="img-fluid">
+                <!-- Complaint details -->
+                <p><strong>Date Filed:</strong> <span id="modalDateFiled"></span></p>
+                <p><strong>Complaint Name:</strong> <span id="modalComplaintName"></span></p>
+                <p><strong>Complaint Description:</strong> <span id="modalComplaintDescription"></span></p>
+                <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+                <p><strong>Barangay:</strong> <span id="modalBarangay"></span></p>
+                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                <p><strong>Complaints Person:</strong> <span id="modalComplaintsPerson"></span></p>
+                <p><strong>Gender:</strong> <span id="modalGender"></span></p>
+                <p><strong>Place Of Birth:</strong> <span id="modalPlaceOfBirth"></span></p>
+                <p><strong>Age:</strong> <span id="modalAge"></span></p>
+                <p><strong>Educational Background:</strong> <span id="modalEducation"></span></p>
+                <p><strong>Civil Status:</strong> <span id="modalCivilStatus"></span></p>
+                <!-- Evidence Section -->
+                <div id="modalEvidenceSection" style="display: none;">
+                    <p><strong>Evidence:</strong></p>
+                    <img id="modalEvidenceImage" src="" alt="Evidence" class="img-fluid">
+                </div>
             </div>
         </div>
     </div>
@@ -147,34 +136,54 @@ include '../includes/resident-bar.php';
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var evidenceModal = document.getElementById('viewEvidenceModal');
-    evidenceModal.addEventListener('show.bs.modal', function (event) {
+    var complaintModal = document.getElementById('viewComplaintModal');
+    complaintModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
-        var evidencePath = button.getAttribute('data-evidence-path');
-        var evidenceImage = evidenceModal.querySelector('#evidenceImage');
-        evidenceImage.src = evidencePath;
+        var complaint = JSON.parse(button.getAttribute('data-complaint'));
+
+        // Populate modal with complaint details
+        document.getElementById('modalDateFiled').textContent = complaint.date_filed;
+        document.getElementById('modalComplaintName').textContent = complaint.complaint_name;
+        document.getElementById('modalComplaintDescription').textContent = complaint.complaints;
+        document.getElementById('modalCategory').textContent = complaint.complaints_category;
+        document.getElementById('modalBarangay').textContent = complaint.barangay_name;
+        document.getElementById('modalStatus').textContent = complaint.status;
+        document.getElementById('modalComplaintsPerson').textContent = complaint.complaints_person;
+        document.getElementById('modalGender').textContent = complaint.gender || 'N/A';
+        document.getElementById('modalPlaceOfBirth').textContent = complaint.place_of_birth || 'N/A';
+        document.getElementById('modalAge').textContent = complaint.age || 'N/A';
+        document.getElementById('modalEducation').textContent = complaint.educational_background || 'N/A';
+        document.getElementById('modalCivilStatus').textContent = complaint.civil_status || 'N/A';
+
+        // Evidence
+        if (complaint.evidence_path) {
+            document.getElementById('modalEvidenceSection').style.display = 'block';
+            document.getElementById('modalEvidenceImage').src = complaint.evidence_path;
+        } else {
+            document.getElementById('modalEvidenceSection').style.display = 'none';
+        }
     });
 });
 
 function confirmLogout() {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You will be logged out.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#212529",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, logout"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
-            }
-        });
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You will be logged out.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#212529",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, logout"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirect to logout URL
+            window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+        }
+    });
 }
 </script>
 </body>
