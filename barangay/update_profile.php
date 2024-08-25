@@ -61,15 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Redirect based on hidden field value
         switch ($redirectTo) {
-            case 'complainant-logs':
-                header("Location: complainant-logs.php");
+            case 'pnplogs':
+                header("Location: barangay-official.php");
+                break;
+            case 'pnp-announcement':
+                header("Location: barangaylogs.php");
                 break;
             case 'dashboard':
-                header("Location: dashboard.php");
+                header("Location: manage-complaints.php");
                 break;
-            case 'resident':
+            case 'pnp':
             default:
-                header("Location: pnresidentp.php");
+                header("Location: barangay-responder.php");
                 break;
         }
         exit();

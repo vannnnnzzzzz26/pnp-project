@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $lastName = htmlspecialchars($_POST['last_name']);
     $extensionName = htmlspecialchars($_POST['extension_name']);
     $email = htmlspecialchars($_POST['email']);
+    $redirectTo = isset($_POST['redirect_to']) ? $_POST['redirect_to'] : 'pnp'; // Default to 'pnp'
 
     try {
         // Start the transaction
@@ -58,8 +59,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['extension_name'] = $extensionName;
         $_SESSION['email'] = $email;
 
-        // Redirect back to profile page or wherever appropriate
-        header("Location: pnp/pnp.php");
+        // Redirect based on hidden field value
+        switch ($redirectTo) {
+            case 'pnplogs':
+                header("Location: pnplogs.php");
+                break;
+            case 'pnp-announcement':
+                header("Location: pnp-announcement.php");
+                break;
+            case 'dashboard':
+                header("Location: dashboard.php");
+                break;
+            case 'pnp':
+            default:
+                header("Location: pnp.php");
+                break;
+        }
         exit();
 
     } catch (PDOException $e) {

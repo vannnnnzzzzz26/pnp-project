@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php 
 
-include '../includes/navbar.php';
+include '../includes/resident-nav.php';
 include '../includes/resident-bar.php';
 ?>
 
@@ -169,7 +169,6 @@ include '../includes/resident-bar.php';
    
  <div class="content">
    
-    
     <div class="card">
     <div class="card-header text-center">
         <h3>Complaint Form</h3>
@@ -178,41 +177,39 @@ include '../includes/resident-bar.php';
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
             <div class="form-box">
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="complaint_name">Complaint Name:</label>
                         <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="barangay">Barangay:</label>
                         <?php 
-                      include '../connection/dbconn.php'; 
-                        try {
-                            $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                            $stmt->execute([$barangay]);
-                            $barangay = $stmt->fetchColumn();
-                            if ($barangay) {
-                                echo "<p>" . htmlspecialchars($barangay) . "</p>";
-                            } else {
-                                echo "<p>No barangay found.</p>";
+                            include '../connection/dbconn.php'; 
+                            try {
+                                $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                                $stmt->execute([$barangay]);
+                                $barangay = $stmt->fetchColumn();
+                                if ($barangay) {
+                                    echo "<p>" . htmlspecialchars($barangay) . "</p>";
+                                } else {
+                                    echo "<p>No barangay found.</p>";
+                                }
+                            } catch (PDOException $e) {
+                                echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
                             }
-                        } catch (PDOException $e) {
-                            echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
-                        }
                         ?>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="complaints">Complaint:</label>
                         <textarea id="complaints" name="complaints" class="form-control" required></textarea>
                     </div>
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="category">Category:</label>
                         <select id="category" name="category" class="form-control" required>
-                            <!-- Category options -->
                             <option value="Rape">Rape</option>
-                            <!-- Other options here -->
                             <option value="Other">Other</option>
                         </select>
                         <div id="other-category-group" style="display: none;">
@@ -235,47 +232,47 @@ include '../includes/resident-bar.php';
                 </script>
 
                 <div class="row">
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="evidence">Upload Evidence:</label>
                         <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
                     </div>
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="complaints_person">Person Complained Against:</label>
                         <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="cp_number">CP Number:</label>
                         <input type="text" id="cp_number" name="cp_number" class="form-control" required>
                     </div>
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="age">Age:</label>
                         <input type="number" id="age" name="age" class="form-control" readonly>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="gender">Gender:</label>
                         <select id="gender" name="gender" class="form-control" required>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="birth_date">Birth Date:</label>
                         <input type="date" id="birth_date" name="birth_date" class="form-control" required>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="place_of_birth">Place of Birth:</label>
                         <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
                     </div>
-                    <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="civil_status">Civil Status:</label>
                         <select id="civil_status" name="civil_status" class="form-control" required>
                             <option value="Single">Single</option>
@@ -287,7 +284,7 @@ include '../includes/resident-bar.php';
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="educational_background">Educational Background:</label>
                         <select id="educational_background" name="educational_background" class="form-control" required>
                             <option value="Primary">Primary</option>
@@ -295,7 +292,7 @@ include '../includes/resident-bar.php';
                             <option value="Tertiary">Tertiary</option>
                         </select>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="image">Upload Image (if any):</label>
                         <input type="file" id="image" name="image" class="form-control">
                     </div>
@@ -313,6 +310,7 @@ include '../includes/resident-bar.php';
 
 
 
+
 <!-- Edit Profile Modal -->
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -322,7 +320,7 @@ include '../includes/resident-bar.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editProfileForm" action="../update_profile.php" method="post" enctype="multipart/form-data">
+                <form id="editProfileForm" action="update_profile.php" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="editFirstName" class="form-label">First Name</label>
                         <input type="text" class="form-control" id="editFirstName" name="first_name" value="<?php echo htmlspecialchars($firstName); ?>" required>
