@@ -169,7 +169,7 @@ include '../includes/resident-bar.php';
    
  <div class="content">
    
-    <div class="card">
+ <div class="card">
     <div class="card-header text-center">
         <h3>Complaint Form</h3>
     </div>
@@ -177,11 +177,11 @@ include '../includes/resident-bar.php';
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
             <div class="form-box">
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12form-group">
                         <label for="complaint_name">Complaint Name:</label>
                         <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="barangay">Barangay:</label>
                         <?php 
                             include '../connection/dbconn.php'; 
@@ -202,11 +202,11 @@ include '../includes/resident-bar.php';
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="complaints">Complaint:</label>
                         <textarea id="complaints" name="complaints" class="form-control" required></textarea>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12form-group">
                         <label for="category">Category:</label>
                         <select id="category" name="category" class="form-control" required>
                             <option value="Rape">Rape</option>
@@ -232,29 +232,29 @@ include '../includes/resident-bar.php';
                 </script>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="evidence">Upload Evidence:</label>
                         <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="complaints_person">Person Complained Against:</label>
                         <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12  form-group">
                         <label for="cp_number">CP Number:</label>
                         <input type="text" id="cp_number" name="cp_number" class="form-control" required>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="age">Age:</label>
                         <input type="number" id="age" name="age" class="form-control" readonly>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12form-group">
                         <label for="gender">Gender:</label>
                         <select id="gender" name="gender" class="form-control" required>
                             <option value="Male">Male</option>
@@ -269,10 +269,10 @@ include '../includes/resident-bar.php';
 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
-                        <label for="place_of_birth">Place of Birth:</label>
+                        <label for="place_of_birth">Place of Birth:</label>col-lg-6 col-md-6 col-sm-12
                         <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-123 form-group">
                         <label for="civil_status">Civil Status:</label>
                         <select id="civil_status" name="civil_status" class="form-control" required>
                             <option value="Single">Single</option>
@@ -284,7 +284,7 @@ include '../includes/resident-bar.php';
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="educational_background">Educational Background:</label>
                         <select id="educational_background" name="educational_background" class="form-control" required>
                             <option value="Primary">Primary</option>
@@ -292,7 +292,7 @@ include '../includes/resident-bar.php';
                             <option value="Tertiary">Tertiary</option>
                         </select>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
                         <label for="image">Upload Image (if any):</label>
                         <input type="file" id="image" name="image" class="form-control">
                     </div>
@@ -355,8 +355,8 @@ include '../includes/resident-bar.php';
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
     <script src="../scripts/script.js"></script>
   
     <!-- Include jQuery and Bootstrap JavaScript -->

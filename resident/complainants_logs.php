@@ -101,6 +101,7 @@ include '../includes/resident-bar.php';
 
 
 <!-- Complaint Details Modal -->
+<!-- Complaint Details Modal -->
 <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg"> <!-- Make modal larger -->
         <div class="modal-content">
@@ -122,6 +123,11 @@ include '../includes/resident-bar.php';
                 <p><strong>Age:</strong> <span id="modalAge"></span></p>
                 <p><strong>Educational Background:</strong> <span id="modalEducation"></span></p>
                 <p><strong>Civil Status:</strong> <span id="modalCivilStatus"></span></p>
+
+                <!-- Hearing Details -->
+                <p><strong>Hearing Type:</strong> <span id="modalHearingType"></span></p>
+                <p><strong>Hearing Date:</strong> <span id="modalHearingDate"></span></p>
+                <p><strong>Hearing Time:</strong> <span id="modalHearingTime"></span></p>
                 <!-- Evidence Section -->
                 <div id="modalEvidenceSection" style="display: none;">
                     <p><strong>Evidence:</strong></p>
@@ -159,6 +165,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalEducation').textContent = complaint.educational_background || 'N/A';
         document.getElementById('modalCivilStatus').textContent = complaint.civil_status || 'N/A';
 
+
+      
+        // Hearing Details
+        document.getElementById('modalHearingType').textContent = complaint.hearing_type || 'N/A';
+        document.getElementById('modalHearingDate').textContent = complaint.hearing_date ? new Date(complaint.hearing_date).toLocaleDateString() : 'N/A';
+              document.getElementById('modalHearingTime').textContent = complaint.  hearing_time || 'N/A'
         // Evidence
         if (complaint.evidence_path) {
             document.getElementById('modalEvidenceSection').style.display = 'block';
@@ -168,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
 
 function confirmLogout() {
     Swal.fire({
