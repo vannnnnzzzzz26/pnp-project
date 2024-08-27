@@ -125,6 +125,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 $total_pages = ceil($row['total'] / $results_per_page);
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -207,9 +208,6 @@ include '../includes/sidebar.php';
         </div>
     </div>
 </div>
-
-
-
             <nav>
                 <ul class="pagination justify-content-center">
                     <?php
@@ -255,8 +253,12 @@ include '../includes/sidebar.php';
                 </p>
                 <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
                 <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                <p><strong>Hearing_Status:</strong> <span id="modal-         hearing_status"></span></p>
+       
             </div>
             <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="openHearingStatusModalBtn" data-complaint-id="123" data-current-status="Attended">Hearing Status</button>
+
                 <button type="button" class="btn btn-success" id="moveToPnpBtn">Move to PNP</button>
                 <button type="button" class="btn btn-secondary" id="settleInBarangayBtn">Settle in Barangay</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
@@ -272,45 +274,44 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
-<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+
+
+<!-- Update Hearing Status Modal -->
+<div class="modal fade" id="viewHearingStatusModal" tabindex="-1" aria-labelledby="viewHearingStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <h5 class="modal-title" id="viewHearingStatusModalLabel">Update Hearing Status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editProfileForm" action="update_profile.php" method="post" enctype="multipart/form-data">
+                <form id="updateHearingStatusForm" action="update_hearing_status.php" method="POST">
                     <div class="mb-3">
-                        <label for="editFirstName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="editFirstName" name="first_name" value="<?php echo htmlspecialchars($firstName); ?>" required>
+                        <label for="hearing-status" class="form-label">Hearing Status</label>
+                        <select class="form-select" id="hearing-status" name="hearing_status" required>
+                            <option value="" disabled>Select Hearing Status</option>
+                            <option value="Attended">Attended</option>
+                            <option value="Not Attended">Not Attended</option>
+                            <option value="Not Resolved">Not Resolved</option>
+                        </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="editMiddleName" class="form-label">Middle Name</label>
-                        <input type="text" class="form-control" id="editMiddleName" name="middle_name" value="<?php echo htmlspecialchars($middleName); ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editLastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="editLastName" name="last_name" value="<?php echo htmlspecialchars($lastName); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editExtensionName" class="form-label">Extension Name</label>
-                        <input type="text" class="form-control" id="editExtensionName" name="extension_name" value="<?php echo htmlspecialchars($extensionName); ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editEmail" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editProfilePic" class="form-label">Profile Picture</label>
-                        <input type="file" class="form-control" id="editProfilePic" name="profile_pic">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <input type="hidden" id="complaint-id" name="complaint_id">
+                    <button type="submit" class="btn btn-primary">Update Status</button>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+<?php
+
+
+include '../barangay/edit-profile.php'
+?>
+
+
 
     <!-- Bootstrap JS and dependencies -->
    
@@ -353,6 +354,7 @@ include '../includes/sidebar.php';
             document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
             document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
             document.getElementById('modal-status').textContent = this.dataset.status;
+            document.getElementById('modal-hearing_status').textContent = this.dataset.hearing_status;
 
             // Handle evidence display
             const evidencePath = this.dataset.evidence;
@@ -451,6 +453,83 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: `complaint_id=${complaintId}&hearing_date=${hearingDate}&hearing_time=${hearingTime}&hearing_type=${hearingType}`
+        })
+        .then(response => response.text())
+        .then(result => {
+            alert(result); // Display success or error message
+            window.location.reload(); // Reload the page to reflect changes
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});
+
+     // JavaScript for modal functionality
+     document.addEventListener('DOMContentLoaded', function() {
+    const viewButtons = document.querySelectorAll('.view-details-btn');
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Populate modal with data
+            document.getElementById('modal-name').textContent = this.dataset.complaint_name;
+            document.getElementById('modal-description').textContent = this.dataset.description;
+            document.getElementById('modal-category').textContent = this.dataset.category;
+            document.getElementById('modal-barangay').textContent = this.dataset.barangay;
+            document.getElementById('modal-contact').textContent = this.dataset.contact;
+            document.getElementById('modal-person').textContent = this.dataset.person;
+            document.getElementById('modal-gender').textContent = this.dataset.gender;
+            document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
+            document.getElementById('modal-age').textContent = this.dataset.age;
+            document.getElementById('modal-education').textContent = this.dataset.education;
+            document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
+            document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
+            document.getElementById('modal-status').textContent = this.dataset.status;
+
+            // Handle evidence display
+            const evidencePath = this.dataset.evidence;
+            const evidenceImage = document.getElementById('modal-evidence-image');
+            const evidenceVideo = document.getElementById('modal-evidence-video');
+            const evidenceVideoSource = document.getElementById('modal-evidence-video-source');
+
+            evidenceImage.style.display = 'none';
+            evidenceVideo.style.display = 'none';
+
+            if (evidencePath) {
+                const fileExtension = evidencePath.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                    evidenceImage.src = evidencePath;
+                    evidenceImage.style.display = 'block';
+                } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+                    evidenceVideoSource.src = evidencePath;
+                    evidenceVideo.load();
+                    evidenceVideo.style.display = 'block';
+                }
+            }
+
+            // Store the complaint ID in the modal for use later
+            document.getElementById('complaintModal').setAttribute('data-complaint-id', this.dataset.id);
+        });
+    });
+
+    // Handle Move to PNP button click
+    document.getElementById('moveToPnpBtn').addEventListener('click', function() {
+        updateComplaintStatus('pnp');
+    });
+
+    // Handle Settle in Barangay button click
+    document.getElementById('settleInBarangayBtn').addEventListener('click', function() {
+        updateComplaintStatus('settled_in_barangay');
+    });
+
+    function updateComplaintStatus(newStatus) {
+        const complaintId = document.getElementById('complaintModal').getAttribute('data-complaint-id');
+        
+        fetch('update_complaint_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `complaint_id=${complaintId}&new_status=${newStatus}`
         })
         .then(response => response.text())
         .then(result => {

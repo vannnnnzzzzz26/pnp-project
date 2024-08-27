@@ -1,6 +1,5 @@
 <?php
-// Include database connection file (adjust path as needed)
-require 'dbconn.php';
+include 'connection/dbconn.php';
 
 // Error reporting for debugging
 error_reporting(E_ALL);
