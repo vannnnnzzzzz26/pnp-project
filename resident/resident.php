@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
             $image_type = 'ID'; // Assuming you have a fixed image type for now
             $image_filename = basename($_FILES['image']['name']);
-            $image_path = 'uploads/' . $image_filename;
+            $image_path = '../uploads/' . $image_filename;
             $date_uploaded = date('Y-m-d H:i:s');
 
         
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_FILES['evidence']) && $_FILES['evidence']['error'][0] == UPLOAD_ERR_OK) {
             foreach ($_FILES['evidence']['tmp_name'] as $key => $tmp_name) {
                 $evidence_filename = basename($_FILES['evidence']['name'][$key]);
-                $evidence_path = 'uploads/' . $evidence_filename;
+                $evidence_path = '../uploads/' . $evidence_filename;
                 $date_uploaded = date('Y-m-d H:i:s');
 
                 // Move uploaded file to 'uploads' directory
@@ -407,11 +407,11 @@ include '../includes/resident-bar.php';
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
+
     }
-  
 
     </script>
 

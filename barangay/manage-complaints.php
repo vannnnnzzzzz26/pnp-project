@@ -24,12 +24,11 @@ $barangay_name = isset($_SESSION['barangay_name']) ? $_SESSION['barangay_name'] 
 $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 // Handle status update
-// Handle status update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && isset($_POST['action'])) {
     try {
         $complaint_id = $_POST['complaint_id'];
         $action = $_POST['action'];
-        $status = ($action == 'approve') ? 'Approved' : 'Rejected'; // Updated status for rejected
+        $status = ($action == 'approve') ? 'Approved' : 'Rejected';
 
         // Update complaint status
         $stmt = $pdo->prepare("UPDATE tbl_complaints SET status = ? WHERE complaints_id = ?");
@@ -61,20 +60,16 @@ try {
     LEFT JOIN tbl_image i ON c.image_id = i.image_id
     LEFT JOIN tbl_info info ON c.info_id = info.info_id
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-    LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id  -- Ensure this join
+    LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
     WHERE c.status = 'Unresolved' AND u.barangay_name = ? AND c.status != 'Rejected'
 ");
-
     $stmt->execute([$barangay_name]);
     $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error fetching complaints: " . $e->getMessage();
     $complaints = []; // Initialize complaints array if fetch fails
 }
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -91,7 +86,6 @@ try {
 </head>
 <body>
 <?php 
-
 include '../includes/navbar.php';
 include '../includes/sidebar.php';
 ?>
@@ -124,37 +118,28 @@ include '../includes/sidebar.php';
         <?php endif; ?>
     </script>
 
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Complaint Name</th>
-            <th>Barangay</th>
-            <th>Action</th> <!-- Adjusted to have one less column -->
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($complaints as $complaint): ?>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
             <tr>
-                <td><?php echo htmlspecialchars($complaint['complaints_id']); ?></td>
-                <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
-                <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
-                <td>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo json_encode($complaint); ?>'>View</button>
-                    <form action="manage-complaints.php" method="post" style="display: inline-block;">
-                        <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
-                  
-                    </form>
-                    <form action="manage-complaints.php" method="post" style="display: inline-block;">
-                        <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
-                       
-                    </form>
-                </td>
+                <th>ID</th>
+                <th>Complaint Name</th>
+                <th>Barangay</th>
+                <th>Action</th>
             </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-
+        </thead>
+        <tbody>
+            <?php foreach ($complaints as $complaint): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($complaint['complaints_id']); ?></td>
+                    <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
+                    <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo json_encode($complaint); ?>'>View</button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
 </div>
 
@@ -188,7 +173,7 @@ include '../includes/sidebar.php';
             </div>
             <div class="modal-footer">
                 <form action="manage-complaints.php" method="post" class="d-inline-block">
-                    <input type="hidden" name="complaint_id" value="<?php echo htmlspecialchars($complaint['complaints_id']); ?>">
+                    <input type="hidden" name="complaint_id" id="complaintIdForForm">
                     <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
                     <button type="submit" name="action" value="reject" class="btn btn-warning">Reject</button>
                 </form>
@@ -203,7 +188,7 @@ include '../includes/sidebar.php';
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">Complaint Image</h5>
+                <h5 class="modal-title" id="imageModalLabel">Image View</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -215,10 +200,10 @@ include '../includes/sidebar.php';
 
 <!-- Video Modal -->
 <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="videoModalLabel">Evidence Video</h5>
+                <h5 class="modal-title" id="videoModalLabel">Video View</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -231,133 +216,77 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
-<?php
-
-
-include '../barangay/edit-profile.php'
-?>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="../scripts/script.js"></script>
+<!-- Include JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../scripts/script.js"></script>
+
 <script>
-    // JavaScript to handle image click and show modal
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-        document.querySelectorAll('.complaint-image').forEach(img => {
-            img.addEventListener('click', () => {
-                const src = img.getAttribute('src');
-                document.getElementById('modalImage').setAttribute('src', src);
-                imageModal.show();
+// Initialize Bootstrap modals
+const viewComplaintModal = new bootstrap.Modal(document.getElementById('viewComplaintModal'), { keyboard: false });
+const imageModal = new bootstrap.Modal(document.getElementById('imageModal'), { keyboard: false });
+const videoModal = new bootstrap.Modal(document.getElementById('videoModal'), { keyboard: false });
+
+// Fetch modal elements and buttons
+document.addEventListener('DOMContentLoaded', function () {
+    const modalButtons = document.querySelectorAll('[data-bs-target="#viewComplaintModal"]');
+    modalButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const complaint = JSON.parse(this.getAttribute('data-complaint'));
+
+            // Populate modal fields with complaint details
+            document.getElementById('complaintName').textContent = complaint.complaint_name;
+            document.getElementById('Complaints').textContent = complaint.complaints;
+            document.getElementById('dateFiled').textContent = complaint.date_filed;
+            document.getElementById('category').textContent = complaint.complaints_category;
+            document.getElementById('barangay').textContent = complaint.barangay_name;
+            document.getElementById('contactNumber').textContent = complaint.cp_number;
+            document.getElementById('complaintsPerson').textContent = complaint.complaints_person;
+            document.getElementById('gender').textContent = complaint.gender;
+            document.getElementById('placeOfBirth').textContent = complaint.place_of_birth;
+            document.getElementById('age').textContent = complaint.age;
+            document.getElementById('educationalBackground').textContent = complaint.educational_background;
+            document.getElementById('civilStatus').textContent = complaint.civil_status;
+            document.getElementById('image').setAttribute('src', complaint.image_path || '');
+            document.getElementById('complaintIdForForm').value = complaint.complaints_id;
+
+            // Handle Evidence Display
+            let evidenceHtml = '';
+            if (complaint.evidence_path) {
+                const evidenceArray = complaint.evidence_path.split(',');
+                evidenceArray.forEach(evidencePath => {
+                    const fileExtension = evidencePath.split('.').pop().toLowerCase();
+                    if (['mp4', 'mov', 'avi', 'wmv'].includes(fileExtension)) {
+                        evidenceHtml += `<a href="#" data-video="${evidencePath}" class="view-media" data-type="video">View Video</a><br>`;
+                    } else {
+                        evidenceHtml += `<a href="#" data-image="${evidencePath}" class="view-media" data-type="image">View Image</a><br>`;
+                    }
+                });
+            } else {
+                evidenceHtml = 'No Evidence Available';
+            }
+            document.getElementById('evidence').innerHTML = evidenceHtml;
+
+            // Add event listeners for viewing media in modals
+            document.querySelectorAll('.view-media').forEach(item => {
+                item.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const type = this.getAttribute('data-type');
+                    if (type === 'image') {
+                        const src = this.getAttribute('data-image');
+                        document.getElementById('modalImage').setAttribute('src', src);
+                        imageModal.show();
+                    } else if (type === 'video') {
+                        const src = this.getAttribute('data-video');
+                        document.getElementById('videoSource').setAttribute('src', src);
+                        document.getElementById('modalVideo').load(); // Reload the video element
+                        videoModal.show();
+                    }
+                });
             });
         });
-    });
-
-
-    function confirmLogout() {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You will be logged out.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#212529",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, logout"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
-            }
-        });
-    }
-
-
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const viewComplaintModal = document.getElementById('viewComplaintModal');
-    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
-
-    viewComplaintModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const complaint = JSON.parse(button.getAttribute('data-complaint'));
-
-        document.getElementById('complaintName').textContent = complaint.complaint_name;
-        document.getElementById('Complaints').textContent = complaint.complaints;
-        document.getElementById('dateFiled').textContent = complaint.date_filed;
-        document.getElementById('category').textContent = complaint.complaints_category;
-        document.getElementById('barangay').textContent = complaint.barangay_name;
-        document.getElementById('contactNumber').textContent = complaint.cp_number;
-        document.getElementById('complaintsPerson').textContent = complaint.complaints_person;
-        document.getElementById('gender').textContent = complaint.gender;
-        document.getElementById('placeOfBirth').textContent = complaint.place_of_birth;
-        document.getElementById('age').textContent = complaint.age;
-        document.getElementById('educationalBackground').textContent = complaint.educational_background;
-        document.getElementById('civilStatus').textContent = complaint.civil_status;
-        document.getElementById('image').src = complaint.image_path;
-
-        // Handle evidence
-        let evidenceHtml = '';
-        if (complaint.evidence_path) {
-            const evidenceArray = complaint.evidence_path.split(','); // assuming multiple paths are comma-separated
-            evidenceArray.forEach(evidencePath => {
-                if (evidencePath.endsWith('.mp4')) {
-                    evidenceHtml += `<a href="#" data-video="${evidencePath}" class="view-media" data-type="video">View Video</a><br>`;
-                } else if (evidencePath.endsWith('.jpg') || evidencePath.endsWith('.png')) {
-                    evidenceHtml += `<a href="#" data-image="${evidencePath}" class="view-media" data-type="image">View Image</a><br>`;
-                } else {
-                    evidenceHtml += `<a href="${evidencePath}" target="_blank">View Evidence</a><br>`;
-                }
-            });
-        } else {
-            evidenceHtml = 'No evidence available';
-        }
-        document.getElementById('evidence').innerHTML = evidenceHtml;
-    });
-
-    // Handle image click to open it in the image modal
-    document.getElementById('image').addEventListener('click', function () {
-        const imgSrc = this.src;
-        document.getElementById('modalImage').src = imgSrc;
-        imageModal.show();
-    });
-
-    // Handle evidence click to open it in the appropriate modal
-    document.getElementById('evidence').addEventListener('click', function (event) {
-        if (event.target.classList.contains('view-media')) {
-            const mediaType = event.target.getAttribute('data-type');
-            if (mediaType === 'video') {
-                const videoUrl = event.target.getAttribute('data-video');
-                document.getElementById('videoSource').src = videoUrl;
-                document.getElementById('modalVideo').load(); // Load new video source
-                videoModal.show();
-            } else if (mediaType === 'image') {
-                const imageUrl = event.target.getAttribute('data-image');
-                document.getElementById('modalImage').src = imageUrl;
-                imageModal.show();
-            }
-            event.preventDefault();
-        }
     });
 });
-
-
-
-
-document.addEventListener('DOMContentLoaded', function () {
-        var profilePic = document.querySelector('.profile');
-        var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
-
-        profilePic.addEventListener('click', function () {
-            editProfileModal.show();
-        });
-    });
-
-
-
 </script>
 
-      
 </body>
 </html>

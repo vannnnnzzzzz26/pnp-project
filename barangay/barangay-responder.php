@@ -27,7 +27,6 @@ $page = !isset($_GET['page']) || !is_numeric($_GET['page']) || $_GET['page'] <= 
 
 // Calculate the SQL LIMIT starting number for the results on the displaying page
 $start_from = ($page - 1) * $results_per_page;
-
 function displayComplaints($pdo, $start_from, $results_per_page) {
     try {
         $barangay_name = $_SESSION['barangay_name'] ?? '';
@@ -70,6 +69,10 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 $complaint_evidence = htmlspecialchars($row['evidence_path']);
                 $complaint_date_filed = htmlspecialchars($row['date_filed']);
                 $complaint_status = htmlspecialchars($row['status']);
+                $complaint_hearing_status = htmlspecialchars($row['hearing_status']);
+                $complaint_hearing_date = htmlspecialchars($row['hearing_date']);
+                $complaint_hearing_time = htmlspecialchars($row['hearing_time']);
+                $complaint_hearing_type = htmlspecialchars($row['hearing_type']);
 
                 echo "<tr>";
                 echo "<td>{$complaint_id}</td>";
@@ -81,7 +84,9 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                             data-gender='{$complaint_gender}' data-birth_place='{$complaint_birth_place}' 
                             data-age='{$complaint_age}' data-education='{$complaint_education}' 
                             data-civil_status='{$complaint_civil_status}' data-evidence='{$complaint_evidence}' 
-                            data-date_filed='{$complaint_date_filed}' data-status='{$complaint_status}'
+                            data-date_filed='{$complaint_date_filed}' data-status='{$complaint_status}' 
+                            data-hearing_status='{$complaint_hearing_status}' data-hearing_date='{$complaint_hearing_date}'
+                            data-hearing_time='{$complaint_hearing_time}' data-hearing_type='{$complaint_hearing_type}'
                             data-bs-toggle='modal' data-bs-target='#complaintModal'>View Details</button></td>";
                 echo "</tr>";
             }
@@ -90,6 +95,7 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         echo "<tr><td colspan='3'>Error fetching complaints: " . $e->getMessage() . "</td></tr>";
     }
 }
+
 
 
 // Handle status update submission
@@ -124,7 +130,6 @@ $stmt->execute([$barangay_name]);
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 $total_pages = ceil($row['total'] / $results_per_page);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -195,6 +200,16 @@ include '../includes/sidebar.php';
                 <option value="Third Hearing">Third Hearing</option>
             </select>
         </div>
+
+        <div class="mb-3">
+                            <label for="hearing-status" class="form-label">Hearing Status</label>
+                            <select class="form-select" id="hearing-status" name="hearing_status" required>
+                                <option value="" disabled selected>Select Hearing Status</option>
+                                <option value="Attended">Attended</option>
+                                <option value="Not Attended">Not Attended</option>
+                                <option value="Not Resolved">Not Resolved</option>
+                            </select>
+                        </div>
         <button type="submit" class="btn btn-primary">Set Hearing</button>
     </form>
 </div>
@@ -222,92 +237,16 @@ include '../includes/sidebar.php';
         </div>
     </div>
 
+
+
+
     <!-- Complaint Modal -->
-  <!-- Complaint Modal -->
-  <div class="modal fade" id="complaintModal" tabindex="-1" aria-labelledby="complaintModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="complaintModalLabel">Complaint Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Name:</strong> <span id="modal-name"></span></p>
-                <p><strong>Description:</strong> <span id="modal-description"></span></p>
-                <p><strong>Category:</strong> <span id="modal-category"></span></p>
-                <p><strong>Barangay:</strong> <span id="modal-barangay"></span></p>
-                <p><strong>Contact:</strong> <span id="modal-contact"></span></p>
-                <p><strong>Person:</strong> <span id="modal-person"></span></p>
-                <p><strong>Gender:</strong> <span id="modal-gender"></span></p>
-                <p><strong>Birth Place:</strong> <span id="modal-birth_place"></span></p>
-                <p><strong>Age:</strong> <span id="modal-age"></span></p>
-                <p><strong>Education:</strong> <span id="modal-education"></span></p>
-                <p><strong>Civil Status:</strong> <span id="modal-civil_status"></span></p>
-                <p><strong>Evidence:</strong> 
-                    <span id="modal-evidence">
-                        <img id="modal-evidence-image" src="" alt="Evidence Image" style="display: none; max-width: 100%;">
-                        <video id="modal-evidence-video" controls style="display: none; max-width: 100%;">
-                            <source id="modal-evidence-video-source" src="" type="video/mp4">
-                        </video>
-                    </span>
-                </p>
-                <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
-                <p><strong>Status:</strong> <span id="modal-status"></span></p>
-                <p><strong>Hearing_Status:</strong> <span id="modal-         hearing_status"></span></p>
-       
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-success" id="openHearingStatusModalBtn" data-complaint-id="123" data-current-status="Attended">Hearing Status</button>
-
-                <button type="button" class="btn btn-success" id="moveToPnpBtn">Move to PNP</button>
-                <button type="button" class="btn btn-secondary" id="settleInBarangayBtn">Settle in Barangay</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-
-                
-      
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" id="setHearingBtn">
-                Set Hearing
-            </button>
-        
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
-<!-- Update Hearing Status Modal -->
-<div class="modal fade" id="viewHearingStatusModal" tabindex="-1" aria-labelledby="viewHearingStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="viewHearingStatusModalLabel">Update Hearing Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="updateHearingStatusForm" action="update_hearing_status.php" method="POST">
-                    <div class="mb-3">
-                        <label for="hearing-status" class="form-label">Hearing Status</label>
-                        <select class="form-select" id="hearing-status" name="hearing_status" required>
-                            <option value="" disabled>Select Hearing Status</option>
-                            <option value="Attended">Attended</option>
-                            <option value="Not Attended">Not Attended</option>
-                            <option value="Not Resolved">Not Resolved</option>
-                        </select>
-                    </div>
-                    <input type="hidden" id="complaint-id" name="complaint_id">
-                    <button type="submit" class="btn btn-primary">Update Status</button>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 <?php
 
-
+include 'complaints_viewmodal.php';
 include '../barangay/edit-profile.php'
 ?>
 
@@ -341,20 +280,23 @@ include '../barangay/edit-profile.php'
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Populate modal with data
-            document.getElementById('modal-name').textContent = this.dataset.complaint_name;
-            document.getElementById('modal-description').textContent = this.dataset.description;
-            document.getElementById('modal-category').textContent = this.dataset.category;
-            document.getElementById('modal-barangay').textContent = this.dataset.barangay;
-            document.getElementById('modal-contact').textContent = this.dataset.contact;
-            document.getElementById('modal-person').textContent = this.dataset.person;
-            document.getElementById('modal-gender').textContent = this.dataset.gender;
-            document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
-            document.getElementById('modal-age').textContent = this.dataset.age;
-            document.getElementById('modal-education').textContent = this.dataset.education;
-            document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
-            document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
-            document.getElementById('modal-status').textContent = this.dataset.status;
-            document.getElementById('modal-hearing_status').textContent = this.dataset.hearing_status;
+            document.getElementById('modal-name').textContent = this.dataset.name;
+        document.getElementById('modal-description').textContent = this.dataset.description;
+        document.getElementById('modal-category').textContent = this.dataset.category;
+        document.getElementById('modal-barangay').textContent = this.dataset.barangay;
+        document.getElementById('modal-contact').textContent = this.dataset.contact;
+        document.getElementById('modal-person').textContent = this.dataset.person;
+        document.getElementById('modal-gender').textContent = this.dataset.gender;
+        document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
+        document.getElementById('modal-age').textContent = this.dataset.age;
+        document.getElementById('modal-education').textContent = this.dataset.education;
+        document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
+        document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
+        document.getElementById('modal-status').textContent = this.dataset.status;
+        document.getElementById('modal-hearing_status').textContent = this.dataset.hearing_status;
+        document.getElementById('modal-hearing_date').textContent = this.dataset.hearing_date;
+        document.getElementById('modal-hearing_time').textContent = this.dataset.hearing_time;
+        document.getElementById('modal-hearing_type').textContent = this.dataset.hearing_type;
 
             // Handle evidence display
             const evidencePath = this.dataset.evidence;
@@ -420,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             // Populate modal with data
             document.getElementById('modal-name').textContent = this.dataset.name;
-            // Populate other fields...
+            // Populate other fields as needed...
 
             // Show hearing section if the complaint status is 'Approved'
             const status = this.dataset.status;
@@ -432,27 +374,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Store the complaint ID in the modal for use later
             document.getElementById('viewComplaintModal').setAttribute('data-complaint-id', this.dataset.id);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('viewComplaintModal'));
+            modal.show();
         });
     });
 
-    // Handle Hearing Form Submission
+    // Handle form submission for setting hearing details
     document.getElementById('hearingForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        setHearingDate();
+        setHearingDetails();
     });
 
-    function setHearingDate() {
+    function setHearingDetails() {
         const complaintId = document.getElementById('viewComplaintModal').getAttribute('data-complaint-id');
         const hearingDate = document.getElementById('hearing-date').value;
         const hearingTime = document.getElementById('hearing-time').value;
         const hearingType = document.getElementById('hearing-type').value;
+        const hearingStatus = document.getElementById('hearing-status').value;
 
         fetch('set_hearing.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `complaint_id=${complaintId}&hearing_date=${hearingDate}&hearing_time=${hearingTime}&hearing_type=${hearingType}`
+            body: `complaint_id=${complaintId}&hearing_date=${hearingDate}&hearing_time=${hearingTime}&hearing_type=${hearingType}&hearing_status=${hearingStatus}`
         })
         .then(response => response.text())
         .then(result => {
@@ -465,82 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-     // JavaScript for modal functionality
-     document.addEventListener('DOMContentLoaded', function() {
-    const viewButtons = document.querySelectorAll('.view-details-btn');
-    viewButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Populate modal with data
-            document.getElementById('modal-name').textContent = this.dataset.complaint_name;
-            document.getElementById('modal-description').textContent = this.dataset.description;
-            document.getElementById('modal-category').textContent = this.dataset.category;
-            document.getElementById('modal-barangay').textContent = this.dataset.barangay;
-            document.getElementById('modal-contact').textContent = this.dataset.contact;
-            document.getElementById('modal-person').textContent = this.dataset.person;
-            document.getElementById('modal-gender').textContent = this.dataset.gender;
-            document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
-            document.getElementById('modal-age').textContent = this.dataset.age;
-            document.getElementById('modal-education').textContent = this.dataset.education;
-            document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
-            document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
-            document.getElementById('modal-status').textContent = this.dataset.status;
 
-            // Handle evidence display
-            const evidencePath = this.dataset.evidence;
-            const evidenceImage = document.getElementById('modal-evidence-image');
-            const evidenceVideo = document.getElementById('modal-evidence-video');
-            const evidenceVideoSource = document.getElementById('modal-evidence-video-source');
-
-            evidenceImage.style.display = 'none';
-            evidenceVideo.style.display = 'none';
-
-            if (evidencePath) {
-                const fileExtension = evidencePath.split('.').pop().toLowerCase();
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                    evidenceImage.src = evidencePath;
-                    evidenceImage.style.display = 'block';
-                } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
-                    evidenceVideoSource.src = evidencePath;
-                    evidenceVideo.load();
-                    evidenceVideo.style.display = 'block';
-                }
-            }
-
-            // Store the complaint ID in the modal for use later
-            document.getElementById('complaintModal').setAttribute('data-complaint-id', this.dataset.id);
-        });
-    });
-
-    // Handle Move to PNP button click
-    document.getElementById('moveToPnpBtn').addEventListener('click', function() {
-        updateComplaintStatus('pnp');
-    });
-
-    // Handle Settle in Barangay button click
-    document.getElementById('settleInBarangayBtn').addEventListener('click', function() {
-        updateComplaintStatus('settled_in_barangay');
-    });
-
-    function updateComplaintStatus(newStatus) {
-        const complaintId = document.getElementById('complaintModal').getAttribute('data-complaint-id');
-        
-        fetch('update_complaint_status.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `complaint_id=${complaintId}&new_status=${newStatus}`
-        })
-        .then(response => response.text())
-        .then(result => {
-            alert(result); // Display success or error message
-            window.location.reload(); // Reload the page to reflect changes
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-});
 
 function confirmLogout() {
         Swal.fire({
@@ -554,7 +426,7 @@ function confirmLogout() {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
 

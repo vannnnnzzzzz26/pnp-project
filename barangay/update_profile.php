@@ -25,13 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $fileType = mime_content_type($_FILES['profile_pic']['tmp_name']);
             $fileSize = $_FILES['profile_pic']['size'];
 
-            if (in_array($fileType, $allowedTypes) && $fileSize <= 2000000) { // 2MB limit
+            if (in_array($fileType, $allowedTypes) && $fileSize <= 10000000) { // 10MB limit
                 $profilePicFilename = basename($_FILES['profile_pic']['name']);
-                $profilePicPath = 'uploads/' . $profilePicFilename;
+                $profilePicPath = '../uploads/' . $profilePicFilename;
 
                 // Create 'uploads' directory if it doesn't exist
-                if (!file_exists('uploads')) {
-                    mkdir('uploads', 0777, true); // Create directory with full permissions
+                if (!file_exists('../uploads')) {
+                    mkdir('../uploads', 0777, true); // Create directory with full permissions
                 }
 
                 // Move uploaded file to 'uploads' directory
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     throw new Exception("Failed to upload profile picture.");
                 }
             } else {
-                throw new Exception("Invalid file type or size. Please upload a valid image (JPEG, PNG, GIF) no larger than 2MB.");
+                throw new Exception("Invalid file type or size. Please upload a valid image (JPEG, PNG, GIF) no larger than 10MB.");
             }
         }
 

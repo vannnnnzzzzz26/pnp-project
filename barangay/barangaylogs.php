@@ -89,7 +89,7 @@ try {
         JOIN tbl_info i ON c.info_id = i.info_id
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
         WHERE (c.status = 'settled_in_barangay') AND b.barangay_name = ?
-        AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?)
+        AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?  )
         ORDER BY c.date_filed ASC
         LIMIT ?, ?
     ");
@@ -122,6 +122,7 @@ try {
             $age = htmlspecialchars($row['age']);
             $educational_background = htmlspecialchars($row['educational_background']);
             $civil_status = htmlspecialchars($row['civil_status']);
+            $hearing_status = htmlspecialchars($row['hearing_status']);
             $evidence_path = htmlspecialchars($row['evidence_path']);
 
             echo "<tr>
@@ -230,10 +231,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
-        }
+
+    }
     </script>
 </body>
 </html>

@@ -1,44 +1,34 @@
 <?php
-include '../connection/dbconn.php'; // Adjust the path to your 'dbconn.php' file
+require_once '../connection/dbconn.php';
 
-// Set content type to JSON
-header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $complaint_id = $_POST['complaint_id'];
+    $hearing_status = trim($_POST['hearing_status']); // Trim whitespace
 
-$response = array('success' => false, 'message' => 'Unknown error');
+    // Debug: Print values to ensure they are correct
+    echo "Complaint ID: '$complaint_id', Hearing Status: '$hearing_status'";
 
-try {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $complaint_id = $_POST['complaint_id'];
-        $hearing_status = $_POST['hearing_status'];
+    // Prepare the SQL statement
+    $stmt = $conn->prepare("UPDATE tbl_complaints SET hearing_status = ? WHERE complaints_id = ?");
 
-        // Validate input
-        if (empty($complaint_id)) {
-            throw new Exception('Complaint ID is missing.');
-        }
-
-        // If hearing_status is empty, set it to NULL
-        $hearing_status = !empty($hearing_status) ? $hearing_status : null;
-
-        // Prepare and execute the SQL statement
-        $sql = "UPDATE tbl_complaints SET hearing_status = :hearing_status WHERE complaints_id = :complaints_id";
-        $stmt = $pdo->prepare($sql);
-        $result = $stmt->execute(['hearing_status' => $hearing_status, 'complaints_id' => $complaint_id]);
-
-        if ($result) {
-            $response['success'] = true;
-            $response['message'] = 'Hearing status updated successfully.';
-        } else {
-            throw new Exception('Failed to update hearing status.');
-        }
+    // Bind parameters
+    if (empty($hearing_status)) {
+        // If hearing_status is empty or null, bind null
+        $hearing_status = null;
+        $stmt->bind_param("si", $hearing_status, $complaint_id);
     } else {
-        throw new Exception('Invalid request method.');
+        // Otherwise, bind the actual value
+        $stmt->bind_param("si", $hearing_status, $complaint_id);
     }
-} catch (Exception $e) {
-    // Capture and log the exception message
-    error_log("Error: " . $e->getMessage());
-    $response['message'] = $e->getMessage();
-}
 
-// Output the JSON response
-echo json_encode($response);
-?>
+    // Execute the query
+    if ($stmt->execute()) {
+        echo 'success';
+    } else {
+        echo 'error: ' . $stmt->error;
+    }
+
+    // Close statement and connection
+    $stmt->close();
+    $conn->close();
+}

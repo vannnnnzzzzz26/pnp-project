@@ -2,8 +2,8 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
-include 'connection/dbconn.php';
+require '../vendor/autoload.php';
+include '../connection/dbconn.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -33,11 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Redirect based on account type
         if ($user['accountType'] == 'Barangay Official') {
-            $redirectUrl = "barangay/barangay-responder.php";
+            $redirectUrl = "../barangay/barangay-responder.php";
         } elseif ($user['accountType'] == 'PNP Officer') {
-            $redirectUrl = "pnp/pnp.php";
+            $redirectUrl = "../pnp/pnp.php";
         } elseif ($user['accountType'] == 'Resident') {
-            $redirectUrl = "resident/resident.php";
+            $redirectUrl = "../resident/resident.php";
         } else {
             $_SESSION['login_error'] = "Invalid account type!";
             header("Location: login.php");
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         body {
-            background-image: url('poles.jpg');
+            background-image: url('..reg/poles.jpg');
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;
@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
     <div class="container">
-        <img src="complaint.jpg" alt="Illustration" class="img-fluid mb-4"> 
+        <img src="../reg/complaint.jpg" alt="Illustration" class="img-fluid mb-4"> 
         <h1>Log in</h1>
         <form method="post">
 

@@ -1,9 +1,6 @@
 <?php
-include 'connection/dbconn.php';
+include '../connection/dbconn.php';
 
-// Error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Function to safely retrieve POST data
 function getPostData($key) {
@@ -47,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $temp_name = $_FILES['profile_picture']['tmp_name'];
             $file_name = $_FILES['profile_picture']['name'];
             $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-            $upload_directory = 'uploads/'; // Directory where uploads will be stored
+            $upload_directory = '../uploads/'; // Directory where uploads will be stored
             $new_file_name = uniqid('profile_') . '.' . $file_extension; // Generate a unique filename
             $destination = $upload_directory . $new_file_name;
 
@@ -97,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.4/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         body {
-            background-image: url('poles.jpg');
+            background-image: url('../reg/poles.jpg');
             background-size: cover;
             background-position: center top;
             background-position: center;

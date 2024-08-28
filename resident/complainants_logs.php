@@ -128,6 +128,8 @@ include '../includes/resident-bar.php';
                 <p><strong>Hearing Type:</strong> <span id="modalHearingType"></span></p>
                 <p><strong>Hearing Date:</strong> <span id="modalHearingDate"></span></p>
                 <p><strong>Hearing Time:</strong> <span id="modalHearingTime"></span></p>
+                
+                <p><strong>Hearing Status:</strong> <span id="modalHearingStatus"></span></p>
                 <!-- Evidence Section -->
                 <div id="modalEvidenceSection" style="display: none;">
                     <p><strong>Evidence:</strong></p>
@@ -171,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalHearingType').textContent = complaint.hearing_type || 'N/A';
         document.getElementById('modalHearingDate').textContent = complaint.hearing_date ? new Date(complaint.hearing_date).toLocaleDateString() : 'N/A';
               document.getElementById('modalHearingTime').textContent = complaint.  hearing_time || 'N/A'
+               document.getElementById('modalHearingStatus').textContent = complaint.  hearing_status || 'N/A'
         // Evidence
         if (complaint.evidence_path) {
             document.getElementById('modalEvidenceSection').style.display = 'block';
