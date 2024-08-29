@@ -170,6 +170,9 @@ include '../includes/sidebar.php';
 
     </div>
 
+
+
+
     <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -185,15 +188,15 @@ include '../includes/sidebar.php';
     <form id="hearingForm">
         <div class="mb-3">
             <label for="hearing-date" class="form-label">Hearing Date</label>
-            <input type="date" class="form-control" id="hearing-date" name="hearing_date" required>
+            <input type="date" class="form-control" id="hearing-date" name="hearing_date" >
         </div>
         <div class="mb-3">
             <label for="hearing-time" class="form-label">Hearing Time</label>
-            <input type="time" class="form-control" id="hearing-time" name="hearing_time" required>
+            <input type="time" class="form-control" id="hearing-time" name="hearing_time" >
         </div>
         <div class="mb-3">
             <label for="hearing-type" class="form-label">Hearing Type</label>
-            <select class="form-select" id="hearing-type" name="hearing_type" required>
+            <select class="form-select" id="hearing-type" name="hearing_type" >
                 <option value="" disabled selected>Select Hearing Type</option>
                 <option value="First Hearing">First Hearing</option>
                 <option value="Second Hearing">Second Hearing</option>
@@ -203,7 +206,7 @@ include '../includes/sidebar.php';
 
         <div class="mb-3">
                             <label for="hearing-status" class="form-label">Hearing Status</label>
-                            <select class="form-select" id="hearing-status" name="hearing_status" required>
+                            <select class="form-select" id="hearing-status" name="hearing_status" >
                                 <option value="" disabled selected>Select Hearing Status</option>
                                 <option value="Attended">Attended</option>
                                 <option value="Not Attended">Not Attended</option>
@@ -238,17 +241,16 @@ include '../includes/sidebar.php';
     </div>
 
 
+    <?php
 
+include 'complaints_viewmodal.php';
+include '../barangay/edit-profile.php'
+?>
 
     <!-- Complaint Modal -->
 
 
 
-<?php
-
-include 'complaints_viewmodal.php';
-include '../barangay/edit-profile.php'
-?>
 
 
 
@@ -262,9 +264,9 @@ include '../barangay/edit-profile.php'
 
 <!-- Bootstrap JavaScript link -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
-    <script>
+    
+  <script>
              document.addEventListener('DOMContentLoaded', function () {
         var profilePic = document.querySelector('.profile');
         var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
@@ -274,8 +276,7 @@ include '../barangay/edit-profile.php'
         });
     });
 
-        // JavaScript for modal functionality
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     const viewButtons = document.querySelectorAll('.view-details-btn');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {

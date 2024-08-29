@@ -134,7 +134,7 @@ include '../includes/sidebar.php';
                     <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
                     <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
                     <td>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo json_encode($complaint); ?>'>View</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo htmlspecialchars(json_encode($complaint), ENT_QUOTES, 'UTF-8'); ?>'>View</button>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -287,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 
 </body>
 </html>

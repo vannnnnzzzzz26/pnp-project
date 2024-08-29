@@ -32,7 +32,7 @@
                 <p><strong>Hearing Time:</strong> <span id="modal-hearing_time"></span></p>
                 <p><strong>Hearing Type:</strong> <span id="modal-hearing_type"></span></p>
                 <p><strong>Hearing_Status:</strong> <span id="modal-hearing_status"></span></p>
-                <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                    <p><strong>Status:</strong> <span id="modal-status"></span></p>
             </div>
             <div class="modal-footer">
            

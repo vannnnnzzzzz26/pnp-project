@@ -13,7 +13,7 @@ if (isset($data['id'])) {
     $complaint_id = $data['id'];
 
     // SQL query to update the status of the complaint to 'Settled'
-    $sql = "UPDATE tbl_complaints SET status = 'Settled in PNP' WHERE complaints_id = ?";
+    $sql = "UPDATE tbl_complaints SET status = 'Filed in the court' WHERE complaints_id = ?";
     
     // Prepare and execute the statement
     if ($stmt = $pdo->prepare($sql)) {

@@ -123,7 +123,7 @@ try {
                         <a class="nav-link" href="#"><i class="bi bi-house-door"></i> Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        <a class="nav-link" href="reg/login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                     </li>
                 </ul>
             </div>

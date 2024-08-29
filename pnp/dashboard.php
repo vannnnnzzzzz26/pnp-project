@@ -19,10 +19,10 @@ function fetchDashboardData($pdo) {
         $stmtTotal->execute();
         $totalComplaints = $stmtTotal->fetchColumn();
 
-        // Fetch settled in PNP
-        $stmtSettledPNP = $pdo->prepare("SELECT COUNT(*) AS settled_in_pnp FROM tbl_complaints WHERE status = 'settled in pnp' AND responds = 'pnp'");
-        $stmtSettledPNP->execute();
-        $settledInPNP = $stmtSettledPNP->fetchColumn();
+        // Fetch Filed in the Court
+        $stmtFiledCourt = $pdo->prepare("SELECT COUNT(*) AS filed_in_court FROM tbl_complaints WHERE status = 'Filed in the Court' AND responds = 'pnp'");
+        $stmtFiledCourt->execute();
+        $filedInCourt = $stmtFiledCourt->fetchColumn();
 
         // Fetch settled in Barangay
         $stmtSettledBarangay = $pdo->prepare("SELECT COUNT(*) AS settled_in_barangay FROM tbl_complaints WHERE status = 'settled_in_barangay' AND responds = 'barangay'");
@@ -31,14 +31,14 @@ function fetchDashboardData($pdo) {
 
         return [
             'totalComplaints' => $totalComplaints,
-            'settledInPNP' => $settledInPNP,
+            'filedInCourt' => $filedInCourt,
             'settledInBarangay' => $settledInBarangay
         ];
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
         return [
             'totalComplaints' => 0,
-            'settledInPNP' => 0,
+            'filedInCourt' => 0,
             'settledInBarangay' => 0
         ];
     }
@@ -102,6 +102,7 @@ function fetchComplaintCategoriesData($pdo) {
 
 $categoryData = fetchComplaintCategoriesData($pdo);
 ?>
+
 
 
 <!DOCTYPE html>
@@ -180,8 +181,8 @@ include '../includes/pnp-bar.php';
                 <p>Total Complaints</p>
             </div>
             <div class="card">
-                <h2><?php echo htmlspecialchars($data['settledInPNP']); ?></h2>
-                <p>Settled in PNP</p>
+                <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
+                <p>Filed in the Court</p>
             </div>
             <div class="card">
                 <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>

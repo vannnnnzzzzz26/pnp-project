@@ -1,34 +1,28 @@
 <?php
-require_once '../connection/dbconn.php';
+// update_hearing_status.php
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+session_start();
+
+include '../connection/dbconn.php';
+
+$pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $complaint_id = $_POST['complaint_id'];
-    $hearing_status = trim($_POST['hearing_status']); // Trim whitespace
+    $hearing_status = $_POST['hearing_status']; // Status of the hearing
 
-    // Debug: Print values to ensure they are correct
-    echo "Complaint ID: '$complaint_id', Hearing Status: '$hearing_status'";
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE tbl_complaints
+            SET hearing_status = ?
+            WHERE complaints_id = ?
+        ");
+        $stmt->execute([$hearing_status, $complaint_id]);
 
-    // Prepare the SQL statement
-    $stmt = $conn->prepare("UPDATE tbl_complaints SET hearing_status = ? WHERE complaints_id = ?");
-
-    // Bind parameters
-    if (empty($hearing_status)) {
-        // If hearing_status is empty or null, bind null
-        $hearing_status = null;
-        $stmt->bind_param("si", $hearing_status, $complaint_id);
-    } else {
-        // Otherwise, bind the actual value
-        $stmt->bind_param("si", $hearing_status, $complaint_id);
+        echo "Hearing status updated successfully.";
+    } catch (PDOException $e) {
+        echo "Error updating hearing status: " . $e->getMessage();
     }
-
-    // Execute the query
-    if ($stmt->execute()) {
-        echo 'success';
-    } else {
-        echo 'error: ' . $stmt->error;
-    }
-
-    // Close statement and connection
-    $stmt->close();
-    $conn->close();
 }
+?>
