@@ -26,24 +26,24 @@
         <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link" href="manage-complaints.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
+                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Resident's Complaint</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="barangay-responder.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Responder</span>
+                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Barangay Responder</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="barangaylogs.php">
-            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Logs</span>
+            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Histrory</span>
             </a>
         </li>
 
         
         <li class="nav-item">
             <a class="nav-link" href="barangay-official.php">
-                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Official</span>
+                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Officials</span>
             </a>
         </li>
      

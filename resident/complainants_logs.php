@@ -81,12 +81,8 @@ include '../includes/resident-bar.php';
                                         <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
                                         <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
                                         <td>
-                                            <button type="button" class="btn btn-primary btn-sm" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#viewComplaintModal" 
-                                                    data-complaint='<?php echo json_encode($complaint); ?>'>
-                                                View
-                                            </button>
+                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo htmlspecialchars(json_encode($complaint), ENT_QUOTES, 'UTF-8'); ?>'>View</button>
+
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -100,7 +96,6 @@ include '../includes/resident-bar.php';
 </div>
 
 
-<!-- Complaint Details Modal -->
 <!-- Complaint Details Modal -->
 <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg"> <!-- Make modal larger -->
@@ -140,12 +135,15 @@ include '../includes/resident-bar.php';
     </div>
 </div>
 
-<script src="../scripts/script.js"></script>
+   
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../scripts/script.js"></script>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
 
+
+<!-- Bootstrap JavaScript link -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var complaintModal = document.getElementById('viewComplaintModal');

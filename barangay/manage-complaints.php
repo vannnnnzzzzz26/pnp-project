@@ -165,7 +165,7 @@ include '../includes/sidebar.php';
                 <p><strong>Age:</strong> <span id="age"></span></p>
                 <p><strong>Educational Background:</strong> <span id="educationalBackground"></span></p>
                 <p><strong>Civil Status:</strong> <span id="civilStatus"></span></p>
-                <p><strong>Image:</strong> 
+                <p><strong>Verification ID:</strong> 
                     <img id="image" src="" alt="Complaint Image" style="max-width: 100px; cursor: pointer;">
                 </p>
                 <p><strong>Documents:</strong> <span id="documents"></span></p>

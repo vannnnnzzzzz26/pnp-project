@@ -247,9 +247,11 @@ include '../includes/resident-bar.php';
                         <label for="cp_number">CP Number:</label>
                         <input type="text" id="cp_number" name="cp_number" class="form-control" required>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="age">Age:</label>
-                        <input type="number" id="age" name="age" class="form-control" readonly>
+                    
+
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
+                        <label for="birth_date">Birth Date:</label>
+                        <input type="date" id="birth_date" name="birth_date" class="form-control" required>
                     </div>
                 </div>
 
@@ -261,15 +263,15 @@ include '../includes/resident-bar.php';
                             <option value="Female">Female</option>
                         </select>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
-                        <label for="birth_date">Birth Date:</label>
-                        <input type="date" id="birth_date" name="birth_date" class="form-control" required>
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" name="age" class="form-control" readonly>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
-                        <label for="place_of_birth">Place of Birth:</label>col-lg-6 col-md-6 col-sm-12
+                        <label for="place_of_birth">Place of Birth:</label>
                         <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-123 form-group">
@@ -293,7 +295,7 @@ include '../includes/resident-bar.php';
                         </select>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="image">Upload Image (if any):</label>
+                        <label for="image">Identity (Any valid ID):</label>
                         <input type="file" id="image" name="image" class="form-control">
                     </div>
                 </div>

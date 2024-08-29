@@ -27,12 +27,12 @@
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="pnp.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
+                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Barangay Complaints</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pnplogs.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
+                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints History</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -40,12 +40,12 @@
 
                 <li class="nav-item">
                 <a class="nav-link" href="pnp-announcement.php">
-                    <i class="bi bi-check-square-fill large-iconn"></i><span class="nav-text">Complaints Logs</span>
+                    <i class="bi bi-check-square-fill large-iconn"></i><span class="nav-text">Announcements</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="dashboard.php">
-                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard</span>
+                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>
                 </a>
             </li>
         </ul>
