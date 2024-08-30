@@ -81,18 +81,19 @@ try {
     $search_query = isset($_GET['search']) ? '%' . $_GET['search'] . '%' : '%';
 
     // Fetch complaints data with pagination and search filter
-    $stmt = $pdo->prepare("
-        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, e.evidence_path
-        FROM tbl_complaints c
-        JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-        JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-        JOIN tbl_info i ON c.info_id = i.info_id
-        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-        WHERE (c.status = 'settled_in_barangay') AND b.barangay_name = ?
-        AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?  )
-        ORDER BY c.date_filed ASC
-        LIMIT ?, ?
-    ");
+ // Fetch complaints data with pagination and search filter
+$stmt = $pdo->prepare("
+SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, e.evidence_path
+FROM tbl_complaints c
+JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+JOIN tbl_info i ON c.info_id = i.info_id
+LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+WHERE (c.status IN ('settled_in_barangay', 'rejected')) AND b.barangay_name = ?
+AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?)
+ORDER BY c.date_filed ASC
+LIMIT ?, ?
+");
 
     $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
     $stmt->bindParam(2, $search_query, PDO::PARAM_STR);

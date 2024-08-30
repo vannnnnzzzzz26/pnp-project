@@ -1,18 +1,12 @@
-
-
-
 <?php
 include '../connection/dbconn.php'; 
 
-
 session_start();
-
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
 
 $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
@@ -24,7 +18,6 @@ $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
-       
         $complaint_name = "$firstName $middleName $lastName $extensionName";
         $complaints = isset($_POST['complaints']) ? htmlspecialchars($_POST['complaints']) : '';
         $category = isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '';
@@ -38,15 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $educational_background = isset($_POST['educational_background']) ? htmlspecialchars($_POST['educational_background']) : '';
         $date_filed = date('Y-m-d H:i:s');
 
-     
         $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
         if ($category === 'Other' && !empty($other_category)) {
             $category = $other_category;
         }
 
-   
         $pdo->beginTransaction();
-
 
         $stmt = $pdo->prepare("SELECT category_id FROM tbl_complaintcategories WHERE complaints_category = ?");
         $stmt->execute([$category]);
@@ -58,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $category_id = $pdo->lastInsertId();
         }
 
-      
         $stmt = $pdo->prepare("SELECT barangays_id FROM tbl_users_barangay WHERE barangays_id = ?");
         $stmt->execute([$barangay]);
         $barangays_id = $stmt->fetchColumn();
@@ -67,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Invalid Barangay ID."); 
         }
 
-      
         $image_id = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
             $image_type = 'ID'; // Assuming you have a fixed image type for now
@@ -75,13 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $image_path = '../uploads/' . $image_filename;
             $date_uploaded = date('Y-m-d H:i:s');
 
-        
             if (!file_exists('uploads')) {
                 mkdir('uploads', 0777, true); 
             }
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-                // Insert image into tbl_image
                 $stmt = $pdo->prepare("INSERT INTO tbl_image (image_type, image_path, date_uploaded) VALUES (?, ?, ?)");
                 $stmt->execute([$image_type, $image_path, $date_uploaded]);
                 $image_id = $pdo->lastInsertId();
@@ -90,14 +76,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-    
         $stmt = $pdo->prepare("INSERT INTO tbl_info (age, gender, birth_date, place_of_birth, civil_status, educational_background) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$age, $gender, $birth_date, $place_of_birth, $civil_status, $educational_background]);
         $info_id = $pdo->lastInsertId();
 
+        // Determine the responds value
+        $responds = ($category === 'Other') ? 'pnp' : '';
+
         // Insert into tbl_complaints with status
-        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, cp_number, complaints_person, info_id, image_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, 'Unresolved']);
+        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, cp_number, complaints_person, info_id, image_id, status, responds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, 'inprogress', $responds]);
         $complaint_id = $pdo->lastInsertId(); // Get the inserted complaint ID
 
         // Handle evidence upload if provided
@@ -107,9 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $evidence_path = '../uploads/' . $evidence_filename;
                 $date_uploaded = date('Y-m-d H:i:s');
 
-                // Move uploaded file to 'uploads' directory
                 if (move_uploaded_file($tmp_name, $evidence_path)) {
-                    // Insert evidence into tbl_evidence
                     $stmt = $pdo->prepare("INSERT INTO tbl_evidence (complaints_id, evidence_path, date_uploaded) VALUES (?, ?, ?)");
                     $stmt->execute([$complaint_id, $evidence_path, $date_uploaded]);
                 } else {
@@ -118,18 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Commit transaction
         $pdo->commit();
 
-        // Set a session variable to indicate successful submission
         $_SESSION['success'] = true;
 
-        // Redirect to avoid resubmission on page refresh
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
 
     } catch (PDOException $e) {
-        // Rollback transaction on error
         $pdo->rollBack();
         echo "<div class='alert alert-danger' role='alert'>Error: " . $e->getMessage() . "</div>";
     } catch (Exception $e) {
@@ -137,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -209,7 +192,56 @@ include '../includes/resident-bar.php';
                     <div class="col-lg-6 col-md-6 col-sm-12form-group">
                         <label for="category">Category:</label>
                         <select id="category" name="category" class="form-control" required>
-                            <option value="Rape">Rape</option>
+                        <option value=""></option>
+ 
+    <option value="Unlawful Use of Means of Publication and Unlawful Utterances (Art. 154)">Unlawful Use of Means of Publication and Unlawful Utterances (Art. 154)</option>
+    <option value="Alarms and Scandals (Art. 155)">Alarms and Scandals (Art. 155)</option>
+    <option value="Using False Certificates (Art. 175)">Using False Certificates (Art. 175)</option>
+    <option value="Using Fictitious Names and Concealing True Names (Art. 178)">Using Fictitious Names and Concealing True Names (Art. 178)</option>
+    <option value="Illegal Use of Uniforms and Insignias (Art. 179)">Illegal Use of Uniforms and Insignias (Art. 179)</option>
+    <option value="Physical Injuries Inflicted in a Tumultuous Affray (Art. 252)">Physical Injuries Inflicted in a Tumultuous Affray (Art. 252)</option>
+    <option value="Giving Assistance to Consummated Suicide (Art. 253)">Giving Assistance to Consummated Suicide (Art. 253)</option>
+    <option value="Responsibility of Participants in a Duel if only Physical Injuries are Inflicted or No Physical Injuries have been Inflicted (Art. 260)">Responsibility of Participants in a Duel if only Physical Injuries are Inflicted or No Physical Injuries have been Inflicted (Art. 260)</option>
+    <option value="Less serious physical injuries (Art. 265)">Less serious physical injuries (Art. 265)</option>
+    <option value="Slight physical injuries and maltreatment (Art. 266)">Slight physical injuries and maltreatment (Art. 266)</option>
+    <option value="Unlawful arrest (Art. 269)">Unlawful arrest (Art. 269)</option>
+    <option value="Inducing a minor to abandon his/her home (Art. 271)">Inducing a minor to abandon his/her home (Art. 271)</option>
+    <option value="Abandonment of a person in danger and abandonment of one’s own victim (Art. 275)">Abandonment of a person in danger and abandonment of one’s own victim (Art. 275)</option>
+    <option value="Abandoning a minor (a child under seven (7) years old) (Art. 276)">Abandoning a minor (a child under seven (7) years old) (Art. 276)</option>
+    <option value="Abandonment of a minor by persons entrusted with his/her custody; indifference of parents (Art. 277)">Abandonment of a minor by persons entrusted with his/her custody; indifference of parents (Art. 277)</option>
+    <option value="Qualified trespass to dwelling (without the use of violence and intimidation) (Art. 280)">Qualified trespass to dwelling (without the use of violence and intimidation) (Art. 280)</option>
+    <option value="Other forms of trespass (Art. 281)">Other forms of trespass (Art. 281)</option>
+    <option value="Light threats (Art. 283)">Light threats (Art. 283)</option>
+    <option value="Other light threats (Art. 285)">Other light threats (Art. 285)</option>
+    <option value="Grave coercion (Art. 286)">Grave coercion (Art. 286)</option>
+    <option value="Light coercion (Art. 287)">Light coercion (Art. 287)</option>
+    <option value="Other similar coercions (compulsory purchase of merchandise and payment of wages by means of tokens) (Art. 288)">Other similar coercions (compulsory purchase of merchandise and payment of wages by means of tokens) (Art. 288)</option>
+    <option value="Formation, maintenance and prohibition of combination of capital or labor through violence or threats (Art. 289)">Formation, maintenance and prohibition of combination of capital or labor through violence or threats (Art. 289)</option>
+    <option value="Discovering secrets through seizure and correspondence (Art. 290)">Discovering secrets through seizure and correspondence (Art. 290)</option>
+    <option value="Revealing secrets with abuse of authority (Art. 291)">Revealing secrets with abuse of authority (Art. 291)</option>
+    <option value="Theft (if the value of the property stolen does not exceed Php50.00) (Art. 309)">Theft (if the value of the property stolen does not exceed Php50.00) (Art. 309)</option>
+    <option value="Qualified theft (if the amount does not exceed Php500) (Art. 310)">Qualified theft (if the amount does not exceed Php500) (Art. 310)</option>
+    <option value="Occupation of real property or usurpation of real rights in property (Art. 312)">Occupation of real property or usurpation of real rights in property (Art. 312)</option>
+    <option value="Altering boundaries or landmarks (Art. 313)">Altering boundaries or landmarks (Art. 313)</option>
+    <option value="Swindling or estafa (if the amount does not exceed Php200.00) (Art. 315)">Swindling or estafa (if the amount does not exceed Php200.00) (Art. 315)</option>
+    <option value="Other forms of swindling (Art. 316)">Other forms of swindling (Art. 316)</option>
+    <option value="Swindling a minor (Art. 317)">Swindling a minor (Art. 317)</option>
+    <option value="Other deceits (Art. 318)">Other deceits (Art. 318)</option>
+    <option value="Removal, sale or pledge of mortgaged property (Art. 319)">Removal, sale or pledge of mortgaged property (Art. 319)</option>
+    <option value="Special cases of malicious mischief (if the value of the damaged property does not exceed Php1,000.00 Art. 328)">Special cases of malicious mischief (if the value of the damaged property does not exceed Php1,000.00 Art. 328)</option>
+    <option value="Other mischiefs (if the value of the damaged property does not exceed Php1,000.00) (Art. 329)">Other mischiefs (if the value of the damaged property does not exceed Php1,000.00) (Art. 329)</option>
+    <option value="Simple seduction (Art. 338)">Simple seduction (Art. 338)</option>
+    <option value="Acts of lasciviousness with the consent of the offended party (Art. 339)">Acts of lasciviousness with the consent of the offended party (Art. 339)</option>
+    <option value="Threatening to publish and offer to prevent such publication for compensation (Art. 356)">Threatening to publish and offer to prevent such publication for compensation (Art. 356)</option>
+    <option value="Prohibiting publication of acts referred to in the course of official proceedings (Art. 357)">Prohibiting publication of acts referred to in the course of official proceedings (Art. 357)</option>
+    <option value="Incriminating innocent persons (Art. 363)">Incriminating innocent persons (Art. 363)</option>
+    <option value="Intriguing against honor (Art. 364)">Intriguing against honor (Art. 364)</option>
+    <option value="Issuing checks without sufficient funds (B.P. 22)">Issuing checks without sufficient funds (B.P. 22)</option>
+    <option value="Fencing of stolen properties if the property involved is not more than Php50.00 (P.D. 1612)">Fencing of stolen properties if the property involved is not more than Php50.00 (P.D. 1612)</option>
+
+
+
+
                             <option value="Other">Other</option>
                         </select>
                         <div id="other-category-group" style="display: none;">
@@ -248,7 +280,6 @@ include '../includes/resident-bar.php';
                         <input type="text" id="cp_number" name="cp_number" class="form-control" required>
                     </div>
                     
-
                     <div class="col-lg-6 col-md-6 col-sm-12 mb-3 form-group">
                         <label for="birth_date">Birth Date:</label>
                         <input type="date" id="birth_date" name="birth_date" class="form-control" required>
@@ -295,7 +326,7 @@ include '../includes/resident-bar.php';
                         </select>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="image">Identity (Any valid ID):</label>
+                        <label for="image">ID:</label>
                         <input type="file" id="image" name="image" class="form-control">
                     </div>
                 </div>

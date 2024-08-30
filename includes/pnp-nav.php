@@ -3,7 +3,7 @@ $search_query = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="#">Excel</a>
+        <a class="navbar-brand" href="#">PNP Monitoring Complaints</a>
 
         <!-- Search Bar -->
         <form class="d-flex ms-auto" role="search" method="get" action="./pnplogs.php">

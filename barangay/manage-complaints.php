@@ -61,7 +61,7 @@ try {
     LEFT JOIN tbl_info info ON c.info_id = info.info_id
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
     LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-    WHERE c.status = 'Unresolved' AND u.barangay_name = ? AND c.status != 'Rejected'
+    WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'
 ");
     $stmt->execute([$barangay_name]);
     $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
