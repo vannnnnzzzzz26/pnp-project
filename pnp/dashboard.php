@@ -397,8 +397,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-
 function confirmLogout() {
         Swal.fire({
             title: "Are you sure?",
@@ -411,11 +409,10 @@ function confirmLogout() {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg.login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
     }
-
 </script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

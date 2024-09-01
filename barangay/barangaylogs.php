@@ -55,8 +55,8 @@ $start_from = ($page - 1) * $results_per_page;
 
 include '../includes/navbar.php';
 include '../includes/sidebar.php';
+include '../includes/edit-profile.php';
 ?>
-
     <!-- Page Content -->
     <div class="content">
         <div class="container">
@@ -187,11 +187,7 @@ LIMIT ?, ?
             </div>
         </div>
     </div>
-    <?php
-
-
-include '../barangay/edit-profile.php'
-?>
+  
 
 
     <script src="../scripts/script.js"></script>

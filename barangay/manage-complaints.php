@@ -86,8 +86,10 @@ try {
 </head>
 <body>
 <?php 
+
 include '../includes/navbar.php';
 include '../includes/sidebar.php';
+include '../includes/edit-profile.php';
 ?>
 <div class="content">
 <div class="container mt-5">

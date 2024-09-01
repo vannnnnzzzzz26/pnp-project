@@ -168,8 +168,10 @@ $officials = $stmt->fetchAll();
 <body>
 
 <?php 
+
 include '../includes/navbar.php';
 include '../includes/sidebar.php';
+include '../includes/edit-profile.php';
 ?>
 
 <div class="content">
@@ -341,8 +343,6 @@ include '../includes/sidebar.php';
         </div>
     </div>
 </div>
-
-<?php include '../barangay/edit-profile.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>

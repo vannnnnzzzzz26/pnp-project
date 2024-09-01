@@ -149,6 +149,7 @@ $total_pages = ceil($row['total'] / $results_per_page);
 
 include '../includes/navbar.php';
 include '../includes/sidebar.php';
+include '../includes/edit-profile.php';
 ?>
     <!-- Page Content -->
     <div class="content">
@@ -244,7 +245,7 @@ include '../includes/sidebar.php';
     <?php
 
 include 'complaints_viewmodal.php';
-include '../barangay/edit-profile.php'
+
 ?>
 
     <!-- Complaint Modal -->
