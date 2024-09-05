@@ -10,11 +10,13 @@ if ($id > 0) {
                    cc.complaints_category AS category, 
                    b.barangay_name, c.cp_number, c.complaints_person, 
                    i.gender, i.place_of_birth, i.age, 
-                   i.educational_background, i.civil_status
+                   i.educational_background, i.civil_status,
+                   GROUP_CONCAT(e.evidence_path) AS evidence_paths
             FROM tbl_complaints c
             LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
             LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-            LEFT   JOIN tbl_info i ON c.info_id = i.info_id
+            LEFT JOIN tbl_info i ON c.info_id = i.info_id
+            LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
             WHERE c.complaints_id = ?
             GROUP BY c.complaints_id
         ");
@@ -35,7 +37,8 @@ if ($id > 0) {
                 'place_of_birth' => $result['place_of_birth'],
                 'age' => $result['age'],
                 'educational_background' => $result['educational_background'],
-                'civil_status' => $result['civil_status']
+                'civil_status' => $result['civil_status'],
+                'evidence' => explode(',', $result['evidence_paths'])
             ]);
         } else {
             echo json_encode(['error' => 'No data found for the given complaint ID.']);

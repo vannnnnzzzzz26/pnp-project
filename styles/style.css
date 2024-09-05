@@ -162,27 +162,24 @@ table {
     width: 100%;
 }
 
-.card {
+
+
+
+/*.card {
     margin-bottom: 20px;
     border-radius:15px ;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 
 }
 .card-img-top {
-    height: 250px; /* Adjust as necessary */
+    height: 250px;  
     object-fit: cover;
     
     border-radius: 15px;
 }
 .card-title, .card-text {
     text-align: center;
-}
-
-.image-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem; /* Add some space below the image */
-}
+}*/
 
 
 

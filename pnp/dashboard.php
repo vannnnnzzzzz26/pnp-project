@@ -161,6 +161,12 @@ $categoryData = fetchComplaintCategoriesData($pdo);
             flex-wrap: wrap;
             margin: 20px 0; /* Add margin at the top and bottom */
         }
+
+        .charts-container {
+            width: 100%;
+            height: 500px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
@@ -189,31 +195,57 @@ include '../includes/pnp-bar.php';
                 <p>Settled in Barangay</p>
             </div>
         </div>
-        
-        <div class="pie-chart-container">
-            <div class="card smalls-card">
-                <h2>Complaints by Barangay</h2>
-                <div class="chart-container">
-                    <canvas id="barangayChartSmall"></canvas>
+        <div class="container mt-4">
+    <h1>Dashboard</h1>
+    
+    <!-- First Row: Complaints by Barangay -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Complaints by Barangay</h2>
+                    <div class="charts-container">
+                        <canvas id="barangayChartSmall"></canvas>
+                    </div>
                 </div>
-            </div>
-       
-
-            <div class="card smalls-card">
-                <h2>most complaints report</h2>
-                <div class="chart-container">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-           
             </div>
         </div>
-     
-        <div class="card small-card">
-                <h2>Gender </h2>
-                <div class="chart-container">
-                    <canvas id="genderChart"></canvas>
+    </div>
+    
+    <!-- Second Row: Gender and Most Complaints Report side by side -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Gender</h2>
+                    <div class="chart-container">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                    <div class="analytics-info mt-3">
+                        <h4>Highest Gender Count:</h4>
+                        <p id="genderMaxInfo"></p> <!-- Placeholder for highest gender data -->
+                    </div>
                 </div>
             </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Most Complaints Report</h2>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="analytics-info mt-3">
+                        <h4>Category with Most Complaints:</h4>
+                        <p id="categoryMaxInfo"></p> <!-- Placeholder for highest category data -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
        
     </div>
@@ -273,17 +305,30 @@ document.addEventListener('DOMContentLoaded', function () {
             editProfileModal.show();
         });
     });
-     
 
-document.addEventListener('DOMContentLoaded', function() {
+
+
+    document.addEventListener('DOMContentLoaded', function() {
     var ctxBarangay = document.getElementById('barangayChartSmall').getContext('2d');
+    
+    // Data from PHP
+    var barangayNames = <?php echo json_encode(array_column($barangayData, 'barangay_name')); ?>;
+    var complaintCounts = <?php echo json_encode(array_column($barangayData, 'complaint_count')); ?>;
+
+    // Find the maximum number of complaints
+    var maxComplaints = Math.max(...complaintCounts);
+
+    // Calculate the percentage for each barangay
+    var percentages = complaintCounts.map(count => (count / maxComplaints * 100).toFixed(2));
+
+    // Chart data
     var barangayChart = new Chart(ctxBarangay, {
         type: 'line', // Line chart
         data: {
-            labels: <?php echo json_encode(array_column($barangayData, 'barangay_name')); ?>,
+            labels: barangayNames,
             datasets: [{
-                label: 'Number of Complaints',
-                data: <?php echo json_encode(array_column($barangayData, 'complaint_count')); ?>,
+                label: '', // Removed the dataset label
+                data: complaintCounts,
                 backgroundColor: [
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 99, 132, 0.2)',
@@ -306,17 +351,27 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
+            plugins: {
+                legend: {
+                    display: true // Show the legend
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            var index = tooltipItem.dataIndex;
+                            return `Barangay: ${barangayNames[index]}, Complaints: ${complaintCounts[index]}, Percentage: ${percentages[index]}%`;
+                        }
+                    }
+                }
+            },
             scales: {
                 x: {
                     beginAtZero: true,
                     title: {
-                        display: true,
-                        text: 'Barangay'
+                        display: false // Hide the title
                     },
                     ticks: {
-                        autoSkip: false, // Ensures all labels are shown
-                        maxRotation: 90, // Rotates labels for better readability
-                        minRotation: 45
+                        display: false // Hide the barangay names on the x-axis
                     }
                 },
                 y: {
@@ -330,13 +385,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+
+
+
+    // Gender Chart
     var ctxGender = document.getElementById('genderChart').getContext('2d');
+    var genderDataValues = <?php echo json_encode(array_column($genderData, 'gender_count')); ?>;
+    var genderDataLabels = <?php echo json_encode(array_column($genderData, 'gender')); ?>;
+    var totalGenderCount = genderDataValues.reduce((a, b) => a + b, 0); // Total count of genders
+
     var genderChart = new Chart(ctxGender, {
         type: 'doughnut',
         data: {
-            labels: <?php echo json_encode(array_column($genderData, 'gender')); ?>,
+            labels: genderDataLabels.map((label, index) => `${label} (${((genderDataValues[index] / totalGenderCount) * 100).toFixed(1)}%)`), // Add percentages to labels
             datasets: [{
-                data: <?php echo json_encode(array_column($genderData, 'gender_count')); ?>,
+                data: genderDataValues,
                 backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
                 borderColor: '#fff',
                 borderWidth: 1
@@ -344,58 +407,62 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
-            cutout: '50%'
+            cutout: '50%',
+            plugins: {
+                legend: {
+                    display: false // Hide the legend if needed
+                }
+            }
         }
     });
 
+    // Find the highest value in gender data
+    var maxGenderValue = Math.max(...genderDataValues);
+    var maxGenderIndex = genderDataValues.indexOf(maxGenderValue);
+    document.getElementById('genderMaxInfo').textContent = `${genderDataLabels[maxGenderIndex]}: ${((maxGenderValue / totalGenderCount) * 100).toFixed(1)}%`;
+
+    // Most Complaints Report (Category Chart)
     var ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
+    var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
+    var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0); // Total count of complaints in categories
+
     var categoryChart = new Chart(ctxCategory, {
-        type: 'bar', // Bar chart
+        type: 'pie', // Changed to pie chart
         data: {
-            labels: <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>,
+            labels: categoryDataLabels.map((label, index) => `${label} (${((categoryDataValues[index] / totalCategoryCount) * 100).toFixed(1)}%)`), // Add percentages to labels
             datasets: [{
-                label: 'Number of Complaints',
-                data: <?php echo json_encode(array_column($categoryData, 'category_count')); ?>,
+                label: '', // Removed the dataset label
+                data: categoryDataValues,
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
+                    '#4e73df', // Blue
+                    '#1cc88a', // Green
+                    '#36b9cc', // Light Blue
+                    '#f6c23e', // Yellow
+                    '#e74a3b', // Red
+                    '#5a5c69'  // Gray
                 ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
+                borderColor: '#fff',
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Category'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Complaints'
-                    }
+            plugins: {
+                legend: {
+                    display: false, // Display the legend
+                    position: 'top' // Position the legend at the top
                 }
             }
         }
     });
+
+    // Find the highest value in category data
+    var maxCategoryValue = Math.max(...categoryDataValues);
+    var maxCategoryIndex = categoryDataValues.indexOf(maxCategoryValue);
+    document.getElementById('categoryMaxInfo').textContent = `${categoryDataLabels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
 });
+
 
 function confirmLogout() {
         Swal.fire({
@@ -409,7 +476,7 @@ function confirmLogout() {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../reg.login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
     }
@@ -419,6 +486,9 @@ function confirmLogout() {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@latest/dist/chartjs-plugin-datalabels.min.js"></script>
+
     <script src="../scripts/script.js"></script>
 
 </body>

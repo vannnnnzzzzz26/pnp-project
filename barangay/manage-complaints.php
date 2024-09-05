@@ -220,6 +220,8 @@ include '../includes/edit-profile.php';
 
 <!-- Include JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
 <script src="../scripts/script.js"></script>
 
 <script>
@@ -288,6 +290,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+
+
+function confirmLogout() {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#212529",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout URL
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            }
+        });
+
+    }
 </script>
 
 

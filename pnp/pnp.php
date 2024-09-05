@@ -174,7 +174,7 @@ displayPNPComplaints($pdo);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../scripts/script.js"></script>
     <script>
- document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     var viewDetailsButtons = document.querySelectorAll('button[data-bs-target="#viewDetailsModal"]');
 
     viewDetailsButtons.forEach(function (button) {
@@ -188,6 +188,18 @@ displayPNPComplaints($pdo);
                     if (data.error) {
                         modalContent.innerHTML = `<p>Error: ${data.error}</p>`;
                     } else {
+                        var evidenceHtml = '';
+
+                        if (data.evidence && data.evidence.length > 0) {
+                            evidenceHtml = '<h5>Evidence:</h5><ul>';
+                            data.evidence.forEach(function(evidencePath) {
+                                evidenceHtml += `<li><a href="../uploads/${evidencePath}" target="_blank">View Evidence</a></li>`;
+                            });
+                            evidenceHtml += '</ul>';
+                        } else {
+                            evidenceHtml = '<p>No evidence available.</p>';
+                        }
+
                         modalContent.innerHTML = `
                             <p><strong>Complaint Name:</strong> ${data.complaint_name}</p>
                             <p><strong>Description:</strong> ${data.description}</p>
@@ -201,7 +213,7 @@ displayPNPComplaints($pdo);
                             <p><strong>Age:</strong> ${data.age}</p>
                             <p><strong>Educational Background:</strong> ${data.educational_background}</p>
                             <p><strong>Civil Status:</strong> ${data.civil_status}</p>
-                           
+                            ${evidenceHtml}
                         `;
 
                         // Add complaint ID to the settle button
@@ -215,7 +227,7 @@ displayPNPComplaints($pdo);
                 });
         });
     });
-
+});
 
     // Handle "Settle Complaint" button click with SweetAlert
     document.getElementById('settleComplaintBtn').addEventListener('click', function () {
@@ -273,7 +285,7 @@ displayPNPComplaints($pdo);
             });
         }
     });
-});
+
 
 document.addEventListener('DOMContentLoaded', function () {
         var profilePic = document.querySelector('.profile');
@@ -297,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../reg.login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
     }

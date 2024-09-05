@@ -1,5 +1,6 @@
 
 <?php
+
 // Start output buffering
 session_start();
 $firstName = $_SESSION['first_name'];
@@ -215,7 +216,7 @@ include '../includes/pnp-bar.php';
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
         }

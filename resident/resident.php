@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
      <!-- Bootstrap Icons CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 
 </head>
@@ -151,155 +151,202 @@ include '../includes/edit-profile.php';
  
 
    
- <div class="content">
-   
- <div class="card">
-    <div class="card-header text-center">
-        <h3>Complaint Form</h3>
-    </div>
+   <center> <div class="content">
+  <div class="card">
     <div class="card-body">
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
-            <div class="form-box">
-                <!-- User Information -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="complaint_name">Complaint Name:</label>
-                        <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="barangay">Barangay:</label>
-                        <?php 
-                            include '../connection/dbconn.php'; 
-                            try {
-                                $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                                $stmt->execute([$barangay]);
-                                $barangay = $stmt->fetchColumn();
-                                if ($barangay) {
-                                    echo "<p>" . htmlspecialchars($barangay) . "</p>";
-                                } else {
-                                    echo "<p>No barangay found.</p>";
-                                }
-                            } catch (PDOException $e) {
-                                echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
-                            }
-                        ?>
-                    </div>
-                </div>
-
-                <!-- Complaint Information -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="complaints">Complaint:</label>
-                        <textarea id="complaints" name="complaints" class="form-control" required></textarea>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="category">Category:</label>
-                        <select id="category" name="category" class="form-control" required>
-                            <option value=""></option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <div id="other-category-group" style="display: none;">
-                            <label for="other-category">Please specify:</label>
-                            <input type="text" id="other-category" name="other-category" class="form-control" placeholder="Specify your complaint" />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Script for Other Category Toggle -->
-                <script>
-                    document.getElementById('category').addEventListener('change', function() {
-                        var otherCategoryGroup = document.getElementById('other-category-group');
-                        if (this.value === 'Other') {
-                            otherCategoryGroup.style.display = 'block';
-                        } else {
-                            otherCategoryGroup.style.display = 'none';
-                            document.getElementById('other-category').value = ''; // Clear the input field
-                        }
-                    });
-                </script>
-
-                <!-- Evidence and Complained Person -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="evidence">Upload Evidence:</label>
-                        <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="complaints_person">Person Complained Against:</label>
-                        <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
-                    </div>
-                </div>
-
-                <!-- Contact and Birth Information -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="cp_number">CP Number:</label>
-                        <input type="text" id="cp_number" name="cp_number" class="form-control" required>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="birth_date">Birth Date:</label>
-                        <input type="date" id="birth_date" name="birth_date" class="form-control" required>
-                    </div>
-                </div>
-
-                <!-- Gender and Age Information -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="gender">Gender:</label>
-                        <select id="gender" name="gender" class="form-control" required>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="age">Age:</label>
-                        <input type="number" id="age" name="age" class="form-control" readonly>
-                    </div>
-                </div>
-
-                <!-- Place of Birth and Civil Status -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="place_of_birth">Place of Birth:</label>
-                        <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="civil_status">Civil Status:</label>
-                        <select id="civil_status" name="civil_status" class="form-control" required>
-                            <option value="Single">Single</option>
-                            <option value="Married">Married</option>
-                            <option value="Divorced">Divorced</option>
-                            <option value="Widowed">Widowed</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Educational Background and ID -->
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="educational_background">Educational Background:</label>
-                        <select id="educational_background" name="educational_background" class="form-control" required>
-                            <option value="Primary">Primary</option>
-                            <option value="Secondary">Secondary</option>
-                            <option value="Tertiary">Tertiary</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                        <label for="image">ID:</label>
-                        <input type="file" id="image" name="image" class="form-control">
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="row">
-                    <div class="col-md-12 text-center">
-                        <button type="submit" name="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                </div>
+      <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
+        <div class="form-box">
+          <!-- User Information -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="complaint_name">Complaint Name:</label>
+              <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
             </div>
-        </form>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="barangay">Barangay:</label>
+              <?php 
+                include '../connection/dbconn.php'; 
+                try {
+                    $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                    $stmt->execute([$barangay]);
+                    $barangay = $stmt->fetchColumn();
+                    if ($barangay) {
+                        echo "<p>" . htmlspecialchars($barangay) . "</p>";
+                    } else {
+                        echo "<p>No barangay found.</p>";
+                    }
+                } catch (PDOException $e) {
+                    echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
+                }
+              ?>
+            </div>
+          </div>
+
+          <!-- Complaint Information -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="complaints">Complaint:</label>
+              <textarea id="complaints" name="complaints" class="form-control" required></textarea>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="category">Category:</label>
+              <select id="category" name="category" class="form-control" required>
+                <option value="">select</option>
+                <option value="Unlawful Use of Means of Publication and Unlawful Utterances (Art. 154)">Unlawful Use of Means of Publication and Unlawful Utterances (Art. 154)</option>
+    <option value="Alarms and Scandals (Art. 155)">Alarms and Scandals (Art. 155)</option>
+    <option value="Using False Certificates (Art. 175)">Using False Certificates (Art. 175)</option>
+    <option value="Using Fictitious Names and Concealing True Names (Art. 178)">Using Fictitious Names and Concealing True Names (Art. 178)</option>
+    <option value="Illegal Use of Uniforms and Insignias (Art. 179)">Illegal Use of Uniforms and Insignias (Art. 179)</option>
+    <option value="Physical Injuries Inflicted in a Tumultuous Affray (Art. 252)">Physical Injuries Inflicted in a Tumultuous Affray (Art. 252)</option>
+    <option value="Giving Assistance to Consummated Suicide (Art. 253)">Giving Assistance to Consummated Suicide (Art. 253)</option>
+    <option value="Responsibility of Participants in a Duel if only Physical Injuries are Inflicted or No Physical Injuries have been Inflicted (Art. 260)">Responsibility of Participants in a Duel if only Physical Injuries are Inflicted or No Physical Injuries have been Inflicted (Art. 260)</option>
+    <option value="Less serious physical injuries (Art. 265)">Less serious physical injuries (Art. 265)</option>
+    <option value="Slight physical injuries and maltreatment (Art. 266)">Slight physical injuries and maltreatment (Art. 266)</option>
+    <option value="Unlawful arrest (Art. 269)">Unlawful arrest (Art. 269)</option>
+    <option value="Inducing a minor to abandon his/her home (Art. 271)">Inducing a minor to abandon his/her home (Art. 271)</option>
+    <option value="Abandonment of a person in danger and abandonment of one’s own victim (Art. 275)">Abandonment of a person in danger and abandonment of one’s own victim (Art. 275)</option>
+    <option value="Abandoning a minor (a child under seven (7) years old) (Art. 276)">Abandoning a minor (a child under seven (7) years old) (Art. 276)</option>
+    <option value="Abandonment of a minor by persons entrusted with his/her custody; indifference of parents (Art. 277)">Abandonment of a minor by persons entrusted with his/her custody; indifference of parents (Art. 277)</option>
+    <option value="Qualified trespass to dwelling (without the use of violence and intimidation) (Art. 280)">Qualified trespass to dwelling (without the use of violence and intimidation) (Art. 280)</option>
+    <option value="Other forms of trespass (Art. 281)">Other forms of trespass (Art. 281)</option>
+    <option value="Light threats (Art. 283)">Light threats (Art. 283)</option>
+    <option value="Other light threats (Art. 285)">Other light threats (Art. 285)</option>
+    <option value="Grave coercion (Art. 286)">Grave coercion (Art. 286)</option>
+    <option value="Light coercion (Art. 287)">Light coercion (Art. 287)</option>
+    <option value="Other similar coercions (compulsory purchase of merchandise and payment of wages by means of tokens) (Art. 288)">Other similar coercions (compulsory purchase of merchandise and payment of wages by means of tokens) (Art. 288)</option>
+    <option value="Formation, maintenance and prohibition of combination of capital or labor through violence or threats (Art. 289)">Formation, maintenance and prohibition of combination of capital or labor through violence or threats (Art. 289)</option>
+    <option value="Discovering secrets through seizure and correspondence (Art. 290)">Discovering secrets through seizure and correspondence (Art. 290)</option>
+    <option value="Revealing secrets with abuse of authority (Art. 291)">Revealing secrets with abuse of authority (Art. 291)</option>
+    <option value="Theft (if the value of the property stolen does not exceed Php50.00) (Art. 309)">Theft (if the value of the property stolen does not exceed Php50.00) (Art. 309)</option>
+    <option value="Qualified theft (if the amount does not exceed Php500) (Art. 310)">Qualified theft (if the amount does not exceed Php500) (Art. 310)</option>
+    <option value="Occupation of real property or usurpation of real rights in property (Art. 312)">Occupation of real property or usurpation of real rights in property (Art. 312)</option>
+    <option value="Altering boundaries or landmarks (Art. 313)">Altering boundaries or landmarks (Art. 313)</option>
+    <option value="Swindling or estafa (if the amount does not exceed Php200.00) (Art. 315)">Swindling or estafa (if the amount does not exceed Php200.00) (Art. 315)</option>
+    <option value="Other forms of swindling (Art. 316)">Other forms of swindling (Art. 316)</option>
+    <option value="Swindling a minor (Art. 317)">Swindling a minor (Art. 317)</option>
+    <option value="Other deceits (Art. 318)">Other deceits (Art. 318)</option>
+    <option value="Removal, sale or pledge of mortgaged property (Art. 319)">Removal, sale or pledge of mortgaged property (Art. 319)</option>
+    <option value="Special cases of malicious mischief (if the value of the damaged property does not exceed Php1,000.00 Art. 328)">Special cases of malicious mischief (if the value of the damaged property does not exceed Php1,000.00 Art. 328)</option>
+    <option value="Other mischiefs (if the value of the damaged property does not exceed Php1,000.00) (Art. 329)">Other mischiefs (if the value of the damaged property does not exceed Php1,000.00) (Art. 329)</option>
+    <option value="Simple seduction (Art. 338)">Simple seduction (Art. 338)</option>
+    <option value="Acts of lasciviousness with the consent of the offended party (Art. 339)">Acts of lasciviousness with the consent of the offended party (Art. 339)</option>
+    <option value="Threatening to publish and offer to prevent such publication for compensation (Art. 356)">Threatening to publish and offer to prevent such publication for compensation (Art. 356)</option>
+    <option value="Prohibiting publication of acts referred to in the course of official proceedings (Art. 357)">Prohibiting publication of acts referred to in the course of official proceedings (Art. 357)</option>
+    <option value="Incriminating innocent persons (Art. 363)">Incriminating innocent persons (Art. 363)</option>
+    <option value="Intriguing against honor (Art. 364)">Intriguing against honor (Art. 364)</option>
+    <option value="Issuing checks without sufficient funds (B.P. 22)">Issuing checks without sufficient funds (B.P. 22)</option>
+    <option value="Fencing of stolen properties if the property involved is not more than Php50.00 (P.D. 1612)">Fencing of stolen properties if the property involved is not more than Php50.00 (P.D. 1612)</option>
+
+
+                <option value="Other">Other</option>
+                                         
+    
+
+
+              </select>
+              <div id="other-category-group" style="display: none;">
+                <label for="other-category">Please specify:</label>
+                <input type="text" id="other-category" name="other-category" class="form-control" placeholder="Specify your complaint" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Script for Other Category Toggle -->
+          <script>
+            document.getElementById('category').addEventListener('change', function() {
+              var otherCategoryGroup = document.getElementById('other-category-group');
+              if (this.value === 'Other') {
+                otherCategoryGroup.style.display = 'block';
+              } else {
+                otherCategoryGroup.style.display = 'none';
+                document.getElementById('other-category').value = ''; // Clear the input field
+              }
+            });
+          </script>
+
+          <!-- Evidence and Complained Person -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="evidence">Upload Evidence:</label>
+              <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="complaints_person">Person Complained Against:</label>
+              <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
+            </div>
+          </div>
+
+          <!-- Contact and Birth Information -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="cp_number">CP Number:</label>
+              <input type="text" id="cp_number" name="cp_number" class="form-control" required>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="birth_date">Birth Date:</label>
+              <input type="date" id="birth_date" name="birth_date" class="form-control" required>
+            </div>
+          </div>
+
+          <!-- Gender and Age Information -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="gender">Gender:</label>
+              <select id="gender" name="gender" class="form-control" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="age">Age:</label>
+              <input type="number" id="age" name="age" class="form-control" readonly>
+            </div>
+          </div>
+
+          <!-- Place of Birth and Civil Status -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="place_of_birth">Place of Birth:</label>
+              <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="civil_status">Civil Status:</label>
+              <select id="civil_status" name="civil_status" class="form-control" required>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Educational Background and ID -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="educational_background">Educational Background:</label>
+              <select id="educational_background" name="educational_background" class="form-control" required>
+                <option value="Primary">Primary</option>
+                <option value="Secondary">Secondary</option>
+                <option value="Tertiary">Tertiary</option>
+              </select>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="image">ID:</label>
+              <input type="file" id="image" name="image" class="form-control">
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="row">
+            <div class="col-12 text-center">
+              <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-</div>
+  </div>
+</div><center>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

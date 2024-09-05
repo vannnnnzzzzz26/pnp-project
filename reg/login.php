@@ -52,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: login.php");
         exit();
     }
+
+
+
+    
 }
 ?>
 
@@ -71,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         body {
-            background-image: url('..reg/poles.jpg');
+            background-image: url('../reg/poles.jpg');
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;
