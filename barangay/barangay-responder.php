@@ -27,22 +27,33 @@ $page = !isset($_GET['page']) || !is_numeric($_GET['page']) || $_GET['page'] <= 
 
 // Calculate the SQL LIMIT starting number for the results on the displaying page
 $start_from = ($page - 1) * $results_per_page;
+
 function displayComplaints($pdo, $start_from, $results_per_page) {
     try {
         $barangay_name = $_SESSION['barangay_name'] ?? '';
 
         $stmt = $pdo->prepare("
-            SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
-                   e.evidence_path, e.date_uploaded
-            FROM tbl_complaints c
-            JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-            JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-            JOIN tbl_info i ON c.info_id = i.info_id
-            LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-            WHERE c.status IN ('Approved') AND b.barangay_name = ?
-            ORDER BY c.date_filed ASC
-            LIMIT ?, ?
-        ");
+        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
+               e.evidence_path, e.date_uploaded,
+               h.hearing_date, h.hearing_time, h.hearing_type, h.hearing_status
+        FROM tbl_complaints c
+        JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+        JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+        JOIN tbl_info i ON c.info_id = i.info_id
+        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+        LEFT JOIN (
+            SELECT complaints_id, hearing_date, hearing_time, hearing_type, hearing_status
+            FROM tbl_hearing_history
+            WHERE (complaints_id, hearing_date) IN (
+                SELECT complaints_id, MAX(hearing_date)
+                FROM tbl_hearing_history
+                GROUP BY complaints_id
+            )
+        ) h ON c.complaints_id = h.complaints_id
+        WHERE c.status IN ('Approved') AND b.barangay_name = ?
+        ORDER BY c.date_filed ASC
+        LIMIT ?, ?
+    ");
     
         $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
         $stmt->bindParam(2, $start_from, PDO::PARAM_INT);
@@ -51,8 +62,10 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) {
-            echo "<tr><td colspan='3'>No complaints found.</td></tr>";
+            echo "<tr><td colspan='4'>No complaints found.</td></tr>";
         } else {
+            $rowNumber = $start_from + 1; // Initialize row number
+
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $complaint_id = htmlspecialchars($row['complaints_id']);
                 $complaint_name = htmlspecialchars($row['complaint_name']);
@@ -69,13 +82,14 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 $complaint_evidence = htmlspecialchars($row['evidence_path']);
                 $complaint_date_filed = htmlspecialchars($row['date_filed']);
                 $complaint_status = htmlspecialchars($row['status']);
-                $complaint_hearing_status = htmlspecialchars($row['hearing_status']);
-                $complaint_hearing_date = htmlspecialchars($row['hearing_date']);
-                $complaint_hearing_time = htmlspecialchars($row['hearing_time']);
-                $complaint_hearing_type = htmlspecialchars($row['hearing_type']);
+                $complaint_hearing_status = isset($row['hearing_status']) ? htmlspecialchars($row['hearing_status']) : '';
+                $complaint_hearing_date = isset($row['hearing_date']) ? htmlspecialchars($row['hearing_date']) : '';
+                $complaint_hearing_time = isset($row['hearing_time']) ? htmlspecialchars($row['hearing_time']) : '';
+                $complaint_hearing_type = isset($row['hearing_type']) ? htmlspecialchars($row['hearing_type']) : '';
+                
 
                 echo "<tr>";
-                echo "<td>{$complaint_id}</td>";
+                echo "<td>{$rowNumber}</td>"; // Display row number
                 echo "<td>{$complaint_name}</td>";
                 echo "<td><button type='button' class='btn btn-primary view-details-btn' 
                             data-id='{$complaint_id}' data-name='{$complaint_name}' data-description='{$complaint_description}' 
@@ -89,14 +103,14 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                             data-hearing_time='{$complaint_hearing_time}' data-hearing_type='{$complaint_hearing_type}'
                             data-bs-toggle='modal' data-bs-target='#complaintModal'>View Details</button></td>";
                 echo "</tr>";
+
+                $rowNumber++; // Increment row number
             }
         }
     } catch (PDOException $e) {
-        echo "<tr><td colspan='3'>Error fetching complaints: " . $e->getMessage() . "</td></tr>";
+        echo "<tr><td colspan='4'>Error fetching complaints: " . $e->getMessage() . "</td></tr>";
     }
 }
-
-
 
 // Handle status update submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
@@ -121,9 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     }
 }
 
-
-
-
 // Pagination
 $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE (c.status = 'Approved' OR c.status = 'unresolved') AND b.barangay_name = ?");
 $stmt->execute([$barangay_name]);
@@ -142,6 +153,21 @@ $total_pages = ceil($row['total'] / $results_per_page);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
+<style>
+    .popover-content {
+    background-color: #343a40; /* Dark background to contrast with white */
+    color: #ffffff; /* White text color */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #495057; /* Optional: border for better visibility */
+    border-radius: 5px; /* Optional: rounded corners */
+    max-height: 300px; /* Ensure it doesn't grow too large */
+    overflow-y: auto; /* Add vertical scroll if needed */
+}
+
+.popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}
+</style>
 <body>
 
     
@@ -153,23 +179,24 @@ include '../includes/edit-profile.php';
 ?>
     <!-- Page Content -->
     <div class="content">
-        <div class="container">
-            <h2 class="mt-3 mb-4">Uploaded Complaints</h2>
-          
-            <table class="table table-striped table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php displayComplaints($pdo, $start_from, $results_per_page); ?>
-                </tbody>
-            </table>
-
+    <div class="container">
+        <h2 class="mt-3 mb-4">Uploaded Complaints</h2>
+        
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th> <!-- Added for row numbers -->
+                
+                    <th>Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php displayComplaints($pdo, $start_from, $results_per_page); ?>
+            </tbody>
+        </table>
     </div>
+</div>
 
 
 
@@ -227,6 +254,10 @@ include '../includes/edit-profile.php';
         </div>
     </div>
 </div>
+
+
+
+
             <nav>
                 <ul class="pagination justify-content-center">
                     <?php
@@ -360,24 +391,39 @@ include 'complaints_viewmodal.php';
 });
 
 
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all view-details buttons
     const viewButtons = document.querySelectorAll('.view-details-btn');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Populate modal with data
-            document.getElementById('modal-name').textContent = this.dataset.name;
-            // Populate other fields as needed...
-
-            // Show hearing section if the complaint status is 'Approved'
+            const complaintId = this.dataset.id;
             const status = this.dataset.status;
-            if (status === 'Approved') {
-                document.getElementById('hearingSection').style.display = 'block';
-            } else {
-                document.getElementById('hearingSection').style.display = 'none';
-            }
 
-            // Store the complaint ID in the modal for use later
-            document.getElementById('viewComplaintModal').setAttribute('data-complaint-id', this.dataset.id);
+            // Set the complaint ID as a data attribute on the modal
+            document.getElementById('viewComplaintModal').setAttribute('data-complaint-id', complaintId);
+
+            // Show the hearing section if the complaint status is 'Approved'
+            document.getElementById('hearingSection').style.display = status === 'Approved' ? 'block' : 'none';
+
+            // Fetch existing hearing details
+            fetch(`set_hearing.php?complaint_id=${complaintId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        const hearing = data[0];
+                        document.getElementById('hearing-date').value = hearing.hearing_date || '';
+                        document.getElementById('hearing-time').value = hearing.hearing_time || '';
+                        document.getElementById('hearing-type').value = hearing.hearing_type || '';
+                        document.getElementById('hearing-status').value = hearing.hearing_status || '';
+                    } else {
+                        document.getElementById('hearing-date').value = '';
+                        document.getElementById('hearing-time').value = '';
+                        document.getElementById('hearing-type').value = '';
+                        document.getElementById('hearing-status').value = '';
+                    }
+                })
+                .catch(error => console.error('Error fetching hearing details:', error));
 
             // Show the modal
             const modal = new bootstrap.Modal(document.getElementById('viewComplaintModal'));
@@ -398,6 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const hearingType = document.getElementById('hearing-type').value;
         const hearingStatus = document.getElementById('hearing-status').value;
 
+        // Send the form data to the server
         fetch('set_hearing.php', {
             method: 'POST',
             headers: {
@@ -417,6 +464,132 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
+
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                            <div class="dropdown-item" 
+                                 data-id="${notification.complaints_id}" 
+                                 data-status="${notification.status}" 
+                                 data-complaint-name="${notification.complaint_name}" 
+                                 data-barangay-name="${notification.barangay_name}">
+                                Complaint: ${notification.complaint_name}<br>
+                                Barangay: ${notification.barangay_name}<br>
+                                Status: ${notification.status}
+                            </div>
+                        `;
+                    });
+                } else {
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const notificationId = this.getAttribute('data-id');
+                        markNotificationAsRead(notificationId);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    function markNotificationAsRead(notificationId) {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationId: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notification marked as read');
+                fetchNotifications(); // Refresh notifications
+            } else {
+                console.error("Failed to mark notification as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+    fetchNotifications();
+
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
 
 function confirmLogout() {
         Swal.fire({

@@ -16,6 +16,7 @@ function fetchDashboardData($pdo) {
     try {
         // Fetch total complaints
         $stmtTotal = $pdo->prepare("SELECT COUNT(*) AS total_complaints FROM tbl_complaints");
+        
         $stmtTotal->execute();
         $totalComplaints = $stmtTotal->fetchColumn();
 
@@ -167,6 +168,26 @@ $categoryData = fetchComplaintCategoriesData($pdo);
             height: 500px;
             margin: 0 auto;
         }
+
+
+
+        .popover-content {
+    background-color: #343a40; /* Dark background to contrast with white */
+    color: #ffffff; /* White text color */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #495057; /* Optional: border for better visibility */
+    border-radius: 5px; /* Optional: rounded corners */
+    max-height: 300px; /* Ensure it doesn't grow too large */
+    overflow-y: auto; /* Add vertical scroll if needed */
+}
+
+/* Adjust the arrow for the popover to ensure it points correctly */
+.popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}  
+        
+        
+
     </style>
 </head>
 <body>
@@ -179,22 +200,24 @@ include '../includes/pnp-bar.php';
 
 
 <div class="content">
-    <div class="container">
         <h1>Dashboard</h1>
         <div class="card-container">
-            <div class="card">
-                <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
-                <p>Total Complaints</p>
-            </div>
-            <div class="card">
-                <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
-                <p>Filed in the Court</p>
-            </div>
-            <div class="card">
-                <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
-                <p>Settled in Barangay</p>
-            </div>
+        <div class="card">
+            <i class="bi bi-file-earmark-text"></i>
+            <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
+            <p>Total Complaints</p>
         </div>
+        <div class="card">
+        <i class="bi bi-journal-check"></i>
+        <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
+            <p>Filed in the Court</p>
+        </div>
+        <div class="card">
+            <i class="bi bi-house-door"></i>
+            <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
+            <p>Settled in Barangay</p>
+        </div>
+    </div>
         <div class="container mt-4">
     <h1>Dashboard</h1>
     
@@ -464,6 +487,137 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
+
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                            <div class="dropdown-item" 
+                                 data-id="${notification.complaints_id}" 
+                                 data-status="${notification.status}" 
+                                 data-complaint-name="${notification.complaint_name}" 
+                                 data-barangay-name="${notification.barangay_name}">
+                                Complaint: ${notification.complaint_name}<br>
+                                Barangay: ${notification.barangay_name}<br>
+                                Status: ${notification.status}
+                            </div>
+                        `;
+                    });
+                } else {
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const notificationId = this.getAttribute('data-id');
+                        markNotificationAsRead(notificationId);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    function markNotificationAsRead(notificationId) {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationId: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notification marked as read');
+                fetchNotifications(); // Refresh notifications
+            } else {
+                console.error("Failed to mark notification as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+    fetchNotifications();
+
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
+
 function confirmLogout() {
         Swal.fire({
             title: "Are you sure?",
@@ -486,6 +640,8 @@ function confirmLogout() {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@latest/dist/chartjs-plugin-datalabels.min.js"></script>
 

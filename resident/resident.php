@@ -1,7 +1,7 @@
 <?php
 include '../connection/dbconn.php'; 
+include '../resident/notifications.php';
 
-session_start();
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -138,7 +138,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
 
+<style>
+.popover-content {
+    background-color: #343a40; /* Dark background to contrast with white */
+    color: #ffffff; /* White text color */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #495057; /* Optional: border for better visibility */
+    border-radius: 5px; /* Optional: rounded corners */
+    max-height: 300px; /* Ensure it doesn't grow too large */
+    overflow-y: auto; /* Add vertical scroll if needed */
+}
 
+/* Adjust the arrow for the popover to ensure it points correctly */
+.popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}
+
+
+
+
+    </style>
 
 <?php 
 
@@ -151,7 +170,7 @@ include '../includes/edit-profile.php';
  
 
    
-   <center> <div class="content">
+   <div class="content">
   <div class="card">
     <div class="card-body">
       <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">
@@ -346,18 +365,18 @@ include '../includes/edit-profile.php';
       </form>
     </div>
   </div>
-</div><center>
+</div>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
     <script src="../scripts/script.js"></script>
   
     <!-- Include jQuery and Bootstrap JavaScript -->
 
 
- 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
@@ -452,6 +471,132 @@ include '../includes/edit-profile.php';
             editProfileModal.show();
         });
     });
+
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
+
+    // Function to fetch notifications
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                // Update notification count
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                // Populate notifications
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                                  <div class="dropdown-item" 
+     data-id="${notification.id}" 
+     data-status="${notification.status}" 
+     data-hearing-type="${notification.hearing_type}" 
+     data-hearing-date="${notification.hearing_date}" 
+     data-hearing-time="${notification.hearing_time}" 
+     data-hearing-status="${notification.hearing_status}">
+    Status: ${notification.status}<br>
+    Hearing Type: ${notification.hearing_type}<br>
+    Date: ${notification.hearing_date}<br>
+    Time: ${notification.hearing_time}<br>
+    Hearing Status: ${notification.hearing_status}
+</div>
+
+                        `;
+                    });
+                } else {
+                    // If no new notifications
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                // Update the popover content
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    // Initialize the popover
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                // Attach click event listeners to notifications
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        openNotificationDetail(this);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    // Function to open notification detail in a modal
+    
+
+    // Initialize or refresh the popover when needed
+    fetchNotifications();
+
+    // Mark notifications as read when the popover is shown
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        // Make an AJAX request to the server to mark notifications as read
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Handle the response, e.g., update the UI to reflect read notifications
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
 
 
             

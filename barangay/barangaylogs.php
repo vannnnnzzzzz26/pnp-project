@@ -48,6 +48,24 @@ $start_from = ($page - 1) * $results_per_page;
             border-collapse: collapse;
             width: 100%;
         }
+
+
+
+  
+    .popover-content {
+    background-color: #343a40; /* Dark background to contrast with white */
+    color: #ffffff; /* White text color */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #495057; /* Optional: border for better visibility */
+    border-radius: 5px; /* Optional: rounded corners */
+    max-height: 300px; /* Ensure it doesn't grow too large */
+    overflow-y: auto; /* Add vertical scroll if needed */
+}
+
+.popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}
+
     </style>
 </head>
 <body>
@@ -65,7 +83,7 @@ include '../includes/edit-profile.php';
             <table class="table table-bordered table-hover">
             <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
+                            <th>#</th>
                             <th>Name</th>
                           
                             <th>Barangay</th>
@@ -81,19 +99,18 @@ try {
     $search_query = isset($_GET['search']) ? '%' . $_GET['search'] . '%' : '%';
 
     // Fetch complaints data with pagination and search filter
- // Fetch complaints data with pagination and search filter
-$stmt = $pdo->prepare("
-SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, e.evidence_path
-FROM tbl_complaints c
-JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-JOIN tbl_info i ON c.info_id = i.info_id
-LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-WHERE (c.status IN ('settled_in_barangay', 'rejected')) AND b.barangay_name = ?
-AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?)
-ORDER BY c.date_filed ASC
-LIMIT ?, ?
-");
+    $stmt = $pdo->prepare("
+    SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, e.evidence_path
+    FROM tbl_complaints c
+    JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+    JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+    JOIN tbl_info i ON c.info_id = i.info_id
+    LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+    WHERE (c.status IN ('settled_in_barangay', 'rejected')) AND b.barangay_name = ?
+    AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?)
+    ORDER BY c.date_filed ASC
+    LIMIT ?, ?
+    ");
 
     $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
     $stmt->bindParam(2, $search_query, PDO::PARAM_STR);
@@ -108,32 +125,25 @@ LIMIT ?, ?
     $stmt->execute();
 
     if ($stmt->rowCount() == 0) {
-        echo "<tr><td colspan='16'>No complaints found.</td></tr>";
+        echo "<tr><td colspan='4'>No complaints found.</td></tr>";
     } else {
+        $rowNumber = $start_from + 1; // Initialize row number
+
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $complaint_id = htmlspecialchars($row['complaints_id']);
             $complaint_name = htmlspecialchars($row['complaint_name']);
-            $complaints = htmlspecialchars($row['complaints']);
-            $date_filed = htmlspecialchars($row['date_filed']);
-            $category_name = htmlspecialchars($row['complaints_category']);
-            $cp_number = htmlspecialchars($row['cp_number']);
-            $complaints_person = htmlspecialchars($row['complaints_person']);
-            $gender = htmlspecialchars($row['gender']);
-            $place_of_birth = htmlspecialchars($row['place_of_birth']);
-            $age = htmlspecialchars($row['age']);
-            $educational_background = htmlspecialchars($row['educational_background']);
-            $civil_status = htmlspecialchars($row['civil_status']);
-            $hearing_status = htmlspecialchars($row['hearing_status']);
-            $evidence_path = htmlspecialchars($row['evidence_path']);
+            $barangay_name = htmlspecialchars($row['barangay_name']);
+            // ... other variables you might need
 
             echo "<tr>
-                <td>{$complaint_id}</td>
+                <td>{$rowNumber}</td> <!-- Display row number -->
                 <td>{$complaint_name}</td>
                 <td>{$barangay_name}</td>
                 <td>
-                    <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button>
+                    <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$row['complaints_id']})'>View Details</button>
                 </td>
             </tr>";
+
+            $rowNumber++; // Increment row number
         }
     }
 } catch (PDOException $e) {
@@ -233,6 +243,136 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
+
+
+
+    
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
+
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                            <div class="dropdown-item" 
+                                 data-id="${notification.complaints_id}" 
+                                 data-status="${notification.status}" 
+                                 data-complaint-name="${notification.complaint_name}" 
+                                 data-barangay-name="${notification.barangay_name}">
+                                Complaint: ${notification.complaint_name}<br>
+                                Barangay: ${notification.barangay_name}<br>
+                                Status: ${notification.status}
+                            </div>
+                        `;
+                    });
+                } else {
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const notificationId = this.getAttribute('data-id');
+                        markNotificationAsRead(notificationId);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    function markNotificationAsRead(notificationId) {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationId: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notification marked as read');
+                fetchNotifications(); // Refresh notifications
+            } else {
+                console.error("Failed to mark notification as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+    fetchNotifications();
+
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
     </script>
 </body>
 </html>

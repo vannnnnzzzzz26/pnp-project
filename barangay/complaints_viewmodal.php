@@ -1,5 +1,5 @@
-  <!-- Complaint Modal -->
-  <div class="modal fade" id="complaintModal" tabindex="-1" aria-labelledby="complaintModalLabel" aria-hidden="true">
+<!-- Complaint Modal -->
+<div class="modal fade" id="complaintModal" tabindex="-1" aria-labelledby="complaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -26,28 +26,24 @@
                         </video>
                     </span>
                 </p>
-
                 <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
                 <p><strong>Hearing Date:</strong> <span id="modal-hearing_date"></span></p>
                 <p><strong>Hearing Time:</strong> <span id="modal-hearing_time"></span></p>
                 <p><strong>Hearing Type:</strong> <span id="modal-hearing_type"></span></p>
-                <p><strong>Hearing_Status:</strong> <span id="modal-hearing_status"></span></p>
-                    <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                
+                <!-- New button for viewing hearing history -->
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#hearingHistoryModal">View Hearing History</button>
+                
+                <p><strong>Hearing Status:</strong> <span id="modal-hearing_status"></span></p>
+                <p><strong>Status:</strong> <span id="modal-status"></span></p>
             </div>
             <div class="modal-footer">
-           
-                    
-                </button>
                 <button type="button" class="btn btn-success" id="moveToPnpBtn">Move to PNP</button>
                 <button type="button" class="btn btn-secondary" id="settleInBarangayBtn">Settle in Barangay</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-
-                
-      
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" id="setHearingBtn">
-                Set Hearing
-            </button>
-        
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" id="setHearingBtn">
+                    Set Hearing
+                </button>
             </div>
         </div>
     </div>

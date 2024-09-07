@@ -46,10 +46,17 @@
                 <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Officials</span>
             </a>
         </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link" href="barangay_dashboard.php">
+                <i class="bi bi-person large-icon"></i><span class="nav-text">dasboard</span>
+            </a>
+        </li>
+     
      
     </ul>
     
-
         <!-- Logout Form -->
         <form action="../logout.php" method="post" id="logoutForm">
 
