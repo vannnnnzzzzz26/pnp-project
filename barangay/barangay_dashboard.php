@@ -33,7 +33,7 @@ function fetchDashboardData($pdo, $userBarangayName) {
             SELECT COUNT(*) AS Rejected 
             FROM tbl_complaints c
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            WHERE c.status = 'Rejected' 
+            WHERE c.status = 'rejected' 
             AND c.responds = 'barangay'
             AND ub.barangay_name = :barangay_name
         ");

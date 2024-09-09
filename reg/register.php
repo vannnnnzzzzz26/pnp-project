@@ -1,7 +1,6 @@
 <?php
 include '../connection/dbconn.php';
 
-
 // Function to safely retrieve POST data
 function getPostData($key) {
     return isset($_POST[$key]) ? trim($_POST[$key]) : null;
@@ -18,13 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = getPostData('confirm_password');
     $accountType = getPostData('accountType');
     $barangay_name = getPostData('barangay');
+    $security_question_1 = getPostData('security_question_1');
+    $security_answer_1 = getPostData('security_answer_1');
+    $security_question_2 = getPostData('security_question_2');
+    $security_answer_2 = getPostData('security_answer_2');
+    $security_question_3 = getPostData('security_question_3');
+    $security_answer_3 = getPostData('security_answer_3');
 
     // Validate form data
-    if ($first_name && $middle_name && $last_name && $email && $password && $confirm_password && $accountType && $barangay_name) {
+    if ($first_name && $middle_name && $last_name && $email && $password && $confirm_password && $accountType && $barangay_name && $security_question_1 && $security_answer_1 && $security_question_2 && $security_answer_2 && $security_question_3 && $security_answer_3) {
         // Check if passwords match
         if ($password !== $confirm_password) {
             echo 'error_password';
-            exit; // Ensure script stops executing after sending response
+            exit;
         }
 
         // Check if the email already exists in the database
@@ -65,9 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Hash the password
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
+        // Hash the security answers
+        $hashed_answer_1 = password_hash($security_answer_1, PASSWORD_DEFAULT);
+        $hashed_answer_2 = password_hash($security_answer_2, PASSWORD_DEFAULT);
+        $hashed_answer_3 = password_hash($security_answer_3, PASSWORD_DEFAULT);
+
         // Now insert into tbl_users
-        $stmt_users = $pdo->prepare("INSERT INTO tbl_users (first_name, middle_name, last_name, extension_name, email, password, accountType, barangays_id, pic_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt_users->execute([$first_name, $middle_name, $last_name, $extension_name, $email, $hashedPassword, $accountType, $barangays_id, $pic_data]);
+        $stmt_users = $pdo->prepare("INSERT INTO tbl_users (first_name, middle_name, last_name, extension_name, email, password, accountType, barangays_id, pic_data, security_question_1, security_answer_1, security_question_2, security_answer_2, security_question_3, security_answer_3) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt_users->execute([$first_name, $middle_name, $last_name, $extension_name, $email, $hashedPassword, $accountType, $barangays_id, $pic_data, $security_question_1, $hashed_answer_1, $security_question_2, $hashed_answer_2, $security_question_3, $hashed_answer_3]);
 
         if ($stmt_users->rowCount() > 0) {
             echo 'success';
@@ -81,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -215,6 +226,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="profile_picture" class="form-label">Profile Picture:</label>
                     <input type="file" id="profile_picture" name="profile_picture" class="form-control">
                 </div>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="security_question_1" class="form-label">Security Question 1:</label>
+                <select id="security_question_1" name="security_question_1" class="form-select" required>
+                    <option value="">Select a question...</option>
+                    <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                    <option value="What is the name of your first pet?">What is the name of your first pet?</option>
+                    <option value="What was the make and model of your first car?">What was the make and model of your first car?</option>
+                </select>
+                <input type="text" id="security_answer_1" name="security_answer_1" class="form-control mt-2" placeholder="Your answer" required>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="security_question_2" class="form-label">Security Question 2:</label>
+                <select id="security_question_2" name="security_question_2" class="form-select" required>
+                    <option value="">Select a question...</option>
+                    <option value="In what city were you born?">In what city were you born?</option>
+                    <option value="What is your favorite book?">What is your favorite book?</option>
+                    <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
+                </select>
+                <input type="text" id="security_answer_2" name="security_answer_2" class="form-control mt-2" placeholder="Your answer" required>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="security_question_3" class="form-label">Security Question 3:</label>
+                <select id="security_question_3" name="security_question_3" class="form-select" required>
+                    <option value="">Select a question...</option>
+                    <option value="What is your mother’s maiden name?">What is your mother’s maiden name?</option>
+                    <option value="What was your high school mascot?">What was your high school mascot?</option>
+                    <option value="What street did you grow up on?">What street did you grow up on?</option>
+                </select>
+                <input type="text" id="security_answer_3" name="security_answer_3" class="form-control mt-2" placeholder="Your answer" required>
             </div>
 
             <!-- Submit Button -->

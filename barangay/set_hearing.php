@@ -9,35 +9,32 @@ include '../connection/dbconn.php';
 $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+// Handle POST requests to update or insert hearing details
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve POST data
     $complaint_id = $_POST['complaint_id'] ?? null;
     $hearing_date = $_POST['hearing_date'] ?? null;
     $hearing_time = $_POST['hearing_time'] ?? null; // 24-hour format input
     $hearing_type = $_POST['hearing_type'] ?? null;
     $hearing_status = $_POST['hearing_status'] ?? null;
 
-    // Validate input
     if (!$complaint_id || !$hearing_type) {
         echo "Complaint ID and Hearing Type are required.";
         exit;
     }
 
-    // Convert 24-hour time to 12-hour format with AM/PM
     $formatted_hearing_time = $hearing_time ? date("h:i:s A", strtotime($hearing_time)) : null;
 
     try {
-        // Check if a hearing record with the same complaint_id and hearing_type exists
+        // Check if the hearing record already exists
         $stmt = $pdo->prepare("
-            SELECT id, hearing_date, hearing_time, hearing_status
-            FROM tbl_hearing_history
+            SELECT id FROM tbl_hearing_history
             WHERE complaints_id = ? AND hearing_type = ?
         ");
         $stmt->execute([$complaint_id, $hearing_type]);
         $existingHearing = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($existingHearing) {
-            // Update the existing record
+            // Update existing hearing record
             $stmt = $pdo->prepare("
                 UPDATE tbl_hearing_history
                 SET hearing_date = ?, hearing_time = ?, hearing_status = ?
@@ -46,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute([$hearing_date, $formatted_hearing_time, $hearing_status, $existingHearing['id']]);
             echo "Hearing details updated successfully.";
         } else {
-            // Insert a new record
+            // Insert new hearing record
             $stmt = $pdo->prepare("
                 INSERT INTO tbl_hearing_history (complaints_id, hearing_date, hearing_time, hearing_type, hearing_status)
                 VALUES (?, ?, ?, ?, ?)
@@ -59,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Fetch hearing details if complaint_id is set
+// Handle GET requests to fetch hearing history
 if (isset($_GET['complaint_id'])) {
     $complaint_id = $_GET['complaint_id'];
 

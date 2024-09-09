@@ -43,9 +43,9 @@ try {
         $age = htmlspecialchars($row['age']);
         $educational_background = htmlspecialchars($row['educational_background']);
         $civil_status = htmlspecialchars($row['civil_status']);
-    
         $evidence_paths = htmlspecialchars($row['evidence_paths']); 
         $status = htmlspecialchars($row['status']);
+
         // Display the complaint details
         echo "
             <strong>Complaint Name:</strong> $complaint_name<br>
@@ -60,10 +60,12 @@ try {
             <strong>Age:</strong> $age<br>
             <strong>Educational Background:</strong> $educational_background<br>
             <strong>Civil Status:</strong> $civil_status<br>
-            
+            <strong>Status:</strong> $status<br>
             <strong>Evidence:</strong> <a href='$evidence_paths' target='_blank'>View Evidence</a><br>
-             <strong>Status:</strong> $status<br>
             <strong>Date Filed:</strong> $date_filed<br>
+            
+            <!-- Button to open the hearing history modal -->
+            <button type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#hearingHistoryModal' data-complaint-id='$complaint_id'>View Hearing History</button>
         ";
     } else {
         echo "No complaint found with the provided ID.";

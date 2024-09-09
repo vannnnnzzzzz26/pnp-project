@@ -10,11 +10,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+    // Prepare and execute query to check user
     $stmt = $pdo->prepare("SELECT * FROM tbl_users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
+        // Check if email is verified
+        if ($user['is_verified'] == 0) {
+            // Generate a random OTP
+            $otp = rand(100000, 999999);
+
+            // Store the OTP in the database
+            $stmt = $pdo->prepare("UPDATE tbl_users SET otp = ? WHERE email = ?");
+            $stmt->execute([$otp, $email]);
+
+            // Send OTP email
+            sendOtpEmail($email, $otp);
+
+            // Save email to session for OTP verification
+            $_SESSION['otp_email'] = $email;
+
+            // Redirect to OTP verification page
+            header("Location: otp_request.php");
+            exit();
+        }
+
         // Clear any previous session data
         session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
         session_unset(); // Unset all session variables
@@ -52,12 +73,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: login.php");
         exit();
     }
+}
 
+function sendOtpEmail($email, $otp) {
+    $mail = new PHPMailer(true);
 
+    try {
+        //Server settings
+        $mail->isSMTP();
+        $mail->Host = 'smtp.example.com'; // Replace with your SMTP server
+        $mail->SMTPAuth = true;
+        $mail->Username = 'mlgaming143@gmail.com'; // SMTP username
+        $mail->Password = 'qzhy sgfu kszi mtul
+'; // SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
 
-    
+        //Recipients
+        $mail->setFrom('no-reply@example.com', 'Your App');
+        $mail->addAddress($email);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Your OTP for Login Verification';
+        $mail->Body    = "Your OTP for login verification is: <strong>$otp</strong>";
+
+        $mail->send();
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -196,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="mb-3 form-check d-flex justify-content-start">
                 <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
                 <label class="form-check-label" for="rememberMe">Remember Me</label>
-                <a href="forgot-password.php" class="forgot-password">Forgot Password?</a>
+                <a href="../forgot-password.php" class="forgot-password">Forgot Password?</a>
             </div>
 
             <button type="submit" class="btn btn-primary">Log in</button>

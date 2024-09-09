@@ -61,6 +61,9 @@ if (isset($_GET['id'])) {
                 echo "<p><strong>Age:</strong> {$age}</p>";
                 echo "<p><strong>Educational Background:</strong> {$educational_background}</p>";
                 echo "<p><strong>Civil Status:</strong> {$civil_status}</p>";
+                echo "<button type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#hearingHistoryModal' data-complaint-id='{$complaintId}'>View Hearing History</button>";
+
+                
             }
 
             // Display evidence if available

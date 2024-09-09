@@ -124,6 +124,35 @@ include '../includes/pnp-bar.php';
         </div>
     </div>
 
+    <div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hearingHistoryTableBody">
+                        <!-- Hearing history rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -193,6 +222,42 @@ include '../includes/pnp-bar.php';
 
     <!-- JavaScript to handle modal content dynamically -->
     <script>
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    var hearingHistoryModal = document.getElementById('hearingHistoryModal');
+    
+    hearingHistoryModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var complaintId = button.getAttribute('data-complaint-id');
+
+        // Fetch hearing history
+        fetch(`hearing.php?complaint_id=${complaintId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('hearingHistoryTableBody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+
+                data.forEach(hearing => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${hearing.hearing_date}</td>
+                        <td>${hearing.hearing_time}</td>
+                        <td>${hearing.hearing_type}</td>
+                        <td>${hearing.hearing_status}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Fetch error:', error));
+    });
+});
 
 
         var profilePic = document.querySelector('.profile');

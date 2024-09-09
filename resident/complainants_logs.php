@@ -32,13 +32,19 @@ try {
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
     LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
     WHERE c.complaint_name = ?
+    
 ");
+
+
+
+
 
     $stmt->execute([$userFullName]);
     $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "<div class='alert alert-danger' role='alert'>Error: " . $e->getMessage() . "</div>";
 }
+
 
 ?>
 
@@ -125,6 +131,37 @@ include '../includes/resident-bar.php';
 
 
 
+<div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hearingHistoryTableBody">
+                        <!-- Hearing history rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <!-- Complaint Details Modal -->
 <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg"> <!-- Make modal larger -->
@@ -149,6 +186,8 @@ include '../includes/resident-bar.php';
                 <p><strong>Civil Status:</strong> <span id="modalCivilStatus"></span></p>
 
                 <!-- Hearing Details -->
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#hearingHistoryModal">View Hearing History</button>
+
                 <p><strong>Hearing Type:</strong> <span id="modalHearingType"></span></p>
                 <p><strong>Hearing Date:</strong> <span id="modalHearingDate"></span></p>
                 <p><strong>Hearing Time:</strong> <span id="modalHearingTime"></span></p>
@@ -338,6 +377,40 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error("Error:", error);
         });
     }
+});
+
+
+
+var hearingHistoryModal = document.getElementById('hearingHistoryModal');
+
+hearingHistoryModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var complaintId = button.getAttribute('data-complaint-id');
+
+    // Fetch hearing history
+    fetch(`hearing.php?complaint_id=${complaintId}`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('hearingHistoryTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (data.error) {
+                console.error('Error:', data.error);
+                return;
+            }
+
+            data.forEach(hearing => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${hearing.hearing_date}</td>
+                    <td>${hearing.hearing_time}</td>
+                    <td>${hearing.hearing_type}</td>
+                    <td>${hearing.hearing_status}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Fetch error:', error));
 });
 
 

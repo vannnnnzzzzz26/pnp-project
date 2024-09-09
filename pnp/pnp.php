@@ -142,6 +142,37 @@ displayPNPComplaints($pdo);
     </div>
 
 
+
+    <div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hearingHistoryTableBody">
+                        <!-- Hearing history rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -363,6 +394,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             <p><strong>Age:</strong> ${data.age}</p>
                             <p><strong>Educational Background:</strong> ${data.educational_background}</p>
                             <p><strong>Civil Status:</strong> ${data.civil_status}</p>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hearingHistoryModal" data-complaint-id="1">
+    View Hearing History
+</button>
                             ${evidenceHtml}
                         `;
 
@@ -435,6 +469,49 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+    var hearingHistoryModal = document.getElementById('hearingHistoryModal');
+
+    hearingHistoryModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var complaintId = button.getAttribute('data-complaint-id');
+
+        console.log('Fetching hearing history for complaint ID:', complaintId);
+
+        // Fetch hearing history
+        fetch(`hearing.php?complaint_id=${complaintId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('hearingHistoryTableBody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+
+                if (data.length === 0) {
+                    console.log('No hearing history found.');
+                    tableBody.innerHTML = '<tr><td colspan="4">No hearing history found.</td></tr>';
+                } else {
+                    data.forEach(hearing => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${hearing.hearing_date}</td>
+                            <td>${hearing.hearing_time}</td>
+                            <td>${hearing.hearing_type}</td>
+                            <td>${hearing.hearing_status}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => console.error('Fetch error:', error));
+    });
+});
+
 
 
 document.addEventListener('DOMContentLoaded', function () {

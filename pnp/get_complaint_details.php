@@ -16,6 +16,7 @@ if ($id > 0) {
             LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
             LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
             LEFT JOIN tbl_info i ON c.info_id = i.info_id
+            
             LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
             WHERE c.complaints_id = ?
             GROUP BY c.complaints_id

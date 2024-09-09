@@ -33,28 +33,21 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         $barangay_name = $_SESSION['barangay_name'] ?? '';
 
         $stmt = $pdo->prepare("
-        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
-               e.evidence_path, e.date_uploaded,
-               h.hearing_date, h.hearing_time, h.hearing_type, h.hearing_status
-        FROM tbl_complaints c
-        JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-        JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-        JOIN tbl_info i ON c.info_id = i.info_id
-        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-        LEFT JOIN (
-            SELECT complaints_id, hearing_date, hearing_time, hearing_type, hearing_status
-            FROM tbl_hearing_history
-            WHERE (complaints_id, hearing_date) IN (
-                SELECT complaints_id, MAX(hearing_date)
-                FROM tbl_hearing_history
-                GROUP BY complaints_id
-            )
-        ) h ON c.complaints_id = h.complaints_id
-        WHERE c.status IN ('Approved') AND b.barangay_name = ?
-        ORDER BY c.date_filed ASC
-        LIMIT ?, ?
-    ");
-    
+            SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
+                   e.evidence_path, e.date_uploaded,
+                   MAX(h.hearing_date) AS hearing_date, MAX(h.hearing_time) AS hearing_time, MAX(h.hearing_type) AS hearing_type, MAX(h.hearing_status) AS hearing_status
+            FROM tbl_complaints c
+            JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+            JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+            JOIN tbl_info i ON c.info_id = i.info_id
+            LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+            LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
+            WHERE c.status IN ('Approved') AND b.barangay_name = ?
+            GROUP BY c.complaints_id
+            ORDER BY c.date_filed ASC
+            LIMIT ?, ?
+        ");
+        
         $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
         $stmt->bindParam(2, $start_from, PDO::PARAM_INT);
         $stmt->bindParam(3, $results_per_page, PDO::PARAM_INT);
@@ -87,7 +80,6 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 $complaint_hearing_time = isset($row['hearing_time']) ? htmlspecialchars($row['hearing_time']) : '';
                 $complaint_hearing_type = isset($row['hearing_type']) ? htmlspecialchars($row['hearing_type']) : '';
                 
-
                 echo "<tr>";
                 echo "<td>{$rowNumber}</td>"; // Display row number
                 echo "<td>{$complaint_name}</td>";
@@ -111,6 +103,7 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         echo "<tr><td colspan='4'>Error fetching complaints: " . $e->getMessage() . "</td></tr>";
     }
 }
+
 
 // Handle status update submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
@@ -247,6 +240,35 @@ include '../includes/edit-profile.php';
 
 
                 <!-- Additional fields as needed -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Hearing History Modal -->
+<div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hearingHistoryTableBody">
+                        <!-- Hearing history rows will be populated here -->
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -590,6 +612,42 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.view-details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const complaintId = this.dataset.id;
+            
+            // Fetch hearing history
+            fetch(`set_hearing.php?complaint_id=${complaintId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('hearingHistoryTableBody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+
+                    if (data.error) {
+                        console.error('Error:', data.error);
+                        return;
+                    }
+
+                    data.forEach(hearing => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${hearing.hearing_date}</td>
+                            <td>${hearing.hearing_time}</td>
+                            <td>${hearing.hearing_type}</td>
+                            <td>${hearing.hearing_status}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Fetch error:', error));
+        });
+    });
+});
+
 
 function confirmLogout() {
         Swal.fire({
