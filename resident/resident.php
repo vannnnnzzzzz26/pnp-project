@@ -133,14 +133,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/style.css">
 
 </head>
-<body>
+<body >
 
 <style>
 .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
+    background-color: whitesmoke; 
     color: #ffffff; /* White text color */
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
@@ -153,6 +153,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
 
 
 
@@ -167,10 +190,11 @@ include '../includes/edit-profile.php';
 ?>
 
     <!-- Page Content -->
- 
+  
 
    
    <div class="content">
+    
   <div class="card">
     <div class="card-body">
       <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="return onSubmitForm();">

@@ -72,7 +72,8 @@ try {
             border-radius: 50%; /* Makes the image circular */
         }
         .table thead th {
-            background-color: #007bff;
+            background-color: #082759;
+
             color: #ffffff;
             text-align: center;
         }
@@ -87,6 +88,35 @@ try {
             max-width: 100px;
             max-height: 100px;
         }
+
+
+        .popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
     </style>
 </head>
 <body>

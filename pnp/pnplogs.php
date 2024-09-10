@@ -1,7 +1,5 @@
-
 <?php
-
-// Start output buffering
+// Start session and retrieve user details
 session_start();
 $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
@@ -13,13 +11,24 @@ $pic_data = $_SESSION['pic_data'] ?? '';
 
 include '../connection/dbconn.php'; 
 
-// Function to display basic complaint information in the table
-function displayComplaintDetails($pdo, $search_query = '') {
+$results_per_page = 10; // Number of complaints per page
+
+// Get the current page number from GET, if available, otherwise set to 1
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+
+// Calculate the start row number for the SQL LIMIT clause
+$start_from = ($page - 1) * $results_per_page;
+
+// Get the search query from the GET request if available
+$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Function to display complaints with pagination
+function displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page) {
     try {
-        // Prepare the search query
+        // Prepare the search query for LIKE
         $search_query = '%' . $search_query . '%';
 
-        // Fetch complaints from tbl_complaints table with additional information and search filter
+        // Fetch complaints with search filter, limited by pagination
         $stmt = $pdo->prepare("
             SELECT c.complaints_id, c.complaint_name, b.barangay_name
             FROM tbl_complaints c
@@ -27,11 +36,14 @@ function displayComplaintDetails($pdo, $search_query = '') {
             WHERE c.responds = 'pnp'
             AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
             ORDER BY c.date_filed ASC
+            LIMIT ?, ?
         ");
 
-        // Bind search parameters
+        // Bind the parameters
         $stmt->bindParam(1, $search_query, PDO::PARAM_STR);
         $stmt->bindParam(2, $search_query, PDO::PARAM_STR);
+        $stmt->bindParam(3, $start_from, PDO::PARAM_INT);
+        $stmt->bindParam(4, $results_per_page, PDO::PARAM_INT);
 
         $stmt->execute();
 
@@ -56,10 +68,22 @@ function displayComplaintDetails($pdo, $search_query = '') {
     }
 }
 
-// Get the search query from the GET request if available
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
-?>
+// Count the total number of complaints for pagination
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) AS total 
+    FROM tbl_complaints c
+    LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+    WHERE c.responds = 'pnp'
+    AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
+");
+$search_query_like = '%' . $search_query . '%';
+$stmt->execute([$search_query_like, $search_query_like]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$total_complaints = $row['total'];
 
+// Calculate the total number of pages
+$total_pages = ceil($total_complaints / $results_per_page);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,8 +99,7 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 
 <style>
 .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -84,11 +107,58 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+
 /* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
 
+
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+.table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+            text-align: center;
+        }
+        table {
+    table-layout: fixed;
+    width: 100%; /* Make table span the entire width */
+  }
+  th, td {
+    text-align: center; /* Align content in the center */
+    vertical-align: middle; /* Align content vertically in the middle */
+  }
+  th {
+    width: 33%; /* Set equal width for each column */
+  }
+  td {
+    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
+  }
     </style>
 <body>
 <?php 
@@ -115,14 +185,45 @@ include '../includes/pnp-bar.php';
                     </thead>
                     <tbody>
                         <?php
-                        // Function call to display PNP complaints logs with search filter
-                        displayComplaintDetails($pdo, $search_query);
+                                    displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page);
+
                         ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&search=<?= htmlspecialchars($search_query); ?>">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page - 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Previous</a>
+                </li>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?= $i; ?>&search=<?= htmlspecialchars($search_query); ?>"><?= $i; ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page + 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $total_pages; ?>&search=<?= htmlspecialchars($search_query); ?>">Last</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+
+    
 
     <div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

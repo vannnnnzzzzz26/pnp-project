@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 09, 2024 at 02:37 AM
+-- Generation Time: Sep 10, 2024 at 02:41 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -47,15 +47,15 @@ INSERT INTO `tbl_announcement` (`announcement_id`, `title`, `content`, `date_pos
 (4, 'pnp logo', 'newxzxzxx', '2024-07-19', NULL, 1, 0),
 (7, 'princess', 'mahilig sa kape at idol niya akoccxx', '2024-07-20', NULL, 1, 0),
 (8, 'excel', 'crush ko', '2024-07-21', 'uploads/profile_669af75c84736.jpg', 1, 0),
-(9, 'pnp logo', 'try lang', '2024-07-21', 'uploads/pnplogo.png', 0, 0),
-(10, 'Fiesta Caravan in one piece Night', 'The Fista caravan will be on August 14, 2024', '2024-07-23', 'uploads/wampis.jpg', 0, 0),
+(9, 'pnp logo', 'try lang', '2024-07-21', 'uploads/pnplogo.png', 1, 0),
+(10, 'Fiesta Caravan in one piece Night', 'The Fista caravan will be on August 14, 2024', '2024-07-23', 'uploads/wampis.jpg', 1, 0),
 (11, 'kior centrum', 'edit time', '2024-07-24', 'uploads/kior centrum.jpg', 1, 5),
 (12, 'esodsdsds', 'eyyyyyyyy', '2024-07-27', 'uploads/kior centrum.jpg', 0, 0),
 (13, 'weeeeeeeeeeeeeeeeeeeee', 'jbjbbhbn ', '2024-07-28', '', 1, 0),
-(14, 'dfdfd', 'redfdfgftgfgdfgfd', '2024-08-01', 'uploads/441799097_1205342757295168_7001114824101829619_n.jpg', 0, 0),
-(15, 'Interview', 'Interview for valifation and adding of features', '2024-09-03', 'uploads/pnp interview.jpg', 0, 0),
+(14, 'dfdfd', 'redfdfgftgfgdfgfd', '2024-08-01', 'uploads/441799097_1205342757295168_7001114824101829619_n.jpg', 1, 0),
+(15, 'Interview', 'Interview for valifation and adding of features', '2024-09-03', 'uploads/458491959_1003199601607500_4565557339938371083_n.jpg', 0, 0),
 (16, 'interview', 'nag interview\r\n', '2024-09-05', '../uploadspnp interview.jpg', 1, 0),
-(17, 'princess', 'laging tulog walang ambag', '2024-09-08', '../uploadsuploads456864062_827865415993505_5703441178082039818_n.jpg', 0, 0);
+(17, 'princess', 'laging tulog walang ambag', '2024-09-08', '../uploadsuploads456864062_827865415993505_5703441178082039818_n.jpg', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -88,7 +88,12 @@ INSERT INTO `tbl_brg_official` (`official_id`, `name`, `position`, `image`, `bar
 (51, 'excel', 'Kagawad 2', '../uploads/Screenshot 2024-06-20 153343.png', 121, 0),
 (52, 'wehhhhhhhh', 'Kagawad 4', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 121, 0),
 (53, 'Dindaxy', 'Barangay Captain', '../uploads/10.jpg', 182, 0),
-(54, 'princess', 'Barangay Captain', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 108, 0);
+(54, 'princess', 'Barangay Captain', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 108, 0),
+(55, 'Brayan John V Aquino', 'Barangay Captain', '../uploads/profile_66b1054a599f2.jpg', 99, 0),
+(56, 'princess Rosaio', 'Kagawad 1', '../uploads/profile_66a4c0952f9c7.jpg', 99, 0),
+(57, 'john lloyd manuel', 'Kagawad 2', '../uploads/459116026_2167533256980735_4089694213094330184_n.jpg', 99, 0),
+(58, 'excel Preza', 'Kagawad 3', '../uploads/profile_669af75c84736.jpg', 99, 0),
+(59, 'haryl conception', 'Kagawad 4', '../uploads/profile_66d066dee6955.jpg', 99, 0);
 
 -- --------------------------------------------------------
 
@@ -154,7 +159,8 @@ INSERT INTO `tbl_complaintcategories` (`category_id`, `complaints_category`) VAL
 (295, 'Other forms of trespass (Art. 281)'),
 (296, 'Light threats (Art. 283)'),
 (297, 'Simple seduction (Art. 338)'),
-(298, 'nkaw');
+(298, 'nkaw'),
+(299, 'Discovering secrets through seizure and correspondence (Art. 290)');
 
 -- --------------------------------------------------------
 
@@ -280,9 +286,11 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (383, 'rus sel imel ', '0987876876', 'bayan', 'settled_in_barangay', 'ukerebet', 'barangay', '2024-09-07', 0, 264, 143, 401, 317, 0),
 (385, 'din do aeroxy ', '0902025050', 'harel', 'settled_in_barangay', 'ttrhtrhytrhty', 'barangay', '2024-09-08', 0, 286, 196, 403, 319, 0),
 (386, 'din do aeroxy ', '0925647412', 'sdsd', 'pnp', 'cscs', 'pnp', '2024-09-08', 0, 290, 196, 404, 320, 0),
-(387, 'din do aeroxy ', '0967544693', 'rubirt', 'Approved', 'kingina anong oras na', '', '2024-09-08', 0, 273, 196, 405, 321, 0),
+(387, 'din do aeroxy ', '0967544693', 'rubirt', 'pnp', 'kingina anong oras na', 'pnp', '2024-09-08', 0, 273, 196, 405, 321, 0),
 (388, 'din do aeroxy ', 'rerer', 'ererere', 'pnp', 'terterte', 'pnp', '2024-09-08', 0, 285, 196, 406, 322, 0),
-(389, 'din do aeroxy ', '0978544693', 'Brayan ', 'Rejected', 'gdfvdf', '', '2024-09-08', 0, 291, 196, 407, 323, 0);
+(389, 'din do aeroxy ', '0978544693', 'Brayan ', 'Rejected', 'gdfvdf', '', '2024-09-08', 0, 291, 196, 407, 323, 0),
+(390, 'excel N Preza ', '0927142858', 'John Lloyd Manu', 'Approved', 'Nag takaw manok', '', '2024-09-10', 0, 285, 196, 408, 324, 0),
+(391, 'excel N Preza ', '0927142858', 'Haryl concepcio', 'Approved', 'nag vape', '', '2024-09-10', 0, 299, 196, 409, 325, 0);
 
 -- --------------------------------------------------------
 
@@ -400,7 +408,9 @@ INSERT INTO `tbl_evidence` (`evidence_id`, `complaints_id`, `evidence_path`, `da
 (0, 386, '../uploads/8.jpg', '2024-09-08'),
 (0, 387, '../uploads/30.jpg', '2024-09-08'),
 (0, 388, '../uploads/13.png', '2024-09-08'),
-(0, 389, '../uploads/6.jfif', '2024-09-08');
+(0, 389, '../uploads/6.jfif', '2024-09-08'),
+(0, 390, '../uploads/Screenshot 2024-09-10 220439.png', '2024-09-10'),
+(0, 391, '../uploads/459081664_8258910247531104_2432168630201406601_n.mp4', '2024-09-10');
 
 -- --------------------------------------------------------
 
@@ -430,7 +440,11 @@ INSERT INTO `tbl_hearing_history` (`id`, `complaints_id`, `hearing_date`, `heari
 (23, 387, '2024-08-28', '05:30:00', 'First Hearing', '', '2024-09-08 14:57:21'),
 (24, 388, '2024-09-21', '02:05:00', 'First Hearing', '', '2024-09-08 15:03:21'),
 (25, 387, '2024-08-28', '05:30:00', 'Second Hearing', 'Not Attended', '2024-09-08 15:31:40'),
-(26, 388, '2024-09-21', '02:05:00', 'Second Hearing', 'Not Resolved', '2024-09-08 15:36:16');
+(26, 388, '2024-09-21', '02:05:00', 'Second Hearing', 'Not Resolved', '2024-09-08 15:36:16'),
+(27, 387, '2024-08-28', '05:30:00', 'Third Hearing', 'Not Resolved', '2024-09-09 11:26:02'),
+(28, 390, '2024-09-27', '10:25:00', 'First Hearing', 'Attended', '2024-09-10 11:22:27'),
+(29, 390, '2024-09-27', '10:25:00', 'Second Hearing', 'Not Attended', '2024-09-10 11:27:21'),
+(30, 390, '2024-09-27', '10:25:00', 'Third Hearing', 'Not Resolved', '2024-09-10 11:50:11');
 
 -- --------------------------------------------------------
 
@@ -592,7 +606,9 @@ INSERT INTO `tbl_image` (`image_id`, `complaint_id`, `image_type`, `image_path`,
 (404, 0, 'ID', '../uploads/7.jfif', '2024-09-08 16:17:36.000000'),
 (405, 0, 'ID', '../uploads/9.jpg', '2024-09-08 16:50:24.000000'),
 (406, 0, 'ID', '../uploads/15.jpg', '2024-09-08 16:58:47.000000'),
-(407, 0, 'ID', '../uploads/28.jpg', '2024-09-08 17:03:44.000000');
+(407, 0, 'ID', '../uploads/28.jpg', '2024-09-08 17:03:44.000000'),
+(408, 0, 'ID', '../uploads/1007-scaled-e1648706208427-1024x538-removebg-preview.png', '2024-09-10 13:08:34.000000'),
+(409, 0, 'ID', '../uploads/1007-scaled-e1648706208427-1024x538-removebg-preview.png', '2024-09-10 14:16:34.000000');
 
 -- --------------------------------------------------------
 
@@ -716,7 +732,9 @@ INSERT INTO `tbl_info` (`info_id`, `age`, `gender`, `birth_date`, `place_of_birt
 (320, 23, 'Female', '2000-09-20', 'ddfdfdf', 'Single', 'Primary'),
 (321, 23, 'Male', '2000-09-28', 'sa daan', 'Single', 'Secondary'),
 (322, -1, 'Male', '2024-09-20', 'ererere', 'Single', 'Primary'),
-(323, 35, 'Female', '1988-09-28', 'sa daan', 'Single', 'Primary');
+(323, 35, 'Female', '1988-09-28', 'sa daan', 'Single', 'Primary'),
+(324, 23, 'Female', '2001-03-27', 'Gamu Isabela', 'Single', 'Tertiary'),
+(325, 23, 'Male', '2001-06-27', 'Gamu Isabela', 'Single', 'Tertiary');
 
 -- --------------------------------------------------------
 
@@ -751,10 +769,10 @@ CREATE TABLE `tbl_users` (
 --
 
 INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `extension_name`, `email`, `password`, `accountType`, `barangays_id`, `pic_data`, `security_question_1`, `security_answer_1`, `security_question_2`, `security_answer_2`, `security_question_3`, `security_answer_3`, `verification_token`, `is_verified`, `otp`) VALUES
-(88, 'bj', 'villanueva', 'Aquino', '', 'mlgaming143@gmail.com', '$2y$10$Zzc0DtBO4RPmA8RgBOoiueAv86p9Sc69r8PpiKRdiCfaPWutYn1L.', 'Barangay Official', 118, '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '', '', '', '', '', '', 'b3fb01a3e82c4acc34b4c4c34243ae98', 1, NULL),
+(88, 'bj', 'villanueva', 'Aquino', '', 'bjaquino@gmail.com', '$2y$10$Zzc0DtBO4RPmA8RgBOoiueAv86p9Sc69r8PpiKRdiCfaPWutYn1L.', 'Barangay Official', 118, '../uploads/435559638_928560769060280_7584294412764526119_n.jpg', '', '', '', '', '', '', 'b3fb01a3e82c4acc34b4c4c34243ae98', 1, NULL),
 (89, 'Excel', 'nnnn', 'Preza', '', 'excel27@gmail.com', '$2y$10$/otNt0hA5d3b3V1xX5nzCOThzRA0.tGdwBq.mBrdvYJCW8AaQdRPW', 'Resident', 119, 'uploads/profile_66b35dfc81120.jpg', '', '', '', '', '', '', NULL, 0, NULL),
 (90, 'princess', 'Cadiente', 'Rosario', '', 'immajvadhing@gmail.com', '$2y$10$zIuH.Hf3SqI0tF7LuU1ep.59VjW.mBFloZw5It0LEllb0G4un6Ese', 'PNP Officer', 120, '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '', '', '', '', '', '', NULL, 1, NULL),
-(91, 'brayan', 'villanueva', 'Aquino', '', 'resident@gmail.com', '$2y$10$eDd76Og1S4TLos2N4J4Y1eLSobv5n5MkSRywhcFUhdFnA4Rc0HhjG', 'Resident', 121, '../uploads/excel.jpg', '', '', '', '', '', '', NULL, 0, NULL),
+(91, 'brayan', 'villanueva', 'Aquino', '', 'resident@gmail.com', '$2y$10$eDd76Og1S4TLos2N4J4Y1eLSobv5n5MkSRywhcFUhdFnA4Rc0HhjG', 'Resident', 121, '../uploads/excel.jpg', '', '', '', '', '', '', NULL, 0, '275931'),
 (92, 'excel', 'nnnn', 'preza', '', 'barangay@gmail.com', '$2y$10$1AtIP9iYRzjHMlsCEmSAqOI6m7moC3sWnPP1p/7k3V1mnVD1rwE/W', 'Barangay Official', 122, '../uploads/profile_669f988fa9760.jpg', '', '', '', '', '', '', NULL, 0, NULL),
 (93, 'Desiray', 'Domael', 'Naya', 'Sr.', 'desiray.d.nayga@isu.edu.ph', '$2y$10$LmMrEMdaLDuLc3Lk3GIey.vNaaMqWfTz0Ozlyafwidp.fypnXkspe', 'Resident', 123, 'uploads/profile_66c3bedba896e.png', '', '', '', '', '', '', NULL, 0, NULL),
 (94, 'excel', 'nnn', 'preza', '', 'excel@gmail.com', '$2y$10$dmxu96P0WEASLgJMGL9pOuRxpJabK6jwdVo.8cAQB4hot3lZowS.m', 'Resident', 124, 'uploads/profile_66c5c31494af3.jpg', '', '', '', '', '', '', NULL, 0, NULL),
@@ -778,7 +796,7 @@ INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `e
 (112, 'ja', 'mes', 'lems', '', 'villatanza@gmail.com', '$2y$10$0zxikt2s2pbMGJ/d9eUjVeRErkd75o6x9r0i3s3l6bVec/3.zkZJC', 'Resident', 144, '../uploads/profile_66d9a8751917a.jfif', '', '', '', '', '', '', NULL, 0, NULL),
 (113, 'kat', 'lin', 'salbag', '', 'villaserafica@gmail.com', '$2y$10$.REmYoh.hKAIBI.d2.FmceU4YBICkDQS6MNlFGT3pCpLqsHcAvP6y', 'Resident', 145, '../uploads/profile_66d9a9e8cf811.jfif', '', '', '', '', '', '', NULL, 0, NULL),
 (114, 'ba', 'yan', 'jan', '', 'villaremedios@gmail.com', '$2y$10$17I.oijzKb6dNJsx2dqNguBryoT4yRXp.uEdb4uE503nGm/.AflPW', 'Resident', 146, '../uploads/profile_66d9aa96212cc.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(115, 'sesa', 'me', 'seed', '', 'villaquirino@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 147, '../uploads/profile_66d9ac8e0dd17.jpg', '', '', '', '', '', '', NULL, 0, NULL),
+(115, 'sesa', 'me', 'seed', '', 'villaquirino@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 147, '../uploads/profile_66d9ac8e0dd17.jpg', '', '', '', '', '', '', NULL, 1, NULL),
 (116, 'mar', 'ky', 'san', '', 'villapereda@gmail.com', '$2y$10$O7zOWXQqaAipeHYvIfPSi.IP1BNtyOLxidqnqZ2LqVBbZ70JmoOZu', 'Resident', 148, '../uploads/profile_66d9ae95d3103.jpg', '', '', '', '', '', '', NULL, 0, NULL),
 (117, 'de', 'puuuuuuu', 'tah', '', 'villapadian@gmail.com', '$2y$10$thi2/iRL03ZEQxiTHSk4EuWcrklTEiC7Q5OftzKTji6E0JfQSCN7a', 'Resident', 149, '../uploads/profile_66d9af35d4d27.jpg', '', '', '', '', '', '', NULL, 0, NULL),
 (118, 'jan', 'mi', 'lloyd', '', 'villanuesa@gmail.com', '$2y$10$Y6OotCv0/dkr7hnqecfdPeOo0zrysloR1MtOhYm9cLpT2LS7.A2o2', 'Resident', 150, '../uploads/profile_66d9b01e7d344.png', '', '', '', '', '', '', NULL, 0, NULL),
@@ -824,7 +842,7 @@ INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `e
 (158, 'xfsfs', 'aadad', 'aadd', '', 'maligaya1@gmail.com', '$2y$10$kdWWcCY55p6YnOdLEi482.HAqRrZa6ji/doG9fP52NZpZftq0tBlW', 'Barangay Official', 190, '../uploads/profile_66dc346a9ecdf.jpg', '', '', '', '', '', '', NULL, 0, '749854'),
 (159, 'ap', 'dul', 'jakusi', '', 'villaverde1@gmail.com', '$2y$10$Bwhfh7u0.YqRqbQaVVRuYOP5AMFPHAjP0agy7wk1yZ8R/sydmOniC', 'Barangay Official', 191, '../uploads/profile_66dc380c6b9ae.jpg', '', '', '', '', '', '', NULL, 0, NULL),
 (161, 'xfsfs', 'aadad', 'aadd', '', 'd@gmail.com', '$2y$10$yiBZ5AzmvECAo7eTRdywD.wYmbezQsfs2odvd0i.PCgH4B5x0vHAC', 'Barangay Official', 195, '../uploads/profile_66dd0f330bc94.jpg', 'What was your childhood nickname?', '$2y$10$jAMjBos9uEUbYzqYh27B/uaV5YIZbR//TF.HSD6q3q2.1WBWYKT7O', 'In what city were you born?', '$2y$10$MZxMT4WI2nYQGPSg5zDX.uPHTH5UkKmqEF5MD60lxeaAqML1XQa86', 'What was your high school mascot?', '$2y$10$uxOyr7FYsLH/2hpo3CJhPeeET2Yy5NchYSEsFBjuS2bSwVmVLCyOe', NULL, 0, NULL),
-(163, 'din', 'do', 'aeroxy', '', 'maligaya164@gmail.com', '$2y$10$.z01O9NShAyBREWZsuEgt.dONT1JDDLLKh05EAR/qUopG0twVKfr6', 'Resident', 196, '../uploads/profile_66dd94cb579b6.jpg', 'What was your childhood nickname?', '$2y$10$0he/z3Qzo3Rzv82BR3XDSu5/1lCA5XAKYKaoPKpIJ4KZdnzpFnG8S', 'What was the name of your elementary school?', '$2y$10$gBE9PJw4aJSWsxVBwMQ7PODN5UDGSZuGErkC9us77Q04XNR7ACEuC', 'What is your mother’s maiden name?', '$2y$10$.ZTiTjZwIagmT2qCnNrGqe9qvxfbFtd.zNQWmi6iAOpkPwbDd5Zri', NULL, 1, NULL);
+(163, 'excel', 'N', 'Preza', '', 'maligaya164@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 196, '../uploads/profile_66dd94cb579b6.jpg', 'What was your childhood nickname?', '$2y$10$0he/z3Qzo3Rzv82BR3XDSu5/1lCA5XAKYKaoPKpIJ4KZdnzpFnG8S', 'What was the name of your elementary school?', '$2y$10$gBE9PJw4aJSWsxVBwMQ7PODN5UDGSZuGErkC9us77Q04XNR7ACEuC', 'What is your mother’s maiden name?', '$2y$10$.ZTiTjZwIagmT2qCnNrGqe9qvxfbFtd.zNQWmi6iAOpkPwbDd5Zri', NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1030,37 +1048,37 @@ ALTER TABLE `tbl_announcement`
 -- AUTO_INCREMENT for table `tbl_brg_official`
 --
 ALTER TABLE `tbl_brg_official`
-  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `tbl_complaintcategories`
 --
 ALTER TABLE `tbl_complaintcategories`
-  MODIFY `category_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=299;
+  MODIFY `category_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=300;
 
 --
 -- AUTO_INCREMENT for table `tbl_complaints`
 --
 ALTER TABLE `tbl_complaints`
-  MODIFY `complaints_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=390;
+  MODIFY `complaints_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=392;
 
 --
 -- AUTO_INCREMENT for table `tbl_hearing_history`
 --
 ALTER TABLE `tbl_hearing_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `tbl_image`
 --
 ALTER TABLE `tbl_image`
-  MODIFY `image_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=408;
+  MODIFY `image_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=410;
 
 --
 -- AUTO_INCREMENT for table `tbl_info`
 --
 ALTER TABLE `tbl_info`
-  MODIFY `info_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=324;
+  MODIFY `info_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=326;
 
 --
 -- AUTO_INCREMENT for table `tbl_users`

@@ -68,8 +68,7 @@ $announcements = $stmt->fetchAll();
 
 <style>
 .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -77,10 +76,53 @@ $announcements = $stmt->fetchAll();
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+
 /* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
+
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+
+.card {
+    width: 100%; /* Ensure the card takes full width of its container */
+    max-width: 400px; /* Set a maximum width to make the card smaller */
+    margin: 0 auto; /* Center the card horizontally */
+}
+
+.card-body {
+    padding: 1rem; /* Adjust padding inside the card body if needed */
+}
+
+.image-container img {
+    max-width: 100%; /* Ensure the image fits within the card */
+    height: auto; /* Maintain aspect ratio */
+}
+
 
     </style>
 <body>

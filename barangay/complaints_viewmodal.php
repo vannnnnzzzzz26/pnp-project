@@ -18,24 +18,19 @@
                 <p><strong>Age:</strong> <span id="modal-age"></span></p>
                 <p><strong>Education:</strong> <span id="modal-education"></span></p>
                 <p><strong>Civil Status:</strong> <span id="modal-civil_status"></span></p>
-                <p><strong>Evidence:</strong> 
-                    <span id="modal-evidence">
-                        <img id="modal-evidence-image" src="" alt="Evidence Image" style="display: none; max-width: 100%;">
-                        <video id="modal-evidence-video" controls style="display: none; max-width: 100%;">
-                            <source id="modal-evidence-video-source" src="" type="video/mp4">
-                        </video>
-                    </span>
-                </p>
                 <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
-                <p><strong>Hearing Date:</strong> <span id="modal-hearing_date"></span></p>
-                <p><strong>Hearing Time:</strong> <span id="modal-hearing_time"></span></p>
-                <p><strong>Hearing Type:</strong> <span id="modal-hearing_type"></span></p>
-                
-                <!-- New button for viewing hearing history -->
-                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#hearingHistoryModal">View Hearing History</button>
-                
-                <p><strong>Hearing Status:</strong> <span id="modal-hearing_status"></span></p>
                 <p><strong>Status:</strong> <span id="modal-status"></span></p>
+        
+
+                <div id="modalHearingHistorySection">
+                    <!-- Hearing history will be populated here -->
+                </div>
+
+                <!-- Evidence Section -->
+                <div id="modalEvidenceSection" style="display: none;">
+                    <p><strong>Evidence:</strong></p>
+                    <ul id="modalEvidenceList"></ul>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" id="moveToPnpBtn">Move to PNP</button>

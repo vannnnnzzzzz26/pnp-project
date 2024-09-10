@@ -34,24 +34,24 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
 
         $stmt = $pdo->prepare("
             SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
-                   e.evidence_path, e.date_uploaded,
-                   MAX(h.hearing_date) AS hearing_date, MAX(h.hearing_time) AS hearing_time, MAX(h.hearing_type) AS hearing_type, MAX(h.hearing_status) AS hearing_status
+                   GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ',') AS evidence_paths,
+                   GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
             FROM tbl_complaints c
             JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
             JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
             JOIN tbl_info i ON c.info_id = i.info_id
             LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
             LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
-            WHERE c.status IN ('Approved') AND b.barangay_name = ?
+            WHERE c.status = 'Approved' AND b.barangay_name = ?
             GROUP BY c.complaints_id
             ORDER BY c.date_filed ASC
             LIMIT ?, ?
         ");
-        
+
         $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
         $stmt->bindParam(2, $start_from, PDO::PARAM_INT);
         $stmt->bindParam(3, $results_per_page, PDO::PARAM_INT);
-        
+
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) {
@@ -72,14 +72,11 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 $complaint_age = htmlspecialchars($row['age']);
                 $complaint_education = htmlspecialchars($row['educational_background']);
                 $complaint_civil_status = htmlspecialchars($row['civil_status']);
-                $complaint_evidence = htmlspecialchars($row['evidence_path']);
+                $complaint_evidence = htmlspecialchars($row['evidence_paths']);
                 $complaint_date_filed = htmlspecialchars($row['date_filed']);
                 $complaint_status = htmlspecialchars($row['status']);
-                $complaint_hearing_status = isset($row['hearing_status']) ? htmlspecialchars($row['hearing_status']) : '';
-                $complaint_hearing_date = isset($row['hearing_date']) ? htmlspecialchars($row['hearing_date']) : '';
-                $complaint_hearing_time = isset($row['hearing_time']) ? htmlspecialchars($row['hearing_time']) : '';
-                $complaint_hearing_type = isset($row['hearing_type']) ? htmlspecialchars($row['hearing_type']) : '';
-                
+                $complaint_hearing_status = htmlspecialchars($row['hearing_history']);
+
                 echo "<tr>";
                 echo "<td>{$rowNumber}</td>"; // Display row number
                 echo "<td>{$complaint_name}</td>";
@@ -89,10 +86,9 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                             data-contact='{$complaint_contact}' data-person='{$complaint_person}' 
                             data-gender='{$complaint_gender}' data-birth_place='{$complaint_birth_place}' 
                             data-age='{$complaint_age}' data-education='{$complaint_education}' 
-                            data-civil_status='{$complaint_civil_status}' data-evidence='{$complaint_evidence}' 
+                            data-civil_status='{$complaint_civil_status}' data-evidence_paths='{$complaint_evidence}' 
                             data-date_filed='{$complaint_date_filed}' data-status='{$complaint_status}' 
-                            data-hearing_status='{$complaint_hearing_status}' data-hearing_date='{$complaint_hearing_date}'
-                            data-hearing_time='{$complaint_hearing_time}' data-hearing_type='{$complaint_hearing_type}'
+                            data-hearing_history='{$complaint_hearing_status}' 
                             data-bs-toggle='modal' data-bs-target='#complaintModal'>View Details</button></td>";
                 echo "</tr>";
 
@@ -103,7 +99,6 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         echo "<tr><td colspan='4'>Error fetching complaints: " . $e->getMessage() . "</td></tr>";
     }
 }
-
 
 // Handle status update submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
@@ -128,12 +123,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     }
 }
 
+// Handle hearing update submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_hearing'])) {
+    $complaint_id = $_POST['complaint_id'];
+    $hearing_date = $_POST['hearing_date'];
+    $hearing_time = $_POST['hearing_time'];
+    $hearing_type = $_POST['hearing_type'];
+    $hearing_status = $_POST['hearing_status'];
+
+    try {
+        // Delete existing hearing history for this complaint
+        $stmt = $pdo->prepare("DELETE FROM tbl_hearing_history WHERE complaints_id = ?");
+        $stmt->execute([$complaint_id]);
+
+        // Insert new hearing details
+        $stmt = $pdo->prepare("INSERT INTO tbl_hearing_history (complaints_id, hearing_date, hearing_time, hearing_type, hearing_status) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$complaint_id, $hearing_date, $hearing_time, $hearing_type, $hearing_status]);
+
+        header("Location: {$_SERVER['PHP_SELF']}?page={$page}");
+        exit();
+    } catch (PDOException $e) {
+        echo "Error updating hearing details: " . $e->getMessage();
+    }
+}
+
 // Pagination
 $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE (c.status = 'Approved' OR c.status = 'unresolved') AND b.barangay_name = ?");
 $stmt->execute([$barangay_name]);
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 $total_pages = ceil($row['total'] / $results_per_page);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -160,6 +181,54 @@ $total_pages = ceil($row['total'] / $results_per_page);
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
+
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+
+ .table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+            text-align: center;
+        }
+
+        table {
+    table-layout: fixed;
+    width: 100%; /* Make table span the entire width */
+  }
+  th, td {
+    text-align: center; /* Align content in the center */
+    vertical-align: middle; /* Align content vertically in the middle */
+  }
+  th {
+    width: 33%; /* Set equal width for each column */
+  }
+  td {
+    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
+  }
 </style>
 <body>
 
@@ -247,35 +316,7 @@ include '../includes/edit-profile.php';
         </div>
     </div>
 </div>
-<!-- Hearing History Modal -->
-<div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hearingHistoryTableBody">
-                        <!-- Hearing history rows will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 
 
@@ -338,48 +379,68 @@ include 'complaints_viewmodal.php';
         button.addEventListener('click', function() {
             // Populate modal with data
             document.getElementById('modal-name').textContent = this.dataset.name;
-        document.getElementById('modal-description').textContent = this.dataset.description;
-        document.getElementById('modal-category').textContent = this.dataset.category;
-        document.getElementById('modal-barangay').textContent = this.dataset.barangay;
-        document.getElementById('modal-contact').textContent = this.dataset.contact;
-        document.getElementById('modal-person').textContent = this.dataset.person;
-        document.getElementById('modal-gender').textContent = this.dataset.gender;
-        document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
-        document.getElementById('modal-age').textContent = this.dataset.age;
-        document.getElementById('modal-education').textContent = this.dataset.education;
-        document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
-        document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
-        document.getElementById('modal-status').textContent = this.dataset.status;
-        document.getElementById('modal-hearing_status').textContent = this.dataset.hearing_status;
-        document.getElementById('modal-hearing_date').textContent = this.dataset.hearing_date;
-        document.getElementById('modal-hearing_time').textContent = this.dataset.hearing_time;
-        document.getElementById('modal-hearing_type').textContent = this.dataset.hearing_type;
+            document.getElementById('modal-description').textContent = this.dataset.description;
+            document.getElementById('modal-category').textContent = this.dataset.category;
+            document.getElementById('modal-barangay').textContent = this.dataset.barangay;
+            document.getElementById('modal-contact').textContent = this.dataset.contact;
+            document.getElementById('modal-person').textContent = this.dataset.person;
+            document.getElementById('modal-gender').textContent = this.dataset.gender;
+            document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
+            document.getElementById('modal-age').textContent = this.dataset.age;
+            document.getElementById('modal-education').textContent = this.dataset.education;
+            document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
+            document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
+            document.getElementById('modal-status').textContent = this.dataset.status;
+         
+
+            // Handle hearing history display
+            var hearingHistoryHtml = '';
+            if (this.dataset.hearing_history) {
+                var hearings = this.dataset.hearing_history.split(',');
+                hearingHistoryHtml = '<h5>Hearing History:</h5><table class="table"><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Status</th></tr></thead><tbody>';
+                hearings.forEach(function (hearing) {
+                    var details = hearing.split('|');
+                    hearingHistoryHtml += `
+                        <tr>
+                            <td>${details[0]}</td>
+                            <td>${details[1]}</td>
+                            <td>${details[2]}</td>
+                            <td>${details[3]}</td>
+                        </tr>
+                    `;
+                });
+                hearingHistoryHtml += '</tbody></table>';
+            } else {
+                hearingHistoryHtml = '<p>No hearing history available.</p>';
+            }
+            document.getElementById('modalHearingHistorySection').innerHTML = hearingHistoryHtml;
 
             // Handle evidence display
-            const evidencePath = this.dataset.evidence;
-            const evidenceImage = document.getElementById('modal-evidence-image');
-            const evidenceVideo = document.getElementById('modal-evidence-video');
-            const evidenceVideoSource = document.getElementById('modal-evidence-video-source');
-
-            evidenceImage.style.display = 'none';
-            evidenceVideo.style.display = 'none';
-
-            if (evidencePath) {
-                const fileExtension = evidencePath.split('.').pop().toLowerCase();
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                    evidenceImage.src = evidencePath;
-                    evidenceImage.style.display = 'block';
-                } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
-                    evidenceVideoSource.src = evidencePath;
-                    evidenceVideo.load();
-                    evidenceVideo.style.display = 'block';
+            var evidenceHtml = '<h5>Evidence:</h5>';
+            if (this.dataset.evidence_paths) {
+                var evidencePaths = this.dataset.evidence_paths.split(',').map(path => path.trim());
+                if (evidencePaths.length > 0) {
+                    evidenceHtml += '<ul>';
+                    evidencePaths.forEach(function (path) {
+                        evidenceHtml += `<li><a href="../uploads/${path}" target="_blank">View Evidence</a></li>`;
+                    });
+                    evidenceHtml += '</ul>';
+                } else {
+                    evidenceHtml += '<p>No evidence available.</p>';
                 }
+                document.getElementById('modalEvidenceSection').style.display = 'block';
+            } else {
+                evidenceHtml += '<p>No evidence available.</p>';
+                document.getElementById('modalEvidenceSection').style.display = 'block';
             }
+            document.getElementById('modalEvidenceSection').innerHTML = evidenceHtml;
 
             // Store the complaint ID in the modal for use later
             document.getElementById('complaintModal').setAttribute('data-complaint-id', this.dataset.id);
         });
     });
+
+
 
     // Handle Move to PNP button click
     document.getElementById('moveToPnpBtn').addEventListener('click', function() {

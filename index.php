@@ -30,6 +30,8 @@ try {
     <title>Announcements</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../styles/style.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <style>
         .announcement-container {
@@ -45,10 +47,28 @@ try {
             overflow: hidden;
         }
         .announcement-image {
+            
             max-height: 200px;
             object-fit: cover;
-            width: 100%;
+            width: 70%;
         }
+        .navbar{
+  background-color: #082759;
+
+}
+
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+
+.nav-link{
+    color: whitesmoke;
+
+}
+
     </style>
     <script>
         function shareAnnouncement(id, title, content, url) {
@@ -111,7 +131,7 @@ try {
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="#">PNP Monitoring Complaints</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,9 +160,10 @@ try {
                             <h6 class="card-subtitle mb-2 text-muted"><?php echo htmlspecialchars($announcement['date_posted']); ?></h6>
                             <h5 class="card-title"><?php echo htmlspecialchars($announcement['title']); ?></h5>
                             <p class="card-text"><?php echo nl2br(htmlspecialchars($announcement['content'])); ?></p>
-                            <?php if ($announcement['image_path']): ?>
+                          <center> <?php if ($announcement['image_path']): ?>
                                 <img src="<?php echo htmlspecialchars($announcement['image_path']); ?>" class="img-fluid announcement-image" alt="Announcement Image">
-                            <?php endif; ?>
+                            <?php endif; ?></center> 
+                            <br>
                             <button class="btn btn-primary share-button" 
                                     onclick="shareAnnouncement(
                                         <?php echo $announcement['announcement_id']; ?>, 

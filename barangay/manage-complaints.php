@@ -100,6 +100,51 @@ try {
     border-top-color: #343a40; /* Match the background color */
 }
 
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+.table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+            text-align: center;
+        }
+        table {
+    table-layout: fixed;
+    width: 100%; /* Make table span the entire width */
+  }
+  th, td {
+    text-align: center; /* Align content in the center */
+    vertical-align: middle; /* Align content vertically in the middle */
+  }
+  th {
+    width: 33%; /* Set equal width for each column */
+  }
+  td {
+    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
+  }
+
     </style>
 <body>
 <?php 
@@ -138,7 +183,7 @@ include '../includes/edit-profile.php';
     </script>
 
     <table class="table table-bordered table-hover">
-        <thead class="table-dark">
+        <thead>
             <tr>
                 <th>#</th>
                 <th>Complaint Name</th>

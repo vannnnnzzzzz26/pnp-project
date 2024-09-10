@@ -4,6 +4,7 @@ session_start();
 
 // Include your database connection file
 include '../connection/dbconn.php'; 
+
 // Get the complaint ID from the query string
 $complaint_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -14,14 +15,17 @@ if ($complaint_id <= 0) {
 }
 
 try {
-    // Prepare SQL statement to fetch complaint details
+    // Prepare SQL statement to fetch complaint details and hearing history
     $stmt = $pdo->prepare("
-        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, GROUP_CONCAT(e.evidence_path SEPARATOR ', ') AS evidence_paths
+        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, 
+               GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ', ') AS evidence_paths,
+               GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
         FROM tbl_complaints c
         JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
         JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
         JOIN tbl_info i ON c.info_id = i.info_id
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+        LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
         WHERE c.complaints_id = ?
         GROUP BY c.complaints_id
     ");
@@ -45,6 +49,7 @@ try {
         $civil_status = htmlspecialchars($row['civil_status']);
         $evidence_paths = htmlspecialchars($row['evidence_paths']); 
         $status = htmlspecialchars($row['status']);
+        $hearing_history = htmlspecialchars($row['hearing_history']); // New
 
         // Display the complaint details
         echo "
@@ -61,11 +66,38 @@ try {
             <strong>Educational Background:</strong> $educational_background<br>
             <strong>Civil Status:</strong> $civil_status<br>
             <strong>Status:</strong> $status<br>
-            <strong>Evidence:</strong> <a href='$evidence_paths' target='_blank'>View Evidence</a><br>
-            <strong>Date Filed:</strong> $date_filed<br>
             
-            <!-- Button to open the hearing history modal -->
-            <button type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#hearingHistoryModal' data-complaint-id='$complaint_id'>View Hearing History</button>
+            <strong>Hearing History:</strong><br>
+            <ul>
+        ";
+
+        // Display hearing history
+        if ($hearing_history) {
+            $hearings = explode(',', $hearing_history);
+            foreach ($hearings as $hearing) {
+                list($date, $time, $type, $status) = explode('|', $hearing);
+                echo "<li>Date: $date, Time: $time, Type: $type, Status: $status</li>";
+            }
+        } else {
+            echo "<li>No hearing history available.</li>";
+        }
+
+        echo "
+            </ul>
+            <strong>Evidence:</strong><br>
+        ";
+
+        // Display evidence
+        if ($evidence_paths) {
+            $evidence_paths_array = explode(', ', $evidence_paths);
+            foreach ($evidence_paths_array as $path) {
+                echo "<a href='../uploads/$path' target='_blank'>View Evidence</a><br>";
+            }
+        } else {
+            echo "No evidence available.";
+        }
+
+        echo "
         ";
     } else {
         echo "No complaint found with the provided ID.";

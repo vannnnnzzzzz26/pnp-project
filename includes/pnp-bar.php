@@ -1,8 +1,6 @@
- <div style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
+ <div style="margin-top: 5rem;" class="sidebar" id="sidebar">
         <!-- Toggle button inside sidebar -->
-        <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-            <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-        </button>
+        
 
         <!-- User Information -->
         <div class="user-info px-3 py-2 text-center">

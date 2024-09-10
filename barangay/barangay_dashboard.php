@@ -200,7 +200,30 @@ $categoryData = fetchComplaintCategoriesData($pdo, $barangay_name); // Updated t
     border-top-color: #343a40; /* Match the background color */
 }  
         
-        
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+   
 
     </style>
 </head>

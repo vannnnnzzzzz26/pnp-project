@@ -66,6 +66,51 @@ $start_from = ($page - 1) * $results_per_page;
     border-top-color: #343a40; /* Match the background color */
 }
 
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+.table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+            text-align: center;
+        }
+        table {
+    table-layout: fixed;
+    width: 100%; /* Make table span the entire width */
+  }
+  th, td {
+    text-align: center; /* Align content in the center */
+    vertical-align: middle; /* Align content vertically in the middle */
+  }
+  th {
+    width: 33%; /* Set equal width for each column */
+  }
+  td {
+    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
+  }
     </style>
 </head>
 <body>
@@ -81,7 +126,7 @@ include '../includes/edit-profile.php';
             <h2 class="mt-3 mb-4">Barangay Logs - Settled Complaints</h2>
         
             <table class="table table-bordered table-hover">
-            <thead class="table-dark">
+            <thead>
                         <tr>
                             <th>#</th>
                             <th>Name</th>
@@ -159,34 +204,6 @@ try {
 
 
 
-            <div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hearingHistoryTableBody">
-                        <!-- Hearing history rows will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
             <!-- Pagination -->
             <nav aria-label="Page navigation">

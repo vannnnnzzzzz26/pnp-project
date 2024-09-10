@@ -1,5 +1,5 @@
 <?php
-session_start(); // Add this line to start the session
+session_start();
 
 include '../connection/dbconn.php'; 
 
@@ -11,23 +11,40 @@ $email = $_SESSION['email'] ?? '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
 $pic_data = $_SESSION['pic_data'] ?? '';
 
-// Fetch the dashboard data
-function fetchDashboardData($pdo) {
+$year = isset($_GET['year']) ? intval($_GET['year']) : '';
+$month = isset($_GET['month']) ? intval($_GET['month']) : '';
+
+// Fetch the dashboard data with filters
+function fetchDashboardData($pdo, $year, $month) {
     try {
+        $whereClauses = [];
+        $params = [];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
         // Fetch total complaints
-        $stmtTotal = $pdo->prepare("SELECT COUNT(*) AS total_complaints FROM tbl_complaints");
-        
-        $stmtTotal->execute();
+        $stmtTotal = $pdo->prepare("SELECT COUNT(*) AS total_complaints FROM tbl_complaints $whereSql");
+        $stmtTotal->execute($params);
         $totalComplaints = $stmtTotal->fetchColumn();
 
         // Fetch Filed in the Court
-        $stmtFiledCourt = $pdo->prepare("SELECT COUNT(*) AS filed_in_court FROM tbl_complaints WHERE status = 'Filed in the Court' AND responds = 'pnp'");
-        $stmtFiledCourt->execute();
+        $stmtFiledCourt = $pdo->prepare("SELECT COUNT(*) AS filed_in_court FROM tbl_complaints WHERE status = 'Filed in the Court' AND responds = 'pnp' $whereSql");
+        $stmtFiledCourt->execute($params);
         $filedInCourt = $stmtFiledCourt->fetchColumn();
 
         // Fetch settled in Barangay
-        $stmtSettledBarangay = $pdo->prepare("SELECT COUNT(*) AS settled_in_barangay FROM tbl_complaints WHERE status = 'settled_in_barangay' AND responds = 'barangay'");
-        $stmtSettledBarangay->execute();
+        $stmtSettledBarangay = $pdo->prepare("SELECT COUNT(*) AS settled_in_barangay FROM tbl_complaints WHERE status = 'settled_in_barangay' AND responds = 'barangay' $whereSql");
+        $stmtSettledBarangay->execute($params);
         $settledInBarangay = $stmtSettledBarangay->fetchColumn();
 
         return [
@@ -36,72 +53,127 @@ function fetchDashboardData($pdo) {
             'settledInBarangay' => $settledInBarangay
         ];
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [
-            'totalComplaints' => 0,
-            'filedInCourt' => 0,
-            'settledInBarangay' => 0
-        ];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-$data = fetchDashboardData($pdo);
+$data = fetchDashboardData($pdo, $year, $month);
 
-// Fetch complaints by barangay data
-function fetchComplaintsByBarangay($pdo) {
+// Fetch complaints by barangay data with filters
+function fetchComplaintsByBarangay($pdo, $year, $month) {
     try {
+        $whereClauses = [];
+        $params = [];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(c.date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(c.date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
         $stmt = $pdo->prepare("
             SELECT ub.barangay_name, COUNT(c.complaints_id) AS complaint_count
             FROM tbl_complaints c
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
+            $whereSql
             GROUP BY ub.barangay_name
         ");
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-$barangayData = fetchComplaintsByBarangay($pdo);
+$barangayData = fetchComplaintsByBarangay($pdo, $year, $month);
 
-// Fetch gender data
-function fetchGenderData($pdo) {
+// Fetch gender data with filters
+function fetchGenderData($pdo, $year, $month) {
     try {
+        $whereClauses = [];
+        $params = [];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(c.date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(c.date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
         $stmt = $pdo->prepare("
-            SELECT gender, COUNT(info_id) AS gender_count
-            FROM tbl_info
-            GROUP BY gender
+            SELECT i.gender, COUNT(i.info_id) AS gender_count
+            FROM tbl_complaints c
+            JOIN tbl_info i ON c.info_id = i.info_id
+            $whereSql
+            GROUP BY i.gender
         ");
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-$genderData = fetchGenderData($pdo);
+$genderData = fetchGenderData($pdo, $year, $month);
 
-// Fetch complaint categories data
-function fetchComplaintCategoriesData($pdo) {
+// Fetch complaint categories data with filters
+function fetchComplaintCategoriesData($pdo, $year, $month) {
     try {
+        $whereClauses = [];
+        $params = [];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(c.date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(c.date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
         $stmt = $pdo->prepare("
             SELECT cc.complaints_category, COUNT(c.complaints_id) AS category_count
             FROM tbl_complaints c
             JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+            $whereSql
             GROUP BY cc.complaints_category
         ");
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-$categoryData = fetchComplaintCategoriesData($pdo);
+$categoryData = fetchComplaintCategoriesData($pdo, $year, $month);
+
+$maxComplaints = max(array_column($barangayData, 'complaint_count')) ?: 1; // Avoid division by zero
+
+$maxGenderInfo = "Placeholder for max gender info"; // Replace with actual logic
+$maxCategoryInfo = "Placeholder for max category info"; // Replace with actual logic
+
+// Return JSON data
+
+  
+
 ?>
 
 
@@ -124,6 +196,8 @@ $categoryData = fetchComplaintCategoriesData($pdo);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 20px;
             text-align: center;
+            background-color: whitesmoke;
+            
         }
         .card h2 {
             margin: 0;
@@ -172,8 +246,7 @@ $categoryData = fetchComplaintCategoriesData($pdo);
 
 
         .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -185,7 +258,18 @@ $categoryData = fetchComplaintCategoriesData($pdo);
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }  
-        
+
+
+
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
         
 
     </style>
@@ -203,25 +287,62 @@ include '../includes/pnp-bar.php';
         <h1>Dashboard</h1>
         <div class="card-container">
         <div class="card">
-            <i class="bi bi-file-earmark-text"></i>
-            <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
-            <p>Total Complaints</p>
-        </div>
-        <div class="card">
-        <i class="bi bi-journal-check"></i>
-        <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
-            <p>Filed in the Court</p>
-        </div>
-        <div class="card">
-            <i class="bi bi-house-door"></i>
-            <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
-            <p>Settled in Barangay</p>
-        </div>
+    <i class="bi bi-file-earmark-text"></i>
+    <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
+    <p>Total Complaints</p>
+</div>
+<div class="card">
+    <i class="bi bi-journal-check"></i>
+    <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
+    <p>Filed in the Court</p>
+</div>
+<div class="card">
+    <i class="bi bi-house-door"></i>
+    <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
+    <p>Settled in Barangay</p>
+</div>
+
     </div>
         <div class="container mt-4">
     <h1>Dashboard</h1>
     
-    <!-- First Row: Complaints by Barangay -->
+
+    <!-- Dropdowns for filtering -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="yearFilter">Select Year:</label>
+            <select id="yearFilter" class="form-control">
+                <!-- Populate years dynamically from PHP -->
+                <?php
+                // Example to populate years
+                $years = range(date('Y') - 5, date('Y')); // Last 5 years
+                foreach ($years as $year) {
+                    echo "<option value='$year'>$year</option>";
+                }
+                ?>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="monthFilter">Select Month:</label>
+            <select id="monthFilter" class="form-control">
+                <option value="">All Months</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Existing content -->
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
@@ -234,8 +355,7 @@ include '../includes/pnp-bar.php';
             </div>
         </div>
     </div>
-    
-    <!-- Second Row: Gender and Most Complaints Report side by side -->
+
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card">
@@ -246,12 +366,12 @@ include '../includes/pnp-bar.php';
                     </div>
                     <div class="analytics-info mt-3">
                         <h4>Highest Gender Count:</h4>
-                        <p id="genderMaxInfo"></p> <!-- Placeholder for highest gender data -->
+                        <p id="genderMaxInfo"></p>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
@@ -261,7 +381,7 @@ include '../includes/pnp-bar.php';
                     </div>
                     <div class="analytics-info mt-3">
                         <h4>Category with Most Complaints:</h4>
-                        <p id="categoryMaxInfo"></p> <!-- Placeholder for highest category data -->
+                        <p id="categoryMaxInfo"></p>
                     </div>
                 </div>
             </div>
@@ -319,19 +439,7 @@ include '../includes/pnp-bar.php';
 
     <script>
 
-
-document.addEventListener('DOMContentLoaded', function () {
-        var profilePic = document.querySelector('.profile');
-        var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
-
-        profilePic.addEventListener('click', function () {
-            editProfileModal.show();
-        });
-    });
-
-
-
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     var ctxBarangay = document.getElementById('barangayChartSmall').getContext('2d');
     
     // Data from PHP
@@ -485,6 +593,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var maxCategoryIndex = categoryDataValues.indexOf(maxCategoryValue);
     document.getElementById('categoryMaxInfo').textContent = `${categoryDataLabels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
 });
+
+
+
 
 
 
@@ -646,6 +757,7 @@ function confirmLogout() {
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@latest/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <script src="../scripts/script.js"></script>
+    
 
 </body>
 </html>

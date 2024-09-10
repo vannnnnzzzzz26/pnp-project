@@ -28,8 +28,7 @@ $pic_data = $_SESSION['pic_data'] ?? '';
 
 <style>
 .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -37,19 +36,66 @@ $pic_data = $_SESSION['pic_data'] ?? '';
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+
 /* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
 
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+.table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+            text-align: center;
+        }
+
+        table {
+    table-layout: fixed;
+    width: 100%; /* Make table span the entire width */
+  }
+  th, td {
+    text-align: center; /* Align content in the center */
+    vertical-align: middle; /* Align content vertically in the middle */
+  }
+  th {
+    width: 33%; /* Set equal width for each column */
+  }
+  td {
+    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
+  }
     </style>
 <body>
  
 
 <?php 
-
-include '../includes/pnp-nav.php';
 include '../includes/pnp-bar.php';
+include '../includes/pnp-nav.php';
+
 ?>
 
     <div class="content">
@@ -57,7 +103,7 @@ include '../includes/pnp-bar.php';
             <h2 class="mt-3 mb-4">PNP Complaints</h2>
             <div class="table">
                 <table class="table table-striped table-bordered table-center">
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
                             <th>Name</th>
                             <th>Address</th>
@@ -142,35 +188,6 @@ displayPNPComplaints($pdo);
     </div>
 
 
-
-    <div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hearingHistoryTableBody">
-                        <!-- Hearing history rows will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -381,6 +398,25 @@ document.addEventListener('DOMContentLoaded', function () {
                             evidenceHtml = '<p>No evidence available.</p>';
                         }
 
+                        var hearingHistoryHtml = '';
+
+                        if (data.hearing_history && data.hearing_history.length > 0) {
+                            hearingHistoryHtml = '<h5>Hearing History:</h5><table class="table"><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Status</th></tr></thead><tbody>';
+                            data.hearing_history.forEach(function(hearing) {
+                                hearingHistoryHtml += `
+                                    <tr>
+                                        <td>${hearing.hearing_date}</td>
+                                        <td>${hearing.hearing_time}</td>
+                                        <td>${hearing.hearing_type}</td>
+                                        <td>${hearing.hearing_status}</td>
+                                    </tr>
+                                `;
+                            });
+                            hearingHistoryHtml += '</tbody></table>';
+                        } else {
+                            hearingHistoryHtml = '<p>No hearing history available.</p>';
+                        }
+
                         modalContent.innerHTML = `
                             <p><strong>Complaint Name:</strong> ${data.complaint_name}</p>
                             <p><strong>Description:</strong> ${data.description}</p>
@@ -394,10 +430,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             <p><strong>Age:</strong> ${data.age}</p>
                             <p><strong>Educational Background:</strong> ${data.educational_background}</p>
                             <p><strong>Civil Status:</strong> ${data.civil_status}</p>
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hearingHistoryModal" data-complaint-id="1">
-    View Hearing History
-</button>
+
                             ${evidenceHtml}
+                            ${hearingHistoryHtml}
                         `;
 
                         // Add complaint ID to the settle button
@@ -412,6 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
 
     // Handle "Settle Complaint" button click with SweetAlert
     document.getElementById('settleComplaintBtn').addEventListener('click', function () {
@@ -471,46 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    document.addEventListener('DOMContentLoaded', function () {
-    var hearingHistoryModal = document.getElementById('hearingHistoryModal');
-
-    hearingHistoryModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var complaintId = button.getAttribute('data-complaint-id');
-
-        console.log('Fetching hearing history for complaint ID:', complaintId);
-
-        // Fetch hearing history
-        fetch(`hearing.php?complaint_id=${complaintId}`)
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById('hearingHistoryTableBody');
-                tableBody.innerHTML = ''; // Clear existing rows
-
-                if (data.error) {
-                    console.error('Error:', data.error);
-                    return;
-                }
-
-                if (data.length === 0) {
-                    console.log('No hearing history found.');
-                    tableBody.innerHTML = '<tr><td colspan="4">No hearing history found.</td></tr>';
-                } else {
-                    data.forEach(hearing => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${hearing.hearing_date}</td>
-                            <td>${hearing.hearing_time}</td>
-                            <td>${hearing.hearing_type}</td>
-                            <td>${hearing.hearing_status}</td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                }
-            })
-            .catch(error => console.error('Fetch error:', error));
-    });
-});
+   
 
 
 
@@ -561,6 +558,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
                             </div>
+
+
+                            
                         `;
                     });
                 } else {

@@ -1,30 +1,16 @@
 <?php
-// Example of how to structure the PHP response
-header('Content-Type: application/json');
-
-// Simulating data fetching from a database based on the month
-$month = $_GET['month'];
-$barangayData = [
-    ['barangay_name' => 'Barangay 1', 'complaint_count' => 10],
-    ['barangay_name' => 'Barangay 2', 'complaint_count' => 15],
-    // Add more data as required
-];
-
-$genderData = [
-    ['gender' => 'Male', 'gender_count' => 20],
-    ['gender' => 'Female', 'gender_count' => 25],
-    // Add more data as required
-];
-
-$categoryData = [
-    ['complaints_category' => 'Category 1', 'category_count' => 30],
-    ['complaints_category' => 'Category 2', 'category_count' => 40],
-    // Add more data as required
-];
-
+// Example of returning filtered data
 echo json_encode([
-    'barangayData' => $barangayData,
-    'genderData' => $genderData,
-    'categoryData' => $categoryData
+    'barangayNames' => array_column($barangayData, 'barangay_name'),
+    'complaintCounts' => array_column($barangayData, 'complaint_count'),
+    'percentages' => array_map(function($count) use ($maxComplaints) {
+        return number_format(($count / $maxComplaints * 100), 2); // Format as a percentage with 2 decimal places
+    }, array_column($barangayData, 'complaint_count')),
+    'genderLabels' => array_column($genderData, 'gender'),
+    'genderCounts' => array_column($genderData, 'gender_count'),
+    'categoryLabels' => array_column($categoryData, 'complaints_category'),
+    'categoryCounts' => array_column($categoryData, 'category_count'),
+    'maxGenderInfo' => $maxGenderInfo,
+    'maxCategoryInfo' => $maxCategoryInfo
 ]);
 ?>
