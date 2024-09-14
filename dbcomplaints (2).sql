@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 10, 2024 at 02:41 PM
+-- Generation Time: Sep 14, 2024 at 03:44 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -50,12 +50,26 @@ INSERT INTO `tbl_announcement` (`announcement_id`, `title`, `content`, `date_pos
 (9, 'pnp logo', 'try lang', '2024-07-21', 'uploads/pnplogo.png', 1, 0),
 (10, 'Fiesta Caravan in one piece Night', 'The Fista caravan will be on August 14, 2024', '2024-07-23', 'uploads/wampis.jpg', 1, 0),
 (11, 'kior centrum', 'edit time', '2024-07-24', 'uploads/kior centrum.jpg', 1, 5),
-(12, 'esodsdsds', 'eyyyyyyyy', '2024-07-27', 'uploads/kior centrum.jpg', 0, 0),
+(12, 'esodsdsds', 'eyyyyyyyy', '2024-07-27', 'uploads/kior centrum.jpg', 1, 0),
 (13, 'weeeeeeeeeeeeeeeeeeeee', 'jbjbbhbn ', '2024-07-28', '', 1, 0),
 (14, 'dfdfd', 'redfdfgftgfgdfgfd', '2024-08-01', 'uploads/441799097_1205342757295168_7001114824101829619_n.jpg', 1, 0),
-(15, 'Interview', 'Interview for valifation and adding of features', '2024-09-03', 'uploads/458491959_1003199601607500_4565557339938371083_n.jpg', 0, 0),
+(15, 'Interview', 'Interview for valifation and adding of features', '2024-09-03', 'uploads/458491959_1003199601607500_4565557339938371083_n.jpg', 1, 0),
 (16, 'interview', 'nag interview\r\n', '2024-09-05', '../uploadspnp interview.jpg', 1, 0),
-(17, 'princess', 'laging tulog walang ambag', '2024-09-08', '../uploadsuploads456864062_827865415993505_5703441178082039818_n.jpg', 1, 0);
+(17, 'princess', 'laging tulog walang ambag', '2024-09-08', '../uploadsuploads456864062_827865415993505_5703441178082039818_n.jpg', 1, 0),
+(18, 'interview', 'pnp', '2024-09-12', '../uploadsuploadspnp interview.jpg', 1, 0),
+(19, 'interview', 'pnp', '2024-09-12', '../uploadsuploads458491959_1003199601607500_4565557339938371083_n.jpg', 1, 0),
+(26, 'xcxc', 'xcxcxc', '2024-09-12', '', 1, 0),
+(27, ' z z  ', ' x z z', '2024-09-12', '', 1, 0),
+(28, 'ssccsc', 'zz', '2024-09-12', '', 1, 0),
+(29, ' z z z ', 'zz zz', '2024-09-12', '', 1, 0),
+(30, 'x xx ', 'xcxcxcc', '2024-09-12', '', 1, 0),
+(31, 'scscc', 'scsscs', '2024-09-12', '', 1, 0),
+(32, 'Interview', 'PNP', '2024-09-12', '../uploads/uploads458491959_1003199601607500_4565557339938371083_n.jpg', 0, 0),
+(33, 'Brain Storming', 'Centrum', '2024-09-12', '../uploads/kior centrum.jpg', 0, 0),
+(34, 'edewdw', 'deqdq', '2024-09-12', '../uploads/8.jpg', 1, 0),
+(35, 'Wanpis', 'We, the pirate group', '2024-09-12', '../uploads/3.jpg', 0, 0),
+(36, 'To be continue', 'Ang pagbabalik', '2024-09-12', '../uploads/Screenshot (47).png', 0, 0),
+(37, 'sfsfsfs', 'adssd', '2024-09-14', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -90,10 +104,13 @@ INSERT INTO `tbl_brg_official` (`official_id`, `name`, `position`, `image`, `bar
 (53, 'Dindaxy', 'Barangay Captain', '../uploads/10.jpg', 182, 0),
 (54, 'princess', 'Barangay Captain', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 108, 0),
 (55, 'Brayan John V Aquino', 'Barangay Captain', '../uploads/profile_66b1054a599f2.jpg', 99, 0),
-(56, 'princess Rosaio', 'Kagawad 1', '../uploads/profile_66a4c0952f9c7.jpg', 99, 0),
-(57, 'john lloyd manuel', 'Kagawad 2', '../uploads/459116026_2167533256980735_4089694213094330184_n.jpg', 99, 0),
-(58, 'excel Preza', 'Kagawad 3', '../uploads/profile_669af75c84736.jpg', 99, 0),
-(59, 'haryl conception', 'Kagawad 4', '../uploads/profile_66d066dee6955.jpg', 99, 0);
+(56, 'Princess Rosario', 'Kagawad 1', '../uploads/1000038104.jpg', 99, 0),
+(57, 'John lloyd manuel', 'Kagawad 2', '../uploads/459116026_2167533256980735_4089694213094330184_n.jpg', 99, 0),
+(58, 'Excel Preza', 'Kagawad 3', '../uploads/profile_669af75c84736.jpg', 99, 0),
+(59, 'Haryl Conception', 'Kagawad 4', '../uploads/profile_66d066dee6955.jpg', 99, 0),
+(60, 'Monkey D. Luffy', 'Kagawad 5', '../uploads/15.jpg', 99, 0),
+(61, 'Abdhul Jakhoul', 'Kagawad 6', '../uploads/27.png', 99, 0),
+(62, 'Zoro Mylabs', 'Kagawad 7', '../uploads/10.jpg', 99, 0);
 
 -- --------------------------------------------------------
 
@@ -197,7 +214,7 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (292, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'asasas', 'pnp', '2024-08-25', 0, 250, 121, 310, 222, 0),
 (293, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'dsd', 'barangay', '2024-08-25', 0, 250, 121, 311, 223, 0),
 (295, 'brayan villanueva Aquino ', '0909850347', 'GIN', 'Read', 'sdsdsd', 'barangay', '2024-08-26', 0, 250, 121, 313, 225, 0),
-(296, 'brayan villanueva Aquino ', '0909850347', 'eso', 'Read', 'sndjsdnsd', 'pnp', '2024-08-26', 0, 250, 121, 314, 226, 0),
+(296, 'brayan villanueva Aquino ', '0909850347', 'eso', 'Read', 'sndjsdnsd', 'pnp', '2022-03-26', 0, 250, 121, 314, 226, 0),
 (297, 'brayan villanueva Aquino ', '0927142858', 'GINffsfdfdfdf', 'Read', 'asasas', 'barangay', '2024-08-26', 0, 250, 121, 315, 227, 0),
 (298, 'trisha Nicole Yaranon ', '0909850347', 'bj', 'Approved', 'asasa', 'barangay', '2024-08-26', 0, 250, 125, 316, 228, 0),
 (299, 'brayan villanueva Aquino ', '0909850347', 'sxss', 'Read', 'Sasasa', 'barangay', '2024-08-27', 0, 250, 121, 317, 229, 0),
@@ -260,10 +277,10 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (357, 'fe li pe ', '0967544693', 'harel', 'inprogress', 'rgdfdfvfdbbbefbgfvrddddddddddd', '', '2024-09-05', 0, 287, 169, 375, 291, 0),
 (358, 'san car los ', '0902025050', 'lems', 'inprogress', 'carlossssssssss', '', '2024-09-05', 0, 265, 170, 376, 292, 0),
 (359, 'san an ton ', '0978544696', 'Brayan ', 'inprogress', 'hahahahhaha', '', '2024-09-05', 0, 269, 171, 377, 293, 0),
-(360, 'uu gad yo ', '0902025050', 'yra', 'inprogress', 'hehehe', '', '2024-09-05', 0, 269, 172, 378, 294, 0),
+(360, 'uu gad yo ', '0902025050', 'yra', 'inprogress', 'hehehe', '', '2010-09-05', 0, 269, 172, 378, 294, 0),
 (361, 'sal bag ka ', '0978544693', 'yraaaaa', 'inprogress', 'hihihi', '', '2024-09-05', 0, 288, 173, 379, 295, 0),
 (362, 'sa lay xy ', '0978544696', 'Brayan ', 'inprogress', 'hohoho', '', '2024-09-05', 0, 289, 174, 380, 296, 0),
-(363, 'ru mang ay ', '0902025050', 'harel', 'inprogress', 'huhuhu', '', '2024-09-05', 0, 290, 175, 381, 297, 0),
+(363, 'ru mang ay ', '0902025050', 'harel', 'inprogress', 'huhuhu', '', '2010-09-05', 0, 290, 175, 381, 297, 0),
 (364, 'pa ngal sur ', '0978511193', 'harel', 'inprogress', 'kakakakakakaklbo', '', '2024-09-05', 0, 291, 176, 382, 298, 0),
 (365, 'pa ngal norte ', '0978544693', 'Brayan ', 'inprogress', 'kekekeke', '', '2024-09-05', 0, 292, 177, 383, 299, 0),
 (366, 'pag asa baaa ', '0978544693', 'Brayan ', 'inprogress', 'kikiki', '', '2024-09-05', 0, 266, 178, 384, 300, 0),
@@ -274,7 +291,7 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (371, 'na mi swan ', '0978544693', 'sanji', 'inprogress', 'rese', '', '2024-09-05', 0, 281, 183, 389, 305, 0),
 (372, 'san ji tog ', '0902025050', 'bun', 'inprogress', 'iyay', '', '2024-09-05', 0, 279, 184, 390, 306, 0),
 (373, 'luf fy baby ', '0978511193', 'sibayan', 'inprogress', 'gugugugugug', '', '2024-09-05', 0, 268, 185, 391, 307, 0),
-(374, 'lloyd cabagan manuel ', '0909850347', 'brayan', 'pnp', 'nakaw', 'pnp', '2024-09-05', 0, 263, 187, 392, 308, 0),
+(374, 'lloyd cabagan manuel ', '0909850347', 'brayan', 'Filed in the court', 'nakaw', 'pnp', '2024-09-05', 0, 263, 187, 392, 308, 0),
 (375, 'lloyd cabagan manuel ', '0909850347', 'eso', 'inprogress', 'nakaw', '', '2024-09-05', 0, 297, 187, 393, 309, 0),
 (376, 'zoro my loves ', '0909850347', 'bj', 'Rejected', 'takaw aso', '', '2024-09-05', 0, 298, 182, 394, 310, 0),
 (377, 'brayan villanueva Aquino ', 'fefefef', 'bj', 'Read', 'dvdsvs', 'pnp', '2024-09-06', 0, 263, 121, 395, 311, 0),
@@ -285,12 +302,17 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (382, 'brayan villanueva Aquino ', 'dfdfd', 'eso', 'settled_in_barangay', 'dfdfd', 'barangay', '2024-09-07', 0, 286, 121, 400, 316, 0),
 (383, 'rus sel imel ', '0987876876', 'bayan', 'settled_in_barangay', 'ukerebet', 'barangay', '2024-09-07', 0, 264, 143, 401, 317, 0),
 (385, 'din do aeroxy ', '0902025050', 'harel', 'settled_in_barangay', 'ttrhtrhytrhty', 'barangay', '2024-09-08', 0, 286, 196, 403, 319, 0),
-(386, 'din do aeroxy ', '0925647412', 'sdsd', 'pnp', 'cscs', 'pnp', '2024-09-08', 0, 290, 196, 404, 320, 0),
-(387, 'din do aeroxy ', '0967544693', 'rubirt', 'pnp', 'kingina anong oras na', 'pnp', '2024-09-08', 0, 273, 196, 405, 321, 0),
-(388, 'din do aeroxy ', 'rerer', 'ererere', 'pnp', 'terterte', 'pnp', '2024-09-08', 0, 285, 196, 406, 322, 0),
+(386, 'din do aeroxy ', '0925647412', 'sdsd', 'Filed in the court', 'cscs', 'pnp', '2024-09-08', 0, 290, 196, 404, 320, 0),
+(387, 'din do aeroxy ', '0967544693', 'rubirt', 'Filed in the court', 'kingina anong oras na', 'pnp', '2024-09-08', 0, 273, 196, 405, 321, 0),
+(388, 'din do aeroxy ', 'rerer', 'ererere', 'Filed in the court', 'terterte', 'pnp', '2010-10-08', 0, 285, 196, 406, 322, 0),
 (389, 'din do aeroxy ', '0978544693', 'Brayan ', 'Rejected', 'gdfvdf', '', '2024-09-08', 0, 291, 196, 407, 323, 0),
-(390, 'excel N Preza ', '0927142858', 'John Lloyd Manu', 'Approved', 'Nag takaw manok', '', '2024-09-10', 0, 285, 196, 408, 324, 0),
-(391, 'excel N Preza ', '0927142858', 'Haryl concepcio', 'Approved', 'nag vape', '', '2024-09-10', 0, 299, 196, 409, 325, 0);
+(390, 'excel N Preza ', '0927142858', 'John Lloyd Manu', 'Filed in the court', 'Nag takaw manok', 'pnp', '2010-09-10', 0, 285, 196, 408, 324, 0),
+(391, 'excel N Preza ', '0927142858', 'Haryl concepcio', 'settled_in_barangay', 'nag vape', 'barangay', '2024-09-10', 0, 299, 196, 409, 325, 0),
+(392, 'excel N Preza ', '0927142858', 'bj', 'Filed in the court', 'scssx', 'pnp', '2024-09-12', 0, 263, 196, 410, 326, 0),
+(393, 'excel N Preza ', '0927142858', 'dinda', 'settled_in_barangay', 'nag nakaw sa bahay', 'barangay', '2024-09-12', 0, 282, 99, 411, 327, 0),
+(394, 'Princess Del Valle Moon ', '0927142858', 'Bayan Jan Abino', 'pnp', 'nag nakaw sa kantina namin', 'pnp', '2024-09-12', 0, 282, 204, 412, 328, 0),
+(395, 'Princess Del Valle Moon ', '0927142858', 'jabi', 'Rejected', 'sinuntok ba naman ako', '', '2024-09-12', 0, 257, 99, 413, 329, 0),
+(396, 'excel N Preza ', '0927142858', 'bj', 'settled_in_barangay', 'scsfsfsf', 'barangay', '2024-09-14', 0, 285, 99, 414, 330, 0);
 
 -- --------------------------------------------------------
 
@@ -410,7 +432,12 @@ INSERT INTO `tbl_evidence` (`evidence_id`, `complaints_id`, `evidence_path`, `da
 (0, 388, '../uploads/13.png', '2024-09-08'),
 (0, 389, '../uploads/6.jfif', '2024-09-08'),
 (0, 390, '../uploads/Screenshot 2024-09-10 220439.png', '2024-09-10'),
-(0, 391, '../uploads/459081664_8258910247531104_2432168630201406601_n.mp4', '2024-09-10');
+(0, 391, '../uploads/459081664_8258910247531104_2432168630201406601_n.mp4', '2024-09-10'),
+(0, 392, '../uploads/uploadsthumb-1920-987256.png', '2024-09-12'),
+(0, 393, '../uploads/9.jpg', '2024-09-12'),
+(0, 394, '../uploads/_70352850_180803406.jpg', '2024-09-12'),
+(0, 395, '../uploads/1.jpg', '2024-09-12'),
+(0, 396, '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '2024-09-14');
 
 -- --------------------------------------------------------
 
@@ -422,7 +449,7 @@ CREATE TABLE `tbl_hearing_history` (
   `id` int(11) NOT NULL,
   `complaints_id` int(11) NOT NULL,
   `hearing_date` date NOT NULL,
-  `hearing_time` time NOT NULL,
+  `hearing_time` varchar(255) NOT NULL,
   `hearing_type` varchar(50) NOT NULL,
   `hearing_status` varchar(50) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -444,7 +471,11 @@ INSERT INTO `tbl_hearing_history` (`id`, `complaints_id`, `hearing_date`, `heari
 (27, 387, '2024-08-28', '05:30:00', 'Third Hearing', 'Not Resolved', '2024-09-09 11:26:02'),
 (28, 390, '2024-09-27', '10:25:00', 'First Hearing', 'Attended', '2024-09-10 11:22:27'),
 (29, 390, '2024-09-27', '10:25:00', 'Second Hearing', 'Not Attended', '2024-09-10 11:27:21'),
-(30, 390, '2024-09-27', '10:25:00', 'Third Hearing', 'Not Resolved', '2024-09-10 11:50:11');
+(30, 390, '2024-09-27', '10:25:00', 'Third Hearing', 'Not Resolved', '2024-09-10 11:50:11'),
+(31, 393, '2024-09-27', '10:56:00 AM', 'First Hearing', '', '2024-09-12 21:56:17'),
+(32, 393, '2024-09-27', '02:56:00 PM', 'Second Hearing', '', '2024-09-12 22:03:20'),
+(33, 394, '2024-09-21', '04:00:00 PM', 'First Hearing', 'Not Resolved', '2024-09-14 05:57:27'),
+(34, 396, '2024-09-21', '11:34:00 AM', 'First Hearing', '', '2024-09-14 12:30:18');
 
 -- --------------------------------------------------------
 
@@ -608,7 +639,12 @@ INSERT INTO `tbl_image` (`image_id`, `complaint_id`, `image_type`, `image_path`,
 (406, 0, 'ID', '../uploads/15.jpg', '2024-09-08 16:58:47.000000'),
 (407, 0, 'ID', '../uploads/28.jpg', '2024-09-08 17:03:44.000000'),
 (408, 0, 'ID', '../uploads/1007-scaled-e1648706208427-1024x538-removebg-preview.png', '2024-09-10 13:08:34.000000'),
-(409, 0, 'ID', '../uploads/1007-scaled-e1648706208427-1024x538-removebg-preview.png', '2024-09-10 14:16:34.000000');
+(409, 0, 'ID', '../uploads/1007-scaled-e1648706208427-1024x538-removebg-preview.png', '2024-09-10 14:16:34.000000'),
+(410, 0, 'ID', '../uploads/uploadsdownload-removebg-preview.png', '2024-09-12 11:43:21.000000'),
+(411, 0, 'ID', '../uploads/_70352850_180803406.jpg', '2024-09-12 23:00:41.000000'),
+(412, 0, 'ID', '../uploads/15.jpg', '2024-09-12 23:15:26.000000'),
+(413, 0, 'ID', '../uploads/10.jpg', '2024-09-12 23:47:59.000000'),
+(414, 0, 'ID', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '2024-09-14 14:24:50.000000');
 
 -- --------------------------------------------------------
 
@@ -734,7 +770,12 @@ INSERT INTO `tbl_info` (`info_id`, `age`, `gender`, `birth_date`, `place_of_birt
 (322, -1, 'Male', '2024-09-20', 'ererere', 'Single', 'Primary'),
 (323, 35, 'Female', '1988-09-28', 'sa daan', 'Single', 'Primary'),
 (324, 23, 'Female', '2001-03-27', 'Gamu Isabela', 'Single', 'Tertiary'),
-(325, 23, 'Male', '2001-06-27', 'Gamu Isabela', 'Single', 'Tertiary');
+(325, 23, 'Male', '2001-06-27', 'Gamu Isabela', 'Single', 'Tertiary'),
+(326, 24, 'Male', '2000-02-22', 'SA TABI', 'Single', 'Primary'),
+(327, 21, 'Male', '2003-08-28', 'Bohol', 'Married', 'Primary'),
+(328, 36, 'Female', '1988-09-12', 'Bohol', 'Married', 'Tertiary'),
+(329, 36, 'Female', '1988-08-29', 'sa rantay', 'Single', 'Secondary'),
+(330, 24, 'Male', '2000-02-03', 'sa rantay', 'Married', 'Primary');
 
 -- --------------------------------------------------------
 
@@ -761,88 +802,94 @@ CREATE TABLE `tbl_users` (
   `security_answer_3` varchar(255) NOT NULL,
   `verification_token` varchar(32) DEFAULT NULL,
   `is_verified` tinyint(1) DEFAULT 0,
-  `otp` varchar(6) DEFAULT NULL
+  `otp` varchar(6) DEFAULT NULL,
+  `login_attempts` int(11) DEFAULT 0,
+  `lockout_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_users`
 --
 
-INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `extension_name`, `email`, `password`, `accountType`, `barangays_id`, `pic_data`, `security_question_1`, `security_answer_1`, `security_question_2`, `security_answer_2`, `security_question_3`, `security_answer_3`, `verification_token`, `is_verified`, `otp`) VALUES
-(88, 'bj', 'villanueva', 'Aquino', '', 'bjaquino@gmail.com', '$2y$10$Zzc0DtBO4RPmA8RgBOoiueAv86p9Sc69r8PpiKRdiCfaPWutYn1L.', 'Barangay Official', 118, '../uploads/435559638_928560769060280_7584294412764526119_n.jpg', '', '', '', '', '', '', 'b3fb01a3e82c4acc34b4c4c34243ae98', 1, NULL),
-(89, 'Excel', 'nnnn', 'Preza', '', 'excel27@gmail.com', '$2y$10$/otNt0hA5d3b3V1xX5nzCOThzRA0.tGdwBq.mBrdvYJCW8AaQdRPW', 'Resident', 119, 'uploads/profile_66b35dfc81120.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(90, 'princess', 'Cadiente', 'Rosario', '', 'immajvadhing@gmail.com', '$2y$10$zIuH.Hf3SqI0tF7LuU1ep.59VjW.mBFloZw5It0LEllb0G4un6Ese', 'PNP Officer', 120, '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '', '', '', '', '', '', NULL, 1, NULL),
-(91, 'brayan', 'villanueva', 'Aquino', '', 'resident@gmail.com', '$2y$10$eDd76Og1S4TLos2N4J4Y1eLSobv5n5MkSRywhcFUhdFnA4Rc0HhjG', 'Resident', 121, '../uploads/excel.jpg', '', '', '', '', '', '', NULL, 0, '275931'),
-(92, 'excel', 'nnnn', 'preza', '', 'barangay@gmail.com', '$2y$10$1AtIP9iYRzjHMlsCEmSAqOI6m7moC3sWnPP1p/7k3V1mnVD1rwE/W', 'Barangay Official', 122, '../uploads/profile_669f988fa9760.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(93, 'Desiray', 'Domael', 'Naya', 'Sr.', 'desiray.d.nayga@isu.edu.ph', '$2y$10$LmMrEMdaLDuLc3Lk3GIey.vNaaMqWfTz0Ozlyafwidp.fypnXkspe', 'Resident', 123, 'uploads/profile_66c3bedba896e.png', '', '', '', '', '', '', NULL, 0, NULL),
-(94, 'excel', 'nnn', 'preza', '', 'excel@gmail.com', '$2y$10$dmxu96P0WEASLgJMGL9pOuRxpJabK6jwdVo.8cAQB4hot3lZowS.m', 'Resident', 124, 'uploads/profile_66c5c31494af3.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(95, 'trisha', 'Nicole', 'Yaranon', '', 'tien@gmail.com', '$2y$10$KnQWks8rK02R/qfLFtnNsegU/IyHYnfvetaWVLKEZvzObHqKdN2ky', 'Resident', 125, 'uploads/profile_66cc76ae2ecec.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(96, 'Din', 'Dax', 'Xhy', '', 'dindaxy@gmail.com', '$2y$10$9b.lK3kNa7A40HVZBedcBeO5jncGOZ7QiZxvc9GU2/JEfJhag5cSa', 'Barangay Official', 126, 'uploads/profile_66cc76b5658e5.jpeg', '', '', '', '', '', '', NULL, 0, NULL),
-(97, 'leslie', 'Pascual', 'Rigor', '', 'leslie05@gmail.com', '$2y$10$MV7WniHlIWdVo8ieNdWdSOCwimXVu7VhpPPDOYT8OTsd6LqlbZdQG', 'Resident', 127, '../uploads6f82caab-9d12-4df9-bc91-742bb7cb9bf3.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(98, 'ddd', 'Mondragon', 'Aquino', '', 'eso@gmail.com', '$2y$10$d6DNp3zHZCykQltVZx4aCecMjvsCO8LkL5X5sRGsO3FKANJN9Hk7C', 'Resident', 129, '../uploads/profile_66cc76ae2ecec.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(99, 'laymar', 'versosa', 'mina', '', 'laymar@gmail.com', '$2y$10$bfbvgTbaiANpL1OO/MIog.6KKxjWlMRpIVjzbdFtvaeebpscklSFC', 'Barangay Official', 130, '../uploads/1.png', '', '', '', '', '', '', NULL, 0, NULL),
-(100, 'excel', 'nnn', 'preza', '', 'lex@gmail.com', '$2y$10$FAvUBwgHohiKj37AT1IwXe7qgS1bQdFgbSW1Gp3C4z2ZSRJqH9jxS', 'Barangay Official', 131, 'uploads/profile_66cea6e841a1a.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(101, 'allen', 'esteban', 'serrano', '', 'allen@gmail.com', '$2y$10$yjcNd3nKwwpxhB265dCQFOCNPq28QwBMUfU4WrELypLJFJ.lJhkVq', 'Barangay Official', 132, 'uploads/profile_66cea934ad628.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(102, 'Princess', 'Cadiente', 'Rosario', '', 'cess@gmail.com', '$2y$10$/KbWqX4vMkcprx.tiMvTl.QX4VDt0vDXYF9XgyKr1gp.y33E2QOoS', 'Barangay Official', 133, './uploads/profile_66cea9a314694.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(103, 'excel', 'Cadiente', 'preza', '', 'mlgaming142@gmail.com', '$2y$10$OV/KIBgAxwxfqZSOM/b2hebTveBi3BV/FK.Qd.3/vqqt9GmRQs.WS', 'Resident', 134, '../uploads/441799097_1205342757295168_7001114824101829619_n.jpg', '', '', '', '', '', '', NULL, 0, '767086'),
-(104, 'eso', 'villanueva', 'Rosario', '', 'tienxxx@gmail.com', '$2y$10$rkNcO9Cp2u/DdcbRdrk.X.mIMv48DvdFynIDzp64KNlEcIKTYPJfe', 'Barangay Official', 136, '../uploads/profile_66ceaf48b9e1c.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(105, 'bungol', 'kha', 'bhou', '', 'bungol@gmail.com', '$2y$10$mXFbXS.tFrXURu3m2cODR.CzpBeDaJ35dKTB/2f7dY8Qd5g9NNYFK', 'Resident', 137, '../uploads/profile_66cfd6ffeb536.png', '', '', '', '', '', '', NULL, 0, NULL),
-(106, 'din', 'da', 'xy', '', 'risidint@gmail.com', '$2y$10$AVEVUDQV7pE8TmUQ7ZOx9e8nTRp2Sjic9IJyhcn18vC9nN4fpQldq', 'Resident', 138, '../uploads/profile_66d0638aa9715.png', '', '', '', '', '', '', NULL, 0, NULL),
-(107, 'haryl', 'Balla', 'conceptoin', '', 'h@gmail.com', '$2y$10$gnKdPhTiwwMkZrVuixAcUe7Pi/K3tcZUWkRpLwZ.Izf2MQdEG6jMW', 'Barangay Official', 139, '../uploads/profile_66d066dee6955.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(108, 'din', 'da', 'xy', 'jr', 'fugu@gmail.com', '$2y$10$s/RyATM8KMk/FmG7GIddW.6GN8ERegE/L4c7lqmbGHV/X1jXCQ/5G', 'Resident', 140, '../uploads/profile_66d99e303d356.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(109, 'pough', 'tah', 'hays', '', 'villaysmael@gmail.com', '$2y$10$fV5QYwZr67QXNo4HghNGE.DJJivQdfB3//MV3tnNzhJGBuTV.zVQO', 'Resident', 141, '../uploads/profile_66d9a4b75c3be.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(110, 'jay', 'ar', 'gumabon', '', 'villavicenta@gmail.com', '$2y$10$GEsBMNpbrhmKptpJd7Oh8e7lTpATyyzNU/9jYnRO28IY.GK1WAWdm', 'Resident', 142, '../uploads/profile_66d9a576d329e.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(111, 'rus', 'sel', 'imel', '', 'villaverde@gmail.com', '$2y$10$zuEVm2UkcZLLnyH9R27IVOjzi1ood9sF4TteDX7pssHXoNXUs4hgi', 'Resident', 143, '../uploads/profile_66d9a6655b718.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(112, 'ja', 'mes', 'lems', '', 'villatanza@gmail.com', '$2y$10$0zxikt2s2pbMGJ/d9eUjVeRErkd75o6x9r0i3s3l6bVec/3.zkZJC', 'Resident', 144, '../uploads/profile_66d9a8751917a.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(113, 'kat', 'lin', 'salbag', '', 'villaserafica@gmail.com', '$2y$10$.REmYoh.hKAIBI.d2.FmceU4YBICkDQS6MNlFGT3pCpLqsHcAvP6y', 'Resident', 145, '../uploads/profile_66d9a9e8cf811.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(114, 'ba', 'yan', 'jan', '', 'villaremedios@gmail.com', '$2y$10$17I.oijzKb6dNJsx2dqNguBryoT4yRXp.uEdb4uE503nGm/.AflPW', 'Resident', 146, '../uploads/profile_66d9aa96212cc.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(115, 'sesa', 'me', 'seed', '', 'villaquirino@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 147, '../uploads/profile_66d9ac8e0dd17.jpg', '', '', '', '', '', '', NULL, 1, NULL),
-(116, 'mar', 'ky', 'san', '', 'villapereda@gmail.com', '$2y$10$O7zOWXQqaAipeHYvIfPSi.IP1BNtyOLxidqnqZ2LqVBbZ70JmoOZu', 'Resident', 148, '../uploads/profile_66d9ae95d3103.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(117, 'de', 'puuuuuuu', 'tah', '', 'villapadian@gmail.com', '$2y$10$thi2/iRL03ZEQxiTHSk4EuWcrklTEiC7Q5OftzKTji6E0JfQSCN7a', 'Resident', 149, '../uploads/profile_66d9af35d4d27.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(118, 'jan', 'mi', 'lloyd', '', 'villanuesa@gmail.com', '$2y$10$Y6OotCv0/dkr7hnqecfdPeOo0zrysloR1MtOhYm9cLpT2LS7.A2o2', 'Resident', 150, '../uploads/profile_66d9b01e7d344.png', '', '', '', '', '', '', NULL, 0, NULL),
-(119, 'yra', 'lei', 'ira', '', 'villagomez@gmail.com', '$2y$10$ttdmmtvepA9t2ty6onGXLe0edS0BAc/nzkCt9HSK6BAganFo.srya', 'Resident', 151, '../uploads/profile_66d9b09e984ce.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(120, 'ha', 'mil', 'ton', '', 'villafabia@gmail.com', '$2y$10$we5dk3tqyaXb4oZ3ou6VlOUlYGLzN5VQatJPqIEzNNkuka0rxeq6G', 'Resident', 152, '../uploads/profile_66d9b1777edcb.png', '', '', '', '', '', '', NULL, 0, NULL),
-(121, 'an', 'gel', 'babs', '', 'villacruz@gmail.com', '$2y$10$V9LQuJlmuvQF2wc35UKWcuP1VhqiIqqObjGawPjT9zLvgadyLUjAS', 'Resident', 153, '../uploads/profile_66d9b2159c87b.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(122, 'ha', 'ril', 'konsiption', '', 'villaconception@gmail.com', '$2y$10$xhW2c6zdyNbmVplKW36Uduln67EXeZb9KwPveb75Nycj3VrI4lZ0G', 'Resident', 154, '../uploads/profile_66d9b2d690e71.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(123, 'cha', 'rot', 'lang', '', 'villaagullana@gmail.com', '$2y$10$ncpo6YPGLgB2Hl7dmEHdtuAIPSaF3gwaANxgYcjo0BasUkr5s5TES', 'Resident', 155, '../uploads/profile_66d9b4848fc83.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(124, 'ya', 'me', 'te', '', 'taggappan@ghmail.com', '$2y$10$U0MBSUkT95l2qWiR/IXxIedVGUYyMsziL45TpbSGt5PjpvjmWgZ0m', 'Resident', 156, '../uploads/profile_66d9b7b36d5a9.png', '', '', '', '', '', '', NULL, 0, NULL),
-(125, 'mar', 'ki', 'ban', '', 'soyung@gmail.com', '$2y$10$vxM5.R1zEgzEyKrD4LFTMuZtcRaVJuJhcZA0jZ6Bn/c34ncAklpXy', 'Resident', 157, '../uploads/profile_66d9b8f0a2789.png', '', '', '', '', '', '', NULL, 0, NULL),
-(126, 'flo', 'rie', 'mae', '', 'sinabbaran@gmail.com', '$2y$10$nQcEWZKWfYshSAZ72BH60OfLe9cTjlQNkRNqD3nrgq20w9eoXh54C', 'Resident', 158, '../uploads/profile_66d9bad4ad3a2.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(127, 'but', 'choy', 'blaire', '', 'silauannorte@gmail.com', '$2y$10$nwFYIVTT6I0vKGtjuRI5B.KkVxFP6mvimCX9UIymCCav4fMgq/dt.', 'Resident', 159, '../uploads/profile_66d9bda481e56.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(128, 'jhea', 'mae', 'jords', '', 'silauansur@gmail.com', '$2y$10$pXjaaTIbVDEAsnA2Y0y9lefQC902m/0rPW35KDVlG7d2eitiRsSde', 'Resident', 160, '../uploads/profile_66d9beb6d5cb0.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(129, 'pa', 'noy', 'penoy', '', 'santodomingo@gmail.com', '$2y$10$mV5b4qi4EzNGLZBTk6kDiuVAZ8toPADO90R5NuCN8.1r.oBdCENa2', 'Resident', 161, '../uploads/profile_66d9c0967c831.png', '', '', '', '', '', '', NULL, 0, NULL),
-(130, 'jan', 'lloyd', 'ventura', 'jr', 'santamonica@gmail.com', '$2y$10$OVGwdp0FZW2tIH/amQVnQ.CFhJcWw1Rvjvn31Nkoc1RDqNG.Kpymi', 'Resident', 162, '../uploads/profile_66d9c24132877.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(131, 'ben', 'jie', 'lyn', '', 'santamaria@gmail.com', '$2y$10$ft45l61.TYx0oXh1L.C.QOKqXQZGIyPgZp79ULj8n0g/ocxmJ.YyS', 'Resident', 163, '../uploads/profile_66d9c36eef592.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(132, 'mar', 'cial', 'lim', '', 'santacruz@gmail.com', '$2y$10$qhSz8NpkhlI1avmmB/G3h.rp2WPOlujqCw6uwhXYF/wOLXNHEG8Mm', 'Resident', 164, '../uploads/profile_66d9c474bd584.avif', '', '', '', '', '', '', NULL, 0, NULL),
-(133, 'ol', 'lit', 'ros', 'jr', 'santaana@gmail.com', '$2y$10$9aKTxuZj5kFHJublUlhPRePtIo2oSvKIcUhSxFOpr/jcwzVxt8mUO', 'Resident', 165, '../uploads/profile_66d9c52cae727.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(134, 'san', 'dok', 'yum', '', 'sansalvador@gmail.com', '$2y$10$raqzbQ0TIJiVq3svzrqiUuIDlZmOWTIpDvKBrYKmYahDSOuCA9gxi', 'Resident', 166, '../uploads/profile_66d9c5a10a932.avif', '', '', '', '', '', '', NULL, 0, NULL),
-(135, 'san', 'mig', 'guel', '', 'sanmiguel@gmail.com', '$2y$10$CtV80mZ79ZlME3TGm1VUcOqOE1g61Ez.R7ZJmoqt7pRK4JB5Vcq1G', 'Resident', 167, '../uploads/profile_66d9c63c7f435.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(136, 'san', 'juan', 'sia', '', 'sanjuan@gmail.com', '$2y$10$CQL7Ec0Dyzglg030oMafLuJYetmrOVMkDSo2zm8sOK5cDV7APo7tq', 'Resident', 168, '../uploads/profile_66d9c6a922a41.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(137, 'fe', 'li', 'pe', '', 'sanfelipe@gmail.com', '$2y$10$ySjki2KJn2HMU2QZSNwbZ.QHJNJZFrAPUWuspONeuCdvGLF72IOQG', 'Resident', 169, '../uploads/profile_66d9c72fdc81d.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(138, 'san', 'car', 'los', 'jr', 'sancarlos@gmail.com', '$2y$10$b.LN.Dzy8dtREBm.zkLRm.6TnuVxxBF16mrbfrr5k5yMfOLxtYqlW', 'Resident', 170, '../uploads/profile_66d9cea4a3602.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(139, 'san', 'an', 'ton', '', 'SanAntonioMinit@gmail.com', '$2y$10$02WLdHyhmG3EZP28npEFIOI.SS.Noi3DVlV5db11GmUUf24foJkiK', 'Resident', 171, '../uploads/profile_66d9cfd2ef3c1.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(140, 'uu', 'gad', 'yo', '', 'SanAntonioUgad@gmail.com', '$2y$10$5JHPJ03TqMzFb7mQ2d.eW.scKPIfvSG6n/4Bjh0n3XRZZ1dgFsn/G', 'Resident', 172, '../uploads/profile_66d9d058b95b8.png', '', '', '', '', '', '', NULL, 0, NULL),
-(141, 'sal', 'bag', 'ka', '', 'salvacion@gmail.com', '$2y$10$Pxk/cn4HUGGI2Oqw9Ritd.3NOFJblsodlogSuj94aWCRJDvBFzjIO', 'Resident', 173, '../uploads/profile_66d9d0d489605.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(142, 'sa', 'lay', 'xy', '', 'salay@gmail.com', '$2y$10$3KIIwK/Vy8xxsfSEFxtNd.JmXAlq5X.bWPADHtO7UYBXLZtk6ihmK', 'Resident', 174, '../uploads/profile_66d9d1612ad5d.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(143, 'ru', 'mang', 'ay', '', 'rumangay@gmail.com', '$2y$10$3jivJSxtwXQh16MIRrGwtuQZJ0LorgAbPebtaHPtu9o/m4IW0bNom', 'Resident', 175, '../uploads/profile_66d9d1c9855ff.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(144, 'pa', 'ngal', 'sur', '', 'pangalsur@gmail.com', '$2y$10$QnFpGmJk4gJOY/v5cg23puOceIHPKZwHUL5UmFD6qnVCLK24F0bgq', 'Resident', 176, '../uploads/profile_66d9d2343f155.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(145, 'pa', 'ngal', 'norte', '', 'pangalnorte@gmail.com', '$2y$10$8ytvrHjj6G2TdrR82bDnt.IhTzAiw.oVBTvberxHIZP33q0vIOUWy', 'Resident', 177, '../uploads/profile_66d9d30c25ab8.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(146, 'pag', 'asa', 'baaa', '', 'pagasa@gmail.com', '$2y$10$/.l2Lkf8UsAz1d6jgGhTieviszUkkr6W7kPL9OuhPCQMm3RsTG6JS', 'Resident', 178, '../uploads/profile_66d9d3ca60a5b.avif', '', '', '', '', '', '', NULL, 0, NULL),
-(147, 'br', 'oo', 'kk', '', 'nilumisu@gmail.com', '$2y$10$u7.uN1RDtpJ3Q7SqGoWCG.vgFjDJSST9i9n.gzf5cHZGUX7V.7Fm2', 'Resident', 179, '../uploads/profile_66d9d46a1fbcf.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(148, 'nag', 'ba', 'ra', '', 'narra@gmail.com', '$2y$10$z6LNunMmiY8fBxVyot9APO048YxF8imarrU7bI82AIwQgSKgWEP4y', 'Resident', 180, '../uploads/profile_66d9d4dc98bf1.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(149, 'ma', 'li', 'tao', '', 'malitao@gmail.com', '$2y$10$aZ877dRXihLBu4pcSm0AZeys7HEGzNZYoS6r0Pf/NwCgVcUCFWUsi', 'Resident', 181, '../uploads/profile_66d9d55a02025.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(150, 'zoro', 'my', 'loves', '', 'maligaya@gmail.com', '$2y$10$49usekRjmCdhVTD0kPN6T.973evWx9XhTfLiTtG.iQENS.jEXMfHi', 'Resident', 182, '../uploads/profile_66d9d6493db44.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(151, 'na', 'mi', 'swan', '', 'malibago@gmail.com', '$2y$10$qbWWP93h5iTf3TdzVajZvOkEDzVMo5tQH2bQlfaymp9l4y1NpnHjy', 'Resident', 183, '../uploads/profile_66d9d6bb5ded5.png', '', '', '', '', '', '', NULL, 0, NULL),
-(152, 'san', 'ji', 'tog', '', 'magleticia@gmail.com', '$2y$10$HBc0bIe2/EaDLZ2.kUPG4uX9X/DI5YobqR5YUdVIVRHYhTDE/biAG', 'Resident', 184, '../uploads/profile_66d9d75574b1c.jfif', '', '', '', '', '', '', NULL, 0, NULL),
-(153, 'luf', 'fy', 'baby', '', 'madadamian@gmail.com', '$2y$10$ba7W5WyrLNZlFmdpDAv.Bu9FA0egdkPX2/Cks5e7uKbyDbR0jqKjK', 'Resident', 185, '../uploads/profile_66d9d7f1839a0.png', '', '', '', '', '', '', NULL, 0, NULL),
-(154, 'brayan', 'villanueva', 'Aquino', '', 'bja@gmail.com', '$2y$10$apiOV8HlRvjgfHHhP3JhtuINDddOgUU1XPYZZy1nwiE7AskV0KEhC', 'Resident', 186, '../uploads/profile_66da182f7583c.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(155, 'lloyd', 'cabagan', 'manuel', '', 'lloyd@gmail.com', '$2y$10$BNE5T7gBaGtwdja.58iP3e347wwHexP/bDr.9/czqHTH81RdkXuXG', 'Resident', 187, '../uploads/profile_66da18833768f.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(156, 'ben', 'Mondragon', 'Aquino', '', 'ben@gmail.com', '$2y$10$5uP5oF4X95fWpAF3otQYt.VIKp5zQZ/yRwZdJVe2GXP8Jp0lXimaS', 'Barangay Official', 188, '../uploads/profile_66da19889e220.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(157, 'eso', 'villanueva', 'pili', '', 'barangay2@gmail.com', '$2y$10$PdSm6a0qmcrrsbxBAL/CreAwVRuNXmP8ZRfOGfoDKaE8S1SmSA.OO', 'Barangay Official', 189, '../uploads/profile_66dae92084d29.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(158, 'xfsfs', 'aadad', 'aadd', '', 'maligaya1@gmail.com', '$2y$10$kdWWcCY55p6YnOdLEi482.HAqRrZa6ji/doG9fP52NZpZftq0tBlW', 'Barangay Official', 190, '../uploads/profile_66dc346a9ecdf.jpg', '', '', '', '', '', '', NULL, 0, '749854'),
-(159, 'ap', 'dul', 'jakusi', '', 'villaverde1@gmail.com', '$2y$10$Bwhfh7u0.YqRqbQaVVRuYOP5AMFPHAjP0agy7wk1yZ8R/sydmOniC', 'Barangay Official', 191, '../uploads/profile_66dc380c6b9ae.jpg', '', '', '', '', '', '', NULL, 0, NULL),
-(161, 'xfsfs', 'aadad', 'aadd', '', 'd@gmail.com', '$2y$10$yiBZ5AzmvECAo7eTRdywD.wYmbezQsfs2odvd0i.PCgH4B5x0vHAC', 'Barangay Official', 195, '../uploads/profile_66dd0f330bc94.jpg', 'What was your childhood nickname?', '$2y$10$jAMjBos9uEUbYzqYh27B/uaV5YIZbR//TF.HSD6q3q2.1WBWYKT7O', 'In what city were you born?', '$2y$10$MZxMT4WI2nYQGPSg5zDX.uPHTH5UkKmqEF5MD60lxeaAqML1XQa86', 'What was your high school mascot?', '$2y$10$uxOyr7FYsLH/2hpo3CJhPeeET2Yy5NchYSEsFBjuS2bSwVmVLCyOe', NULL, 0, NULL),
-(163, 'excel', 'N', 'Preza', '', 'maligaya164@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 196, '../uploads/profile_66dd94cb579b6.jpg', 'What was your childhood nickname?', '$2y$10$0he/z3Qzo3Rzv82BR3XDSu5/1lCA5XAKYKaoPKpIJ4KZdnzpFnG8S', 'What was the name of your elementary school?', '$2y$10$gBE9PJw4aJSWsxVBwMQ7PODN5UDGSZuGErkC9us77Q04XNR7ACEuC', 'What is your mother’s maiden name?', '$2y$10$.ZTiTjZwIagmT2qCnNrGqe9qvxfbFtd.zNQWmi6iAOpkPwbDd5Zri', NULL, 1, NULL);
+INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `extension_name`, `email`, `password`, `accountType`, `barangays_id`, `pic_data`, `security_question_1`, `security_answer_1`, `security_question_2`, `security_answer_2`, `security_question_3`, `security_answer_3`, `verification_token`, `is_verified`, `otp`, `login_attempts`, `lockout_time`) VALUES
+(88, 'bj', 'villanueva', 'Aquino', '', 'bjaquino@gmail.com', '$2y$10$zIuH.Hf3SqI0tF7LuU1ep.59VjW.mBFloZw5It0LEllb0G4un6Ese', 'Barangay Official', 118, '../uploads/435559638_928560769060280_7584294412764526119_n.jpg', '', '', '', '', '', '', 'b3fb01a3e82c4acc34b4c4c34243ae98', 1, NULL, 0, NULL),
+(89, 'Excel', 'nnnn', 'Preza', '', 'excel27@gmail.com', '$2y$10$/otNt0hA5d3b3V1xX5nzCOThzRA0.tGdwBq.mBrdvYJCW8AaQdRPW', 'Resident', 119, 'uploads/profile_66b35dfc81120.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(90, 'princess', 'Cadiente', 'Rosario', '', 'immajvadhing@gmail.com', '$2y$10$zIuH.Hf3SqI0tF7LuU1ep.59VjW.mBFloZw5It0LEllb0G4un6Ese', 'PNP Officer', 120, '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '', '', '', '', '', '', NULL, 1, NULL, 0, NULL),
+(91, 'brayan', 'villanueva', 'Aquino', '', 'resident@gmail.com', '$2y$10$eDd76Og1S4TLos2N4J4Y1eLSobv5n5MkSRywhcFUhdFnA4Rc0HhjG', 'Resident', 121, '../uploads/excel.jpg', '', '', '', '', '', '', NULL, 0, '275931', 1, NULL),
+(92, 'excel', 'nnnn', 'preza', '', 'barangay@gmail.com', '$2y$10$1AtIP9iYRzjHMlsCEmSAqOI6m7moC3sWnPP1p/7k3V1mnVD1rwE/W', 'Barangay Official', 122, '../uploads/profile_669f988fa9760.jpg', '', '', '', '', '', '', NULL, 0, NULL, 1, '2024-09-13 08:55:02'),
+(93, 'Desiray', 'Domael', 'Naya', 'Sr.', 'desiray.d.nayga@isu.edu.ph', '$2y$10$LmMrEMdaLDuLc3Lk3GIey.vNaaMqWfTz0Ozlyafwidp.fypnXkspe', 'Resident', 123, 'uploads/profile_66c3bedba896e.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(94, 'excel', 'nnn', 'preza', '', 'excel@gmail.com', '$2y$10$dmxu96P0WEASLgJMGL9pOuRxpJabK6jwdVo.8cAQB4hot3lZowS.m', 'Resident', 124, 'uploads/profile_66c5c31494af3.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(95, 'trisha', 'Nicole', 'Yaranon', '', 'tien@gmail.com', '$2y$10$KnQWks8rK02R/qfLFtnNsegU/IyHYnfvetaWVLKEZvzObHqKdN2ky', 'Resident', 125, 'uploads/profile_66cc76ae2ecec.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(96, 'Din', 'Dax', 'Xhy', '', 'dindaxy@gmail.com', '$2y$10$9b.lK3kNa7A40HVZBedcBeO5jncGOZ7QiZxvc9GU2/JEfJhag5cSa', 'Barangay Official', 126, 'uploads/profile_66cc76b5658e5.jpeg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(97, 'leslie', 'Pascual', 'Rigor', '', 'leslie05@gmail.com', '$2y$10$MV7WniHlIWdVo8ieNdWdSOCwimXVu7VhpPPDOYT8OTsd6LqlbZdQG', 'Resident', 127, '../uploads6f82caab-9d12-4df9-bc91-742bb7cb9bf3.jpg', '', '', '', '', '', '', NULL, 1, NULL, 0, NULL),
+(98, 'ddd', 'Mondragon', 'Aquino', '', 'eso@gmail.com', '$2y$10$d6DNp3zHZCykQltVZx4aCecMjvsCO8LkL5X5sRGsO3FKANJN9Hk7C', 'Resident', 129, '../uploads/profile_66cc76ae2ecec.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(99, 'laymar', 'versosa', 'mina', '', 'laymar@gmail.com', '$2y$10$bfbvgTbaiANpL1OO/MIog.6KKxjWlMRpIVjzbdFtvaeebpscklSFC', 'Barangay Official', 130, '../uploads/1.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(100, 'excel', 'nnn', 'preza', '', 'lex@gmail.com', '$2y$10$FAvUBwgHohiKj37AT1IwXe7qgS1bQdFgbSW1Gp3C4z2ZSRJqH9jxS', 'Barangay Official', 131, 'uploads/profile_66cea6e841a1a.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(101, 'allen', 'esteban', 'serrano', '', 'allen@gmail.com', '$2y$10$yjcNd3nKwwpxhB265dCQFOCNPq28QwBMUfU4WrELypLJFJ.lJhkVq', 'Barangay Official', 132, 'uploads/profile_66cea934ad628.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(102, 'Princess', 'Cadiente', 'Rosario', '', 'cess@gmail.com', '$2y$10$/KbWqX4vMkcprx.tiMvTl.QX4VDt0vDXYF9XgyKr1gp.y33E2QOoS', 'Barangay Official', 133, './uploads/profile_66cea9a314694.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(103, 'excel', 'Cadiente', 'preza', '', 'mlgaming142@gmail.com', '$2y$10$OV/KIBgAxwxfqZSOM/b2hebTveBi3BV/FK.Qd.3/vqqt9GmRQs.WS', 'Resident', 134, '../uploads/441799097_1205342757295168_7001114824101829619_n.jpg', '', '', '', '', '', '', NULL, 0, '826404', 3, '2024-09-13 08:55:23'),
+(104, 'eso', 'villanueva', 'Rosario', '', 'tienxxx@gmail.com', '$2y$10$rkNcO9Cp2u/DdcbRdrk.X.mIMv48DvdFynIDzp64KNlEcIKTYPJfe', 'Barangay Official', 136, '../uploads/profile_66ceaf48b9e1c.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(105, 'bungol', 'kha', 'bhou', '', 'bungol@gmail.com', '$2y$10$mXFbXS.tFrXURu3m2cODR.CzpBeDaJ35dKTB/2f7dY8Qd5g9NNYFK', 'Resident', 137, '../uploads/profile_66cfd6ffeb536.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(106, 'din', 'da', 'xy', '', 'risidint@gmail.com', '$2y$10$AVEVUDQV7pE8TmUQ7ZOx9e8nTRp2Sjic9IJyhcn18vC9nN4fpQldq', 'Resident', 138, '../uploads/profile_66d0638aa9715.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(107, 'haryl', 'Balla', 'conceptoin', '', 'h@gmail.com', '$2y$10$gnKdPhTiwwMkZrVuixAcUe7Pi/K3tcZUWkRpLwZ.Izf2MQdEG6jMW', 'Barangay Official', 139, '../uploads/profile_66d066dee6955.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(108, 'din', 'da', 'xy', 'jr', 'fugu@gmail.com', '$2y$10$s/RyATM8KMk/FmG7GIddW.6GN8ERegE/L4c7lqmbGHV/X1jXCQ/5G', 'Resident', 140, '../uploads/profile_66d99e303d356.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(109, 'pough', 'tah', 'hays', '', 'villaysmael@gmail.com', '$2y$10$fV5QYwZr67QXNo4HghNGE.DJJivQdfB3//MV3tnNzhJGBuTV.zVQO', 'Resident', 141, '../uploads/profile_66d9a4b75c3be.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(110, 'jay', 'ar', 'gumabon', '', 'villavicenta@gmail.com', '$2y$10$GEsBMNpbrhmKptpJd7Oh8e7lTpATyyzNU/9jYnRO28IY.GK1WAWdm', 'Resident', 142, '../uploads/profile_66d9a576d329e.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(111, 'rus', 'sel', 'imel', '', 'villaverde@gmail.com', '$2y$10$zuEVm2UkcZLLnyH9R27IVOjzi1ood9sF4TteDX7pssHXoNXUs4hgi', 'Resident', 143, '../uploads/profile_66d9a6655b718.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(112, 'ja', 'mes', 'lems', '', 'villatanza@gmail.com', '$2y$10$0zxikt2s2pbMGJ/d9eUjVeRErkd75o6x9r0i3s3l6bVec/3.zkZJC', 'Resident', 144, '../uploads/profile_66d9a8751917a.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(113, 'kat', 'lin', 'salbag', '', 'villaserafica@gmail.com', '$2y$10$.REmYoh.hKAIBI.d2.FmceU4YBICkDQS6MNlFGT3pCpLqsHcAvP6y', 'Resident', 145, '../uploads/profile_66d9a9e8cf811.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(114, 'ba', 'yan', 'jan', '', 'villaremedios@gmail.com', '$2y$10$17I.oijzKb6dNJsx2dqNguBryoT4yRXp.uEdb4uE503nGm/.AflPW', 'Resident', 146, '../uploads/profile_66d9aa96212cc.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(115, 'sesa', 'me', 'seed', '', 'villaquirino@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 147, '../uploads/profile_66d9ac8e0dd17.jpg', '', '', '', '', '', '', NULL, 1, NULL, 0, NULL),
+(116, 'mar', 'ky', 'san', '', 'villapereda@gmail.com', '$2y$10$O7zOWXQqaAipeHYvIfPSi.IP1BNtyOLxidqnqZ2LqVBbZ70JmoOZu', 'Resident', 148, '../uploads/profile_66d9ae95d3103.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(117, 'de', 'puuuuuuu', 'tah', '', 'villapadian@gmail.com', '$2y$10$thi2/iRL03ZEQxiTHSk4EuWcrklTEiC7Q5OftzKTji6E0JfQSCN7a', 'Resident', 149, '../uploads/profile_66d9af35d4d27.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(118, 'jan', 'mi', 'lloyd', '', 'villanuesa@gmail.com', '$2y$10$Y6OotCv0/dkr7hnqecfdPeOo0zrysloR1MtOhYm9cLpT2LS7.A2o2', 'Resident', 150, '../uploads/profile_66d9b01e7d344.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(119, 'yra', 'lei', 'ira', '', 'villagomez@gmail.com', '$2y$10$ttdmmtvepA9t2ty6onGXLe0edS0BAc/nzkCt9HSK6BAganFo.srya', 'Resident', 151, '../uploads/profile_66d9b09e984ce.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(120, 'ha', 'mil', 'ton', '', 'villafabia@gmail.com', '$2y$10$we5dk3tqyaXb4oZ3ou6VlOUlYGLzN5VQatJPqIEzNNkuka0rxeq6G', 'Resident', 152, '../uploads/profile_66d9b1777edcb.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(121, 'an', 'gel', 'babs', '', 'villacruz@gmail.com', '$2y$10$V9LQuJlmuvQF2wc35UKWcuP1VhqiIqqObjGawPjT9zLvgadyLUjAS', 'Resident', 153, '../uploads/profile_66d9b2159c87b.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(122, 'ha', 'ril', 'konsiption', '', 'villaconception@gmail.com', '$2y$10$xhW2c6zdyNbmVplKW36Uduln67EXeZb9KwPveb75Nycj3VrI4lZ0G', 'Resident', 154, '../uploads/profile_66d9b2d690e71.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(123, 'cha', 'rot', 'lang', '', 'villaagullana@gmail.com', '$2y$10$ncpo6YPGLgB2Hl7dmEHdtuAIPSaF3gwaANxgYcjo0BasUkr5s5TES', 'Resident', 155, '../uploads/profile_66d9b4848fc83.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(124, 'ya', 'me', 'te', '', 'taggappan@ghmail.com', '$2y$10$U0MBSUkT95l2qWiR/IXxIedVGUYyMsziL45TpbSGt5PjpvjmWgZ0m', 'Resident', 156, '../uploads/profile_66d9b7b36d5a9.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(125, 'mar', 'ki', 'ban', '', 'soyung@gmail.com', '$2y$10$vxM5.R1zEgzEyKrD4LFTMuZtcRaVJuJhcZA0jZ6Bn/c34ncAklpXy', 'Resident', 157, '../uploads/profile_66d9b8f0a2789.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(126, 'flo', 'rie', 'mae', '', 'sinabbaran@gmail.com', '$2y$10$nQcEWZKWfYshSAZ72BH60OfLe9cTjlQNkRNqD3nrgq20w9eoXh54C', 'Resident', 158, '../uploads/profile_66d9bad4ad3a2.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(127, 'but', 'choy', 'blaire', '', 'silauannorte@gmail.com', '$2y$10$nwFYIVTT6I0vKGtjuRI5B.KkVxFP6mvimCX9UIymCCav4fMgq/dt.', 'Resident', 159, '../uploads/profile_66d9bda481e56.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(128, 'jhea', 'mae', 'jords', '', 'silauansur@gmail.com', '$2y$10$pXjaaTIbVDEAsnA2Y0y9lefQC902m/0rPW35KDVlG7d2eitiRsSde', 'Resident', 160, '../uploads/profile_66d9beb6d5cb0.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(129, 'pa', 'noy', 'penoy', '', 'santodomingo@gmail.com', '$2y$10$mV5b4qi4EzNGLZBTk6kDiuVAZ8toPADO90R5NuCN8.1r.oBdCENa2', 'Resident', 161, '../uploads/profile_66d9c0967c831.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(130, 'jan', 'lloyd', 'ventura', 'jr', 'santamonica@gmail.com', '$2y$10$OVGwdp0FZW2tIH/amQVnQ.CFhJcWw1Rvjvn31Nkoc1RDqNG.Kpymi', 'Resident', 162, '../uploads/profile_66d9c24132877.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(131, 'ben', 'jie', 'lyn', '', 'santamaria@gmail.com', '$2y$10$ft45l61.TYx0oXh1L.C.QOKqXQZGIyPgZp79ULj8n0g/ocxmJ.YyS', 'Resident', 163, '../uploads/profile_66d9c36eef592.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(132, 'mar', 'cial', 'lim', '', 'santacruz@gmail.com', '$2y$10$qhSz8NpkhlI1avmmB/G3h.rp2WPOlujqCw6uwhXYF/wOLXNHEG8Mm', 'Resident', 164, '../uploads/profile_66d9c474bd584.avif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(133, 'ol', 'lit', 'ros', 'jr', 'santaana@gmail.com', '$2y$10$9aKTxuZj5kFHJublUlhPRePtIo2oSvKIcUhSxFOpr/jcwzVxt8mUO', 'Resident', 165, '../uploads/profile_66d9c52cae727.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(134, 'san', 'dok', 'yum', '', 'sansalvador@gmail.com', '$2y$10$raqzbQ0TIJiVq3svzrqiUuIDlZmOWTIpDvKBrYKmYahDSOuCA9gxi', 'Resident', 166, '../uploads/profile_66d9c5a10a932.avif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(135, 'san', 'mig', 'guel', '', 'sanmiguel@gmail.com', '$2y$10$CtV80mZ79ZlME3TGm1VUcOqOE1g61Ez.R7ZJmoqt7pRK4JB5Vcq1G', 'Resident', 167, '../uploads/profile_66d9c63c7f435.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(136, 'san', 'juan', 'sia', '', 'sanjuan@gmail.com', '$2y$10$CQL7Ec0Dyzglg030oMafLuJYetmrOVMkDSo2zm8sOK5cDV7APo7tq', 'Resident', 168, '../uploads/profile_66d9c6a922a41.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(137, 'fe', 'li', 'pe', '', 'sanfelipe@gmail.com', '$2y$10$ySjki2KJn2HMU2QZSNwbZ.QHJNJZFrAPUWuspONeuCdvGLF72IOQG', 'Resident', 169, '../uploads/profile_66d9c72fdc81d.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(138, 'san', 'car', 'los', 'jr', 'sancarlos@gmail.com', '$2y$10$b.LN.Dzy8dtREBm.zkLRm.6TnuVxxBF16mrbfrr5k5yMfOLxtYqlW', 'Resident', 170, '../uploads/profile_66d9cea4a3602.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(139, 'san', 'an', 'ton', '', 'SanAntonioMinit@gmail.com', '$2y$10$02WLdHyhmG3EZP28npEFIOI.SS.Noi3DVlV5db11GmUUf24foJkiK', 'Resident', 171, '../uploads/profile_66d9cfd2ef3c1.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(140, 'uu', 'gad', 'yo', '', 'SanAntonioUgad@gmail.com', '$2y$10$5JHPJ03TqMzFb7mQ2d.eW.scKPIfvSG6n/4Bjh0n3XRZZ1dgFsn/G', 'Resident', 172, '../uploads/profile_66d9d058b95b8.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(141, 'sal', 'bag', 'ka', '', 'salvacion@gmail.com', '$2y$10$Pxk/cn4HUGGI2Oqw9Ritd.3NOFJblsodlogSuj94aWCRJDvBFzjIO', 'Resident', 173, '../uploads/profile_66d9d0d489605.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(142, 'sa', 'lay', 'xy', '', 'salay@gmail.com', '$2y$10$3KIIwK/Vy8xxsfSEFxtNd.JmXAlq5X.bWPADHtO7UYBXLZtk6ihmK', 'Resident', 174, '../uploads/profile_66d9d1612ad5d.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(143, 'ru', 'mang', 'ay', '', 'rumangay@gmail.com', '$2y$10$3jivJSxtwXQh16MIRrGwtuQZJ0LorgAbPebtaHPtu9o/m4IW0bNom', 'Resident', 175, '../uploads/profile_66d9d1c9855ff.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(144, 'pa', 'ngal', 'sur', '', 'pangalsur@gmail.com', '$2y$10$QnFpGmJk4gJOY/v5cg23puOceIHPKZwHUL5UmFD6qnVCLK24F0bgq', 'Resident', 176, '../uploads/profile_66d9d2343f155.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(145, 'pa', 'ngal', 'norte', '', 'pangalnorte@gmail.com', '$2y$10$8ytvrHjj6G2TdrR82bDnt.IhTzAiw.oVBTvberxHIZP33q0vIOUWy', 'Resident', 177, '../uploads/profile_66d9d30c25ab8.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(146, 'pag', 'asa', 'baaa', '', 'pagasa@gmail.com', '$2y$10$/.l2Lkf8UsAz1d6jgGhTieviszUkkr6W7kPL9OuhPCQMm3RsTG6JS', 'Resident', 178, '../uploads/profile_66d9d3ca60a5b.avif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(147, 'br', 'oo', 'kk', '', 'nilumisu@gmail.com', '$2y$10$u7.uN1RDtpJ3Q7SqGoWCG.vgFjDJSST9i9n.gzf5cHZGUX7V.7Fm2', 'Resident', 179, '../uploads/profile_66d9d46a1fbcf.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(148, 'nag', 'ba', 'ra', '', 'narra@gmail.com', '$2y$10$z6LNunMmiY8fBxVyot9APO048YxF8imarrU7bI82AIwQgSKgWEP4y', 'Resident', 180, '../uploads/profile_66d9d4dc98bf1.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(149, 'ma', 'li', 'tao', '', 'malitao@gmail.com', '$2y$10$aZ877dRXihLBu4pcSm0AZeys7HEGzNZYoS6r0Pf/NwCgVcUCFWUsi', 'Resident', 181, '../uploads/profile_66d9d55a02025.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(150, 'zoro', 'my', 'loves', '', 'maligaya@gmail.com', '$2y$10$49usekRjmCdhVTD0kPN6T.973evWx9XhTfLiTtG.iQENS.jEXMfHi', 'Resident', 182, '../uploads/profile_66d9d6493db44.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(151, 'na', 'mi', 'swan', '', 'malibago@gmail.com', '$2y$10$qbWWP93h5iTf3TdzVajZvOkEDzVMo5tQH2bQlfaymp9l4y1NpnHjy', 'Resident', 183, '../uploads/profile_66d9d6bb5ded5.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(152, 'san', 'ji', 'tog', '', 'magleticia@gmail.com', '$2y$10$HBc0bIe2/EaDLZ2.kUPG4uX9X/DI5YobqR5YUdVIVRHYhTDE/biAG', 'Resident', 184, '../uploads/profile_66d9d75574b1c.jfif', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(153, 'luf', 'fy', 'baby', '', 'madadamian@gmail.com', '$2y$10$ba7W5WyrLNZlFmdpDAv.Bu9FA0egdkPX2/Cks5e7uKbyDbR0jqKjK', 'Resident', 185, '../uploads/profile_66d9d7f1839a0.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(154, 'brayan', 'villanueva', 'Aquino', '', 'bja@gmail.com', '$2y$10$apiOV8HlRvjgfHHhP3JhtuINDddOgUU1XPYZZy1nwiE7AskV0KEhC', 'Resident', 186, '../uploads/profile_66da182f7583c.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(155, 'lloyd', 'cabagan', 'manuel', '', 'lloyd@gmail.com', '$2y$10$BNE5T7gBaGtwdja.58iP3e347wwHexP/bDr.9/czqHTH81RdkXuXG', 'Resident', 187, '../uploads/profile_66da18833768f.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(156, 'ben', 'Mondragon', 'Aquino', '', 'ben@gmail.com', '$2y$10$5uP5oF4X95fWpAF3otQYt.VIKp5zQZ/yRwZdJVe2GXP8Jp0lXimaS', 'Barangay Official', 188, '../uploads/profile_66da19889e220.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(157, 'eso', 'villanueva', 'pili', '', 'barangay2@gmail.com', '$2y$10$PdSm6a0qmcrrsbxBAL/CreAwVRuNXmP8ZRfOGfoDKaE8S1SmSA.OO', 'Barangay Official', 189, '../uploads/profile_66dae92084d29.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(158, 'xfsfs', 'aadad', 'aadd', '', 'maligaya1@gmail.com', '$2y$10$kdWWcCY55p6YnOdLEi482.HAqRrZa6ji/doG9fP52NZpZftq0tBlW', 'Barangay Official', 190, '../uploads/profile_66dc346a9ecdf.jpg', '', '', '', '', '', '', NULL, 0, '749854', 0, NULL),
+(159, 'ap', 'dul', 'jakusi', '', 'villaverde1@gmail.com', '$2y$10$Bwhfh7u0.YqRqbQaVVRuYOP5AMFPHAjP0agy7wk1yZ8R/sydmOniC', 'Barangay Official', 191, '../uploads/profile_66dc380c6b9ae.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
+(161, 'xfsfs', 'aadad', 'aadd', '', 'd@gmail.com', '$2y$10$yiBZ5AzmvECAo7eTRdywD.wYmbezQsfs2odvd0i.PCgH4B5x0vHAC', 'Barangay Official', 195, '../uploads/profile_66dd0f330bc94.jpg', 'What was your childhood nickname?', '$2y$10$jAMjBos9uEUbYzqYh27B/uaV5YIZbR//TF.HSD6q3q2.1WBWYKT7O', 'In what city were you born?', '$2y$10$MZxMT4WI2nYQGPSg5zDX.uPHTH5UkKmqEF5MD60lxeaAqML1XQa86', 'What was your high school mascot?', '$2y$10$uxOyr7FYsLH/2hpo3CJhPeeET2Yy5NchYSEsFBjuS2bSwVmVLCyOe', NULL, 0, NULL, 0, NULL),
+(163, 'excel', 'N', 'Preza', '', 'maligaya164@gmail.com', '$2y$10$MqxBK6UC0RqkDM5ceX6KgeXQKV5PWoft4/d6FMcP/g0r7eVde5q26', 'Resident', 99, '../uploads/profile_66dd94cb579b6.jpg', 'What was your childhood nickname?', '$2y$10$0he/z3Qzo3Rzv82BR3XDSu5/1lCA5XAKYKaoPKpIJ4KZdnzpFnG8S', 'What was the name of your elementary school?', '$2y$10$gBE9PJw4aJSWsxVBwMQ7PODN5UDGSZuGErkC9us77Q04XNR7ACEuC', 'What is your mother’s maiden name?', '$2y$10$.ZTiTjZwIagmT2qCnNrGqe9qvxfbFtd.zNQWmi6iAOpkPwbDd5Zri', NULL, 1, NULL, 0, NULL),
+(164, 'aldrin', 'Domael', 'damance', '', 'a@gmail.com', '$2y$10$P/PcqT.1Ca3NKdkZUi12EuiF4tZgXhF5PMSLZks1Xfc3/tQ471fnq', 'Barangay Official', 197, '../uploads/profile_66e2baa6e7dca.png', 'What was your childhood nickname?', '$2y$10$34B6/QfDK.SxnjSNuZuw5u2kVgvmopqFxuxfruf80S6xeLU82bw36', 'In what city were you born?', '$2y$10$VhETvfWZGxvV3JEHSFriueJqLTXEepyzBEMha5mnTtPpNrG/DwZkK', 'What was your high school mascot?', '$2y$10$DrPOwguyLW2Z3bXHg.4SzubWBRqL/b.Ob3QuSKAE30O8YERibB/EO', NULL, 1, NULL, 1, NULL),
+(165, 'excel', 'Mondragon', 'Aquino', '', 'reyvenpili04@gmail.com', '$2y$10$QWr8jkGU3Zq9hfxd6bX2zOWyPwOMKYlmWjcjmkmd0rH65lr0/ITKW', 'Barangay Official', 198, '../uploads/profile_66e2bb14863c0.jpg', 'What was your childhood nickname?', '$2y$10$uTIpejp4/EWwh20pn3WhPu5Xga7T5njHVEWn6F3hQgjzGWr1LKGoy', 'In what city were you born?', '$2y$10$.vr9H9hBOdXGUqvgld3sAO59tffQztpb7j.1MqDes07iSlbdqZNh2', 'What is your mother’s maiden name?', '$2y$10$jPc9Ml3yXGhYRZ7pVN3Ovu3/k5JTkjqO5Qu01xXOeQ7iz4d618KCe', NULL, 0, '380186', 0, NULL),
+(166, 'excel', 'Nicole', 'Aquino', '', 'ketnana101@gmail.com', '$2y$10$0C6hscCrDkc9V6l6b5zChuyNldE2NJUd7kgkFhW/5aV0aPiXi82hW', 'Barangay Official', 203, '../uploads/profile_66e2bd4210ce0.jpg', 'What was your childhood nickname?', '$2y$10$AzKh1aOqnKTLwojB0jqaqeKfRPtPpiF2fdlEltMQGdqtD1jGufyAK', 'In what city were you born?', '$2y$10$HhfFsEO0Zb3AJSeiuhOhfuLMcGVor9396.F5n7F96aazBYQxO2cVG', 'What was your high school mascot?', '$2y$10$EjF6kHKNLR3acpIrX69BG.Jou8xo6rUQccTQTkm0sI6ktyzVOg.c2', NULL, 0, '519497', 0, NULL),
+(167, 'Princess', 'Del Valle', 'Moon', '', 'moon@gmail.com', '$2y$10$B2mimNgyFHyTBqwU40K0be12G6X0hkCQUOFhz8HqrDsH48CxGgtwW', 'Resident', 99, '../uploads/profile_66e358edace8d.jfif', 'What was your childhood nickname?', '$2y$10$hzXVvVNVvnGVkU9/3DCvEOFlScUORk4oyOZsx6wo3F8edzYnHjQJy', 'In what city were you born?', '$2y$10$AQ1gGkD2Ml7No99Aul1B2uKgpFoo90HbU3yVxFaRc/qfdmYLHN6wK', 'What is your mother’s maiden name?', '$2y$10$WhqesGCnaMZlaNLhqFuMtuD8st1x2K7P7acYjP1oR61WBsg9G20z6', NULL, 1, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -889,7 +936,7 @@ INSERT INTO `tbl_users_barangay` (`barangays_id`, `barangay_name`, `official_id`
 (124, 'San Fabian', 0),
 (125, 'Fugu', 0),
 (126, 'Fugu', 0),
-(127, 'San Fabian', 0),
+(127, 'Maligaya', 0),
 (128, 'Angoluan', 0),
 (129, 'Babaran', 0),
 (130, 'San Fabian', 0),
@@ -958,7 +1005,15 @@ INSERT INTO `tbl_users_barangay` (`barangays_id`, `barangay_name`, `official_id`
 (193, 'Angoluan', 0),
 (194, 'Angoluan', 0),
 (195, 'Angoluan', 0),
-(196, 'Maligaya', 0);
+(196, 'Maligaya', 0),
+(197, 'Angoluan', 0),
+(198, 'Angoluan', 0),
+(199, 'Angoluan', 0),
+(200, 'Angoluan', 0),
+(201, 'Angoluan', 0),
+(202, 'Angoluan', 0),
+(203, 'Angoluan', 0),
+(204, 'Maligaya', 0);
 
 --
 -- Indexes for dumped tables
@@ -1042,13 +1097,13 @@ ALTER TABLE `tbl_users_barangay`
 -- AUTO_INCREMENT for table `tbl_announcement`
 --
 ALTER TABLE `tbl_announcement`
-  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `tbl_brg_official`
 --
 ALTER TABLE `tbl_brg_official`
-  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `tbl_complaintcategories`
@@ -1060,37 +1115,37 @@ ALTER TABLE `tbl_complaintcategories`
 -- AUTO_INCREMENT for table `tbl_complaints`
 --
 ALTER TABLE `tbl_complaints`
-  MODIFY `complaints_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=392;
+  MODIFY `complaints_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=397;
 
 --
 -- AUTO_INCREMENT for table `tbl_hearing_history`
 --
 ALTER TABLE `tbl_hearing_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `tbl_image`
 --
 ALTER TABLE `tbl_image`
-  MODIFY `image_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=410;
+  MODIFY `image_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=415;
 
 --
 -- AUTO_INCREMENT for table `tbl_info`
 --
 ALTER TABLE `tbl_info`
-  MODIFY `info_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=326;
+  MODIFY `info_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=331;
 
 --
 -- AUTO_INCREMENT for table `tbl_users`
 --
 ALTER TABLE `tbl_users`
-  MODIFY `user_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
+  MODIFY `user_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=168;
 
 --
 -- AUTO_INCREMENT for table `tbl_users_barangay`
 --
 ALTER TABLE `tbl_users_barangay`
-  MODIFY `barangays_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
+  MODIFY `barangays_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
 
 --
 -- Constraints for dumped tables
