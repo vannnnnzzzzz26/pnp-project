@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
         }
 
         // Check file size (adjust as necessary)
-        if ($_FILES["image"]["size"] > 500000) {
+        if ($_FILES["image"]["size"] > 50000000) {
             $_SESSION['error'] = "Sorry, your file is too large.";
             $uploadOk = 0;
         }
@@ -166,9 +166,8 @@ $officials = $stmt->fetchAll();
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 <style>
-    .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+ .popover-content {
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -176,6 +175,7 @@ $officials = $stmt->fetchAll();
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+/* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
@@ -454,6 +454,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                 <hr>
                             </div>
                         `;
                     });

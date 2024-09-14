@@ -46,7 +46,7 @@ function sendOtpEmail($email, $otp) {
   $mail->Username = 'mlgaming143@gmail.com'; // SMTP username
         $mail->Password = 'qzhy sgfu kszi mtul';
         //Recipients
-        $mail->setFrom('no-reply@example.com', 'Your App');
+        $mail->setFrom('no-reply@example.com', 'email Verification for new account');
         $mail->addAddress($email);
 
         // Content

@@ -86,9 +86,8 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <style>
-    .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+.popover-content {
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -96,6 +95,7 @@ try {
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+/* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
@@ -130,20 +130,7 @@ margin-left: 5rem;
             color: #ffffff;
             text-align: center;
         }
-        table {
-    table-layout: fixed;
-    width: 100%; /* Make table span the entire width */
-  }
-  th, td {
-    text-align: center; /* Align content in the center */
-    vertical-align: middle; /* Align content vertically in the middle */
-  }
-  th {
-    width: 33%; /* Set equal width for each column */
-  }
-  td {
-    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
-  }
+    
 
     </style>
 <body>
@@ -182,32 +169,37 @@ include '../includes/edit-profile.php';
         <?php endif; ?>
     </script>
 
-    <table class="table table-bordered table-hover">
-        <thead>
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th style="text-align: center; vertical-align: middle;">#</th> <!-- Row number centered -->
+            <th style="text-align: left; vertical-align: middle;">Complaint Name</th> <!-- Complaint name aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Barangay</th> <!-- Barangay aligned to the left -->
+            <th style="text-align: center; vertical-align: middle;">Action</th> <!-- Action button aligned to the center -->
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+        $rowNumber = 1; // Initialize row number
+
+        foreach ($complaints as $complaint): ?>
             <tr>
-                <th>#</th>
-                <th>Complaint Name</th>
-                <th>Barangay</th>
-                <th>Action</th>
+                <td style="text-align: center; vertical-align: middle;"><?php echo $rowNumber++; ?></td> <!-- Display row number centered -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['complaint_name']); ?></td> <!-- Left-align complaint name -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['barangay_name']); ?></td> <!-- Left-align barangay name -->
+                <td style="text-align: center; vertical-align: middle;">
+                    <button type="button" class="btn btn-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#viewComplaintModal" 
+                            data-complaint='<?php echo htmlspecialchars(json_encode($complaint), ENT_QUOTES, 'UTF-8'); ?>'>
+                        View
+                    </button>
+                </td> <!-- Center action button -->
             </tr>
-        </thead>
-        <tbody>
-            <?php 
-                                            $rowNumber = 1; // Initialize row number
+        <?php endforeach; ?>
+    </tbody>
+</table>
 
-            foreach ($complaints as $complaint): ?>
-                <tr>
-                <td><?php echo $rowNumber++; ?></td> <!-- Display row number -->
-
-                    <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
-                    <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
-                    <td>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo htmlspecialchars(json_encode($complaint), ENT_QUOTES, 'UTF-8'); ?>'>View</button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
 </div>
 </div>
 
@@ -397,6 +389,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                 <hr>
                             </div>
                         `;
                     });

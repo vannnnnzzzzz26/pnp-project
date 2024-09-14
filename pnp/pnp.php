@@ -71,23 +71,10 @@ margin-left: 5rem;
             background-color: #082759;
 
             color: #ffffff;
-            text-align: center;
+        
         }
 
-        table {
-    table-layout: fixed;
-    width: 100%; /* Make table span the entire width */
-  }
-  th, td {
-    text-align: center; /* Align content in the center */
-    vertical-align: middle; /* Align content vertically in the middle */
-  }
-  th {
-    width: 33%; /* Set equal width for each column */
-  }
-  td {
-    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
-  }
+      
     </style>
 <body>
  
@@ -102,65 +89,67 @@ include '../includes/pnp-nav.php';
         <div class="container">
             <h2 class="mt-3 mb-4">PNP Complaints</h2>
             <div class="table">
-                <table class="table table-striped table-bordered table-center">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Address</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
+    <table class="table table-striped table-bordered table-center">
+        <thead>
+            <tr>
+                <th>#</th> <!-- Added # column -->
+                <th>Name</th>
+                <th>Address</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
 
+        include '../connection/dbconn.php'; 
 
-include '../connection/dbconn.php'; 
+        // Function to display PNP complaints
+        function displayPNPComplaints($pdo) {
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
+                           c.barangays_id, c.cp_number, c.complaints_person
+                    FROM tbl_complaints c
+                    WHERE c.status = 'pnp'
+                    ORDER BY c.date_filed ASC
+                ");
+                $stmt->execute();
 
-// Use null coalescing operators to provide default values
-;
+                $row_number = 1; // Initialize the row number
 
-// Function to display PNP complaints
-function displayPNPComplaints($pdo) {
-    try {
-        $stmt = $pdo->prepare("
-            SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
-                   c.barangays_id, c.cp_number, c.complaints_person
-            FROM tbl_complaints c
-            WHERE c.status = 'pnp'
-            ORDER BY c.date_filed ASC
-        ");
-        $stmt->execute();
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $complaint_id = $row['complaints_id'];
+                    $complaint_name = htmlspecialchars($row['complaint_name']);
 
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $complaint_id = $row['complaints_id'];
-            $complaint_name = htmlspecialchars($row['complaint_name']);
+                    if (!empty($row['barangays_id'])) {
+                        $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                        $stmtBar->execute([$row['barangays_id']]);
+                        $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
+                    } else {
+                        $barangay_name = 'Unknown';
+                    }
+                    
+                    $address = $barangay_name;
 
-            if (!empty($row['barangays_id'])) {
-                $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                $stmtBar->execute([$row['barangays_id']]);
-                $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
-            } else {
-                $barangay_name = 'Unknown';
+                    echo "<tr>";
+                    echo "<td>{$row_number}</td>"; // Display row number
+                    echo "<td>{$complaint_name}</td>";
+                    echo "<td>{$address}</td>";
+                    echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
+                    echo "</tr>";
+
+                    $row_number++; // Increment row number for each row
+                }
+            } catch (PDOException $e) {
+                echo "<tr><td colspan='4'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
             }
-            
-            $address = $barangay_name;
-
-            echo "<tr>";
-            echo "<td>{$complaint_name}</td>";
-            echo "<td>{$address}</td>";
-            echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
-            echo "</tr>";
         }
-    } catch (PDOException $e) {
-        echo "<tr><td colspan='3'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
-    }
-}
 
-displayPNPComplaints($pdo);
-?>
+        displayPNPComplaints($pdo);
+        ?>
+        </tbody>
+    </table>
 
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -279,6 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                 <hr>
                             </div>
                         `;
                     });

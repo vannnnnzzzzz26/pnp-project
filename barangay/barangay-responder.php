@@ -78,19 +78,32 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 $complaint_hearing_status = htmlspecialchars($row['hearing_history']);
 
                 echo "<tr>";
-                echo "<td>{$rowNumber}</td>"; // Display row number
-                echo "<td>{$complaint_name}</td>";
-                echo "<td><button type='button' class='btn btn-primary view-details-btn' 
-                            data-id='{$complaint_id}' data-name='{$complaint_name}' data-description='{$complaint_description}' 
-                            data-category='{$complaint_category}' data-barangay='{$complaint_barangay}' 
-                            data-contact='{$complaint_contact}' data-person='{$complaint_person}' 
-                            data-gender='{$complaint_gender}' data-birth_place='{$complaint_birth_place}' 
-                            data-age='{$complaint_age}' data-education='{$complaint_education}' 
-                            data-civil_status='{$complaint_civil_status}' data-evidence_paths='{$complaint_evidence}' 
-                            data-date_filed='{$complaint_date_filed}' data-status='{$complaint_status}' 
-                            data-hearing_history='{$complaint_hearing_status}' 
-                            data-bs-toggle='modal' data-bs-target='#complaintModal'>View Details</button></td>";
-                echo "</tr>";
+                echo "<td style='text-align: center; vertical-align: middle;'>{$rowNumber}</td>"; // Display row number centered
+                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_name}</td>"; // Align name to the left
+                echo "<td style='text-align: center; vertical-align: middle;'>
+                        <button type='button' class='btn btn-primary view-details-btn' 
+                                data-id='{$complaint_id}' 
+                                data-name='{$complaint_name}' 
+                                data-description='{$complaint_description}' 
+                                data-category='{$complaint_category}' 
+                                data-barangay='{$complaint_barangay}' 
+                                data-contact='{$complaint_contact}' 
+                                data-person='{$complaint_person}' 
+                                data-gender='{$complaint_gender}' 
+                                data-birth_place='{$complaint_birth_place}' 
+                                data-age='{$complaint_age}' 
+                                data-education='{$complaint_education}' 
+                                data-civil_status='{$complaint_civil_status}' 
+                                data-evidence_paths='{$complaint_evidence}' 
+                                data-date_filed='{$complaint_date_filed}' 
+                                data-status='{$complaint_status}' 
+                                data-hearing_history='{$complaint_hearing_status}' 
+                                data-bs-toggle='modal' data-bs-target='#complaintModal'>
+                            View Details
+                        </button>
+                      </td>"; // Align button to center
+            echo "</tr>";
+            
 
                 $rowNumber++; // Increment row number
             }
@@ -168,9 +181,9 @@ $total_pages = ceil($row['total'] / $results_per_page);
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 <style>
-    .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+.popover-content {
+    background-color: whitesmoke; 
+    
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -178,6 +191,7 @@ $total_pages = ceil($row['total'] / $results_per_page);
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+/* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
@@ -215,20 +229,7 @@ margin-left: 5rem;
             text-align: center;
         }
 
-        table {
-    table-layout: fixed;
-    width: 100%; /* Make table span the entire width */
-  }
-  th, td {
-    text-align: center; /* Align content in the center */
-    vertical-align: middle; /* Align content vertically in the middle */
-  }
-  th {
-    width: 33%; /* Set equal width for each column */
-  }
-  td {
-    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
-  }
+      
 </style>
 <body>
 
@@ -364,6 +365,18 @@ include 'complaints_viewmodal.php';
 
     
   <script>
+
+
+function getCurrentDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Set the min attribute of the date input
+    document.getElementById('hearing-date').setAttribute('min', getCurrentDate());
              document.addEventListener('DOMContentLoaded', function () {
         var profilePic = document.querySelector('.profile');
         var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
@@ -443,12 +456,18 @@ include 'complaints_viewmodal.php';
 
 
     // Handle Move to PNP button click
-    document.getElementById('moveToPnpBtn').addEventListener('click', function() {
+   
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const moveToPnpBtn = document.getElementById('moveToPnpBtn');
+    const settleInBarangayBtn = document.getElementById('settleInBarangayBtn');
+
+    moveToPnpBtn.addEventListener('click', function() {
         updateComplaintStatus('pnp');
     });
 
-    // Handle Settle in Barangay button click
-    document.getElementById('settleInBarangayBtn').addEventListener('click', function() {
+    settleInBarangayBtn.addEventListener('click', function() {
         updateComplaintStatus('settled_in_barangay');
     });
 
@@ -464,15 +483,26 @@ include 'complaints_viewmodal.php';
         })
         .then(response => response.text())
         .then(result => {
-            alert(result); // Display success or error message
-            window.location.reload(); // Reload the page to reflect changes
+            Swal.fire({
+                title: 'Success!',
+                text: result,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload(); // Reload the page to reflect changes
+            });
         })
         .catch(error => {
             console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'There was an error updating the status.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         });
     }
 });
-
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -498,12 +528,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('hearing-date').value = hearing.hearing_date || '';
                         document.getElementById('hearing-time').value = hearing.hearing_time || '';
                         document.getElementById('hearing-type').value = hearing.hearing_type || '';
-                        document.getElementById('hearing-status').value = hearing.hearing_status || '';
                     } else {
                         document.getElementById('hearing-date').value = '';
                         document.getElementById('hearing-time').value = '';
                         document.getElementById('hearing-type').value = '';
-                        document.getElementById('hearing-status').value = '';
                     }
                 })
                 .catch(error => console.error('Error fetching hearing details:', error));
@@ -584,6 +612,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                <hr>
                             </div>
                         `;
                     });

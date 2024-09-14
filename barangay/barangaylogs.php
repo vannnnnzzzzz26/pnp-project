@@ -13,13 +13,16 @@ if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
 }
 
 // Initialize user information
-$email = $_SESSION['email'] ?? '';
-$firstName = $_SESSION['first_name'] ?? '';
-$middleName = $_SESSION['middle_name'] ?? '';
-$lastName = $_SESSION['last_name'] ?? '';
-$extensionName = $_SESSION['extension_name'] ?? '';
-$barangay = $_SESSION['barangays_id'] ?? '';
-$pic_data = $_SESSION['pic_data'] ?? '';
+$firstName = $_SESSION['first_name'];
+$middleName = $_SESSION['middle_name'];
+$lastName = $_SESSION['last_name'];
+$extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+$barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
+$pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
+$birth_date = isset($_SESSION['birth_date']) ? $_SESSION['birth_date'] : '';
+$age = isset($_SESSION['age']) ? $_SESSION['age'] : '';
+$gender = isset($_SESSION['gender']) ? $_SESSION['gender'] : '';
 
 // Define pagination variables
 $results_per_page = 10; // Number of results per page
@@ -52,9 +55,8 @@ $start_from = ($page - 1) * $results_per_page;
 
 
   
-    .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+        .popover-content {
+    background-color: whitesmoke; 
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -62,9 +64,11 @@ $start_from = ($page - 1) * $results_per_page;
     overflow-y: auto; /* Add vertical scroll if needed */
 }
 
+/* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
 }
+
 
 
 .sidebar-toggler {
@@ -97,20 +101,7 @@ margin-left: 5rem;
             color: #ffffff;
             text-align: center;
         }
-        table {
-    table-layout: fixed;
-    width: 100%; /* Make table span the entire width */
-  }
-  th, td {
-    text-align: center; /* Align content in the center */
-    vertical-align: middle; /* Align content vertically in the middle */
-  }
-  th {
-    width: 33%; /* Set equal width for each column */
-  }
-  td {
-    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
-  }
+      
     </style>
 </head>
 <body>
@@ -180,13 +171,14 @@ try {
             // ... other variables you might need
 
             echo "<tr>
-                <td>{$rowNumber}</td> <!-- Display row number -->
-                <td>{$complaint_name}</td>
-                <td>{$barangay_name}</td>
-                <td>
-                    <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$row['complaints_id']})'>View Details</button>
-                </td>
-            </tr>";
+            <td style='text-align: center; vertical-align: middle;'>{$rowNumber}</td>
+            <td style='text-align: left; vertical-align: middle;'>{$complaint_name}</td>
+            <td style='text-align: left; vertical-align: middle;'>{$barangay_name}</td>
+            <td style='text-align: center; vertical-align: middle;'>
+                <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$row['complaints_id']})'>View Details</button>
+            </td>
+        </tr>";
+        
 
             $rowNumber++; // Increment row number
         }
@@ -368,6 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                 <hr>
                             </div>
                         `;
                     });

@@ -1,8 +1,6 @@
 <?php
-  include '../connection/dbconn.php'; 
+include '../connection/dbconn.php'; 
 session_start(); // Start session if not already started
-
-
 
 $firstName = $_SESSION['first_name'] ?? '';
 $middleName = $_SESSION['middle_name'] ?? '';
@@ -12,6 +10,8 @@ $email = $_SESSION['email'] ?? '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
 $pic_data = $_SESSION['pic_data'] ?? '';
 
+$successMessage = '';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] === 'add') {
     $title = $_POST['title'];
     $content = $_POST['content'];
@@ -19,31 +19,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 
     $image_path = '';
     if (!empty($_FILES['image']['name'])) {
-        $target_dir = "../uploads";
+        $target_dir = "../uploads/";
         $target_file = $target_dir . basename($_FILES["image"]["name"]);
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
         // Check if file is an actual image
         $check = getimagesize($_FILES["image"]["tmp_name"]);
-        if($check !== false) {
+        if ($check !== false) {
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
                 $image_path = $target_file;
             } else {
-                echo "Sorry, there was an error uploading your file.";
+                $errorMessage = "Sorry, there was an error uploading your file.";
             }
         } else {
-            echo "File is not an image.";
+            $errorMessage = "File is not an image.";
         }
     }
 
-    $sql = "INSERT INTO tbl_announcement (title, content, date_posted, image_path) VALUES (?, ?, ?, ?)";
-    $stmt= $pdo->prepare($sql);
-    $stmt->execute([$title, $content, $date_posted, $image_path]);
+    if (!isset($errorMessage)) {
+        $sql = "INSERT INTO tbl_announcement (title, content, date_posted, image_path) VALUES (?, ?, ?, ?)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$title, $content, $date_posted, $image_path]);
 
-    echo '<script>
-        alert("Announcement added successfully!");
-        window.location.href = "pnp-announcement.php";
-    </script>';
+        $_SESSION['successMessage'] = 'Announcement added successfully!';
+        header('Location: pnp-announcement.php'); // Redirect to prevent form resubmission
+        exit;
+    } else {
+        $_SESSION['errorMessage'] = $errorMessage;
+        header('Location: pnp-announcement.php'); // Redirect to show error message
+        exit;
+    }
 }
 
 // Fetch announcements from the database, excluding deleted ones
@@ -52,6 +57,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $announcements = $stmt->fetchAll();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -62,6 +68,9 @@ $announcements = $stmt->fetchAll();
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Include SweetAlert CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
 
@@ -172,8 +181,8 @@ include '../includes/pnp-bar.php';
                                             </div>
                                         <?php endif; ?>
                                         <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $announcement['announcement_id']; ?>">Edit</a>
-                                        <a href="delete_announcement.php?id=<?php echo $announcement['announcement_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this announcement?')">Delete</a>
-                                    </div>
+                                        <a href="#" class="btn btn-danger" onclick="confirmDelete(<?php echo $announcement['announcement_id']; ?>)">Delete</a>
+                                        </div>
                                 </div>
                             </div>
 
@@ -266,6 +275,7 @@ include '../includes/pnp-bar.php';
 
     <script src="../scripts/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
@@ -418,10 +428,89 @@ include '../includes/pnp-bar.php';
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
     }
+
+
+
+
+
+
+
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+            <?php if (isset($_SESSION['successMessage'])): ?>
+                Swal.fire({
+                    title: 'Success!',
+                    text: '<?php echo $_SESSION['successMessage']; ?>',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        <?php unset($_SESSION['successMessage']); // Clear the message ?>
+                    }
+                });
+            <?php elseif (isset($_SESSION['errorMessage'])): ?>
+                Swal.fire({
+                    title: 'Error!',
+                    text: '<?php echo $_SESSION['errorMessage']; ?>',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        <?php unset($_SESSION['errorMessage']); // Clear the message ?>
+                    }
+                });
+            <?php endif; ?>
+        });
+
+
+
+
+
+
+
+
+
+        function confirmDelete(announcementId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirect to the PHP script for deletion
+            window.location.href = `delete_announcement.php?id=${announcementId}`;
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if the query parameter `deleted` exists and is equal to `success`
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('deleted') === 'success') {
+        Swal.fire({
+            title: 'Success!',
+            text: 'Announcement deleted successfully!',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            // Remove the `deleted` query parameter from the URL
+            urlParams.delete('deleted');
+            const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+            window.history.replaceState({}, document.title, newUrl);
+        });
+    }
+});
+
    </script>
 
 </body>

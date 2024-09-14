@@ -1,16 +1,35 @@
 <?php
-// Example of returning filtered data
-echo json_encode([
-    'barangayNames' => array_column($barangayData, 'barangay_name'),
-    'complaintCounts' => array_column($barangayData, 'complaint_count'),
-    'percentages' => array_map(function($count) use ($maxComplaints) {
-        return number_format(($count / $maxComplaints * 100), 2); // Format as a percentage with 2 decimal places
-    }, array_column($barangayData, 'complaint_count')),
-    'genderLabels' => array_column($genderData, 'gender'),
-    'genderCounts' => array_column($genderData, 'gender_count'),
-    'categoryLabels' => array_column($categoryData, 'complaints_category'),
-    'categoryCounts' => array_column($categoryData, 'category_count'),
-    'maxGenderInfo' => $maxGenderInfo,
-    'maxCategoryInfo' => $maxCategoryInfo
-]);
+header('Content-Type: application/json');
+include '../connection/dbconn.php'; 
+
+try {
+    // Fetch and prepare data
+    $data = fetchDashboardData($pdo, $year, $month);
+    $barangayData = fetchComplaintsByBarangay($pdo, $year, $month);
+    $genderData = fetchGenderData($pdo, $year, $month);
+    $categoryData = fetchComplaintCategoriesData($pdo, $year, $month);
+
+    // Debugging output
+    error_log(print_r([
+        'barangayData' => $barangayData,
+        'genderData' => $genderData,
+        'categoryData' => $categoryData,
+        'totalComplaints' => $data['totalComplaints'],
+        'filedInCourt' => $data['filedInCourt'],
+        'settledInBarangay' => $data['settledInBarangay']
+    ], true));
+
+    // Send JSON response
+    echo json_encode([
+        'barangayData' => $barangayData,
+        'genderData' => $genderData,
+        'categoryData' => $categoryData,
+        'totalComplaints' => $data['totalComplaints'],
+        'filedInCourt' => $data['filedInCourt'],
+        'settledInBarangay' => $data['settledInBarangay']
+    ]);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+}
 ?>

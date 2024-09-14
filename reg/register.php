@@ -6,6 +6,12 @@ function getPostData($key) {
     return isset($_POST[$key]) ? trim($_POST[$key]) : null;
 }
 
+// Function to validate strong password
+function isStrongPassword($password) {
+    $pattern = '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+    return preg_match($pattern, $password);
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Retrieve form data
     $first_name = getPostData('first_name');
@@ -29,6 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Check if passwords match
         if ($password !== $confirm_password) {
             echo 'error_password';
+            exit;
+        }
+
+        // Check if password is strong
+        if (!isStrongPassword($password)) {
+            echo 'error_weak_password';
             exit;
         }
 
@@ -91,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -318,6 +330,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             icon: 'error',
                             title: 'Oops...',
                             text: 'All fields are required!'
+                        });
+                    } else if (result === 'error_weak_password') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Password is too weak!'
+                        });
+                    } else if (result === 'error_file_upload') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'File upload error!'
                         });
                     } else {
                         Swal.fire({

@@ -7,7 +7,7 @@
 
         <img src="../assets/logo.png" alt="Sample Image" width="4%" height="6%" style="margin-left: 1rem;">
 
-        <a class="navbar-brand" href="#">PNP Monitoring Complaints</a>
+        <a class="navbar-brand" href="#">Barangay Complaints</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

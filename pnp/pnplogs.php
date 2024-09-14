@@ -48,8 +48,10 @@ function displayComplaintDetails($pdo, $search_query, $start_from, $results_per_
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) {
-            echo "<tr><td colspan='3'>No complaints found.</td></tr>";
+            echo "<tr><td colspan='4'>No complaints found.</td></tr>";
         } else {
+            $row_number = $start_from + 1; // Start numbering from the current page
+
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 // Display complaint details
                 $complaint_id = htmlspecialchars($row['complaints_id']);
@@ -57,14 +59,19 @@ function displayComplaintDetails($pdo, $search_query, $start_from, $results_per_
                 $barangay_name = htmlspecialchars($row['barangay_name']);
 
                 echo "<tr>";
-                echo "<td>{$complaint_name}</td>";
-                echo "<td>{$barangay_name}</td>";
-                echo "<td><button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button></td>";
+                echo "<td class='align-middle'>{$row_number}</td>"; // Row number aligned vertically
+                echo "<td class='align-middle'>{$complaint_name}</td>"; // Complaint Name aligned
+                echo "<td class='align-middle'>{$barangay_name}</td>"; // Barangay Name aligned
+                echo "<td '>
+                        <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button>
+                      </td>"; // Button aligned in the center
                 echo "</tr>";
+
+                $row_number++; // Increment row number
             }
         }
     } catch (PDOException $e) {
-        echo "<tr><td colspan='3'>Error fetching PNP complaints logs: " . $e->getMessage() . "</td></tr>";
+        echo "<tr><td colspan='4'>Error fetching PNP complaints logs: " . $e->getMessage() . "</td></tr>";
     }
 }
 
@@ -143,22 +150,9 @@ margin-left: 5rem;
             background-color: #082759;
 
             color: #ffffff;
-            text-align: center;
+           ;
         }
-        table {
-    table-layout: fixed;
-    width: 100%; /* Make table span the entire width */
-  }
-  th, td {
-    text-align: center; /* Align content in the center */
-    vertical-align: middle; /* Align content vertically in the middle */
-  }
-  th {
-    width: 33%; /* Set equal width for each column */
-  }
-  td {
-    word-wrap: break-word; /* Ensure long text breaks to fit in cells */
-  }
+     
     </style>
 <body>
 <?php 
@@ -169,30 +163,30 @@ include '../includes/pnp-bar.php';
 
     <!-- Page Content -->
     <div class="content">
-        <div class="container">
-            <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
-            
-            <!-- Search Form -->
-           
-            <div class="table">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Barangay</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                                    displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page);
+    <div class="container">
+        <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
 
-                        ?>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Search Form -->
+
+        <div class="table">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th> <!-- Added column for numbering -->
+                        <th>Name</th>
+                        <th>Barangay</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                        displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page);
+                    ?>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
 
     <nav>
@@ -425,6 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                 <hr>
                             </div>
                         `;
                     });

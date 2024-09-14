@@ -328,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
     Date: ${notification.hearing_date}<br>
     Time: ${notification.hearing_time}<br>
     Hearing Status: ${notification.hearing_status}
+     <hr>
 </div>
 
                         `;

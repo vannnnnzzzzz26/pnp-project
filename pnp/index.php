@@ -1,6 +1,6 @@
 <?php
 
-include './connection/dbconn.php';
+include '../connection/dbconn.php'; 
 session_start();
 
 // Initialize the $announcements variable as an empty array
@@ -133,7 +133,9 @@ margin-left: 5rem;
 <body>
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#">PNP Monitoring Complaints</a>
+                    <img src="../assets/pnp.png" alt="Sample Image" width="4%" height="6%" style="margin-left: 1rem;">
+
+            <a class="navbar-brand" href="#">Homepage</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -143,7 +145,7 @@ margin-left: 5rem;
                         <a class="nav-link" href="#"><i class="bi bi-house-door"></i> Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="reg/login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        <a class="nav-link" href="../reg/login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                     </li>
                 </ul>
             </div>

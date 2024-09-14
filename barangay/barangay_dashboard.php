@@ -1,9 +1,8 @@
 <?php
-session_start(); // Start the session
+session_start();
+include '../connection/dbconn.php';
 
-include '../connection/dbconn.php'; 
-
-// Session variables
+// Fetch user information from session
 $firstName = $_SESSION['first_name'] ?? '';
 $middleName = $_SESSION['middle_name'] ?? '';
 $lastName = $_SESSION['last_name'] ?? '';
@@ -12,113 +11,174 @@ $email = $_SESSION['email'] ?? '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
 $pic_data = $_SESSION['pic_data'] ?? '';
 
-// Fetch the dashboard data
-function fetchDashboardData($pdo, $userBarangayName) {
+// Get filters from GET request
+$year = isset($_GET['year']) ? intval($_GET['year']) : '';
+$month = isset($_GET['month']) ? intval($_GET['month']) : '';
+
+// Function to fetch dashboard data
+function fetchDashboardData($pdo, $year, $month) {
     try {
-        // Fetch Settled in Barangay
-        $stmtSettledBarangay = $pdo->prepare("
-            SELECT COUNT(*) AS settled_in_barangay 
-            FROM tbl_complaints c
-            JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            WHERE c.status = 'settled_in_barangay' 
-            AND c.responds = 'barangay'
-            AND ub.barangay_name = :barangay_name
-        ");
-        $stmtSettledBarangay->bindParam(':barangay_name', $userBarangayName);
-        $stmtSettledBarangay->execute();
+        $dateConditions = [];
+        $paramsTotal = [];
+        $paramsSettledBarangay = [];
+        $paramsRejected = [];
+
+        if ($year) {
+            $dateConditions[] = "YEAR(c.date_filed) = ?";
+            $paramsTotal[] = $year;
+            $paramsSettledBarangay[] = $year;
+            $paramsRejected[] = $year;
+        }
+
+        if ($month) {
+            $dateConditions[] = "MONTH(c.date_filed) = ?";
+            $paramsTotal[] = $month;
+            $paramsSettledBarangay[] = $month;
+            $paramsRejected[] = $month;
+        }
+
+        $dateSql = $dateConditions ? implode(' AND ', $dateConditions) : '';
+
+        // Fetch total complaints
+        $whereSql = $dateSql ? 'WHERE ' . $dateSql : '';
+        $stmtTotal = $pdo->prepare("SELECT COUNT(*) AS total_complaints FROM tbl_complaints c $whereSql");
+        $stmtTotal->execute($paramsTotal);
+        $totalComplaints = $stmtTotal->fetchColumn();
+
+        // Fetch settled in Barangay
+        $additionalWhere = $dateSql ? ' AND ' . $dateSql : '';
+        $stmtSettledBarangay = $pdo->prepare("SELECT COUNT(*) AS settled_in_barangay FROM tbl_complaints c WHERE c.status = 'settled_in_barangay' AND c.responds = 'barangay' $additionalWhere");
+        $stmtSettledBarangay->execute($paramsSettledBarangay);
         $settledInBarangay = $stmtSettledBarangay->fetchColumn();
 
-        // Fetch Rejected in Barangay
-        $stmtRejectedBarangay = $pdo->prepare("
-            SELECT COUNT(*) AS Rejected 
-            FROM tbl_complaints c
-            JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            WHERE c.status = 'rejected' 
-            AND c.responds = 'barangay'
-            AND ub.barangay_name = :barangay_name
-        ");
-        $stmtRejectedBarangay->bindParam(':barangay_name', $userBarangayName);
-        $stmtRejectedBarangay->execute();
-        $rejectedInBarangay = $stmtRejectedBarangay->fetchColumn();
+        // Fetch rejected complaints
+        $stmtRejected = $pdo->prepare("SELECT COUNT(*) AS rejected FROM tbl_complaints c WHERE c.status = 'rejected' $additionalWhere");
+        $stmtRejected->execute($paramsRejected);
+        $rejected = $stmtRejected->fetchColumn();
 
         return [
+            'totalComplaints' => $totalComplaints,
             'settledInBarangay' => $settledInBarangay,
-            'rejectedInBarangay' => $rejectedInBarangay
+            'rejected' => $rejected
         ];
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [
-            'settledInBarangay' => 0,
-            'rejectedInBarangay' => 0
-        ];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
+$data = fetchDashboardData($pdo, $year, $month);
+
 // Fetch complaints by barangay data
-function fetchComplaintsByBarangay($pdo, $userBarangayName) {
+function fetchComplaintsByBarangay($pdo, $year, $month) {
     try {
+        $whereClauses = [];
+        $params = [];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(c.date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(c.date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
         $stmt = $pdo->prepare("
             SELECT ub.barangay_name, COUNT(c.complaints_id) AS complaint_count
             FROM tbl_complaints c
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            WHERE ub.barangay_name = :barangay_name
+            $whereSql
             GROUP BY ub.barangay_name
         ");
-        $stmt->bindParam(':barangay_name', $userBarangayName);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-// Fetch gender data specific to the user's barangay
-function fetchGenderData($pdo, $userBarangayName) {
+$barangayData = fetchComplaintsByBarangay($pdo, $year, $month);
+
+// Fetch gender data
+function fetchGenderData($pdo, $year, $month, $barangay_name) {
     try {
+        $whereClauses = [];
+        $params = [$barangay_name];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(c.date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(c.date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'AND ' . implode(' AND ', $whereClauses) : '';
+
         $stmt = $pdo->prepare("
-            SELECT ti.gender, COUNT(ti.info_id) AS gender_count
-            FROM tbl_info ti
-            JOIN tbl_complaints c ON ti.info_id = c.info_id
+            SELECT i.gender, COUNT(i.info_id) AS gender_count
+            FROM tbl_complaints c
+            JOIN tbl_info i ON c.info_id = i.info_id
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            WHERE ub.barangay_name = :barangay_name
-            GROUP BY ti.gender
+            WHERE ub.barangay_name = ?
+            $whereSql
+            GROUP BY i.gender
         ");
-        $stmt->bindParam(':barangay_name', $userBarangayName);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-// Fetch complaint categories data specific to the user's barangay
-function fetchComplaintCategoriesData($pdo, $userBarangayName) {
+$genderData = fetchGenderData($pdo, $year, $month, $barangay_name);
+
+// Fetch complaint categories data
+function fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name) {
     try {
+        $whereClauses = [];
+        $params = [$barangay_name];
+
+        if ($year) {
+            $whereClauses[] = "YEAR(c.date_filed) = ?";
+            $params[] = $year;
+        }
+
+        if ($month) {
+            $whereClauses[] = "MONTH(c.date_filed) = ?";
+            $params[] = $month;
+        }
+
+        $whereSql = $whereClauses ? 'AND ' . implode(' AND ', $whereClauses) : '';
+
         $stmt = $pdo->prepare("
             SELECT cc.complaints_category, COUNT(c.complaints_id) AS category_count
             FROM tbl_complaints c
             JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            WHERE ub.barangay_name = :barangay_name
+            WHERE ub.barangay_name = ?
+            $whereSql
             GROUP BY cc.complaints_category
         ");
-        $stmt->bindParam(':barangay_name', $userBarangayName);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 }
 
-// Fetch data with the user's barangay name
-$data = fetchDashboardData($pdo, $barangay_name);
-$barangayData = fetchComplaintsByBarangay($pdo, $barangay_name);
-$genderData = fetchGenderData($pdo, $barangay_name); // Updated to use the user's barangay
-$categoryData = fetchComplaintCategoriesData($pdo, $barangay_name); // Updated to use the user's barangay
+$categoryData = fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -186,8 +246,8 @@ $categoryData = fetchComplaintCategoriesData($pdo, $barangay_name); // Updated t
 
 
         .popover-content {
-    background-color: #343a40; /* Dark background to contrast with white */
-    color: #ffffff; /* White text color */
+    background-color: whitesmoke; 
+  
     padding: 10px; /* Add some padding */
     border: 1px solid #495057; /* Optional: border for better visibility */
     border-radius: 5px; /* Optional: rounded corners */
@@ -198,8 +258,8 @@ $categoryData = fetchComplaintCategoriesData($pdo, $barangay_name); // Updated t
 /* Adjust the arrow for the popover to ensure it points correctly */
 .popover .popover-arrow {
     border-top-color: #343a40; /* Match the background color */
-}  
-        
+}
+
 .sidebar-toggler {
     display: flex;
     align-items: center;
@@ -242,7 +302,7 @@ include '../includes/edit-profile.php';
         <div class="card-container">
           
             <div class="card">
-                <h2><?php echo htmlspecialchars($data['rejectedInBarangay']); ?></h2>
+                <h2><?php echo htmlspecialchars($data['rejected']); ?></h2>
                 <p>reject</p>
             </div>
             <div class="card">
@@ -253,34 +313,69 @@ include '../includes/edit-profile.php';
        
 <div class="container mt-4">
     <h1>Dashboard</h1>
+
+
+    <form method="GET" action="">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="year">Select Year</label>
+                <select name="year" id="year" class="form-control">
+                    <option value="">All Years</option>
+                    <?php
+                    $currentYear = date('Y');
+                    for ($i = $currentYear; $i >= 2000; $i--) {
+                        $selected = ($i == $year) ? 'selected' : '';
+                        echo "<option value='$i' $selected>$i</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="month">Select Month</label>
+                <select name="month" id="month" class="form-control">
+                    <option value="">All Months</option>
+                    <?php
+                    for ($m = 1; $m <= 12; $m++) {
+                        $monthName = date('F', mktime(0, 0, 0, $m, 10));
+                        $selected = ($m == $month) ? 'selected' : '';
+                        echo "<option value='$m' $selected>$monthName</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>&nbsp;</label><br>
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
     
-    <!-- Second Row: Gender and Most Complaints Report side by side -->
-    <div class="row">
+        <div class="row mb-4">
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h2>Gender</h2>
-                    <div class="chart-container">
+                    <div class="chart-container d-flex justify-content-center align-items-center" style="height: 300px;">
+                        
                         <canvas id="genderChart"></canvas>
                     </div>
                     <div class="analytics-info mt-3">
                         <h4>Highest Gender Count:</h4>
-                        <p id="genderMaxInfo"></p> <!-- Placeholder for highest gender data -->
+                        <p class="" id="genderMaxInfo"></p>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h2>Most Complaints Report</h2>
-                    <div class="chart-container">
-                        <canvas id="categoryChart"></canvas>
+                    <h2>Complaint Categories</h2>
+                    <div class="chart-container d-flex justify-content-center align-items-center" style="height: 300px;">
+                    <canvas id="categoryChart"></canvas>
                     </div>
                     <div class="analytics-info mt-3">
-                        <h4>Category with Most Complaints:</h4>
-                        <p id="categoryMaxInfo"></p> <!-- Placeholder for highest category data -->
+                        <h4>Highest Complaints  Count:</h4>
+                        <p id="categoryMaxInfo"></p>
                     </div>
                 </div>
             </div>
@@ -308,16 +403,17 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+ 
     // Gender Chart
     var ctxGender = document.getElementById('genderChart').getContext('2d');
     var genderDataValues = <?php echo json_encode(array_column($genderData, 'gender_count')); ?>;
     var genderDataLabels = <?php echo json_encode(array_column($genderData, 'gender')); ?>;
-    var totalGenderCount = genderDataValues.reduce((a, b) => a + b, 0);
+    var totalGenderCount = genderDataValues.reduce((a, b) => a + b, 0); // Total count of genders
 
     var genderChart = new Chart(ctxGender, {
         type: 'doughnut',
         data: {
-            labels: genderDataLabels.map((label, index) => `${label} (${((genderDataValues[index] / totalGenderCount) * 100).toFixed(1)}%)`),
+            labels: genderDataLabels.map((label, index) => `${label} (${((genderDataValues[index] / totalGenderCount) * 100).toFixed(1)}%)`), // Add percentages to labels
             datasets: [{
                 data: genderDataValues,
                 backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
@@ -330,35 +426,37 @@ document.addEventListener('DOMContentLoaded', function() {
             cutout: '50%',
             plugins: {
                 legend: {
-                    display: true // Show the legend if needed
+                    display: false // Hide the legend if needed
                 }
             }
         }
     });
 
+    // Find the highest value in gender data
     var maxGenderValue = Math.max(...genderDataValues);
     var maxGenderIndex = genderDataValues.indexOf(maxGenderValue);
     document.getElementById('genderMaxInfo').textContent = `${genderDataLabels[maxGenderIndex]}: ${((maxGenderValue / totalGenderCount) * 100).toFixed(1)}%`;
 
-    // Category Chart
+    // Most Complaints Report (Category Chart)
     var ctxCategory = document.getElementById('categoryChart').getContext('2d');
     var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
     var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
-    var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0);
+    var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0); // Total count of complaints in categories
 
     var categoryChart = new Chart(ctxCategory, {
-        type: 'pie',
+        type: 'pie', // Changed to pie chart
         data: {
-            labels: categoryDataLabels.map((label, index) => `${label} (${((categoryDataValues[index] / totalCategoryCount) * 100).toFixed(1)}%)`),
+            labels: categoryDataLabels.map((label, index) => `${label} (${((categoryDataValues[index] / totalCategoryCount) * 100).toFixed(1)}%)`), // Add percentages to labels
             datasets: [{
+                label: '', // Removed the dataset label
                 data: categoryDataValues,
                 backgroundColor: [
-                    '#4e73df', 
-                    '#1cc88a', 
-                    '#36b9cc', 
-                    '#f6c23e', 
-                    '#e74a3b', 
-                    '#5a5c69'  
+                    '#4e73df', // Blue
+                    '#1cc88a', // Green
+                    '#36b9cc', // Light Blue
+                    '#f6c23e', // Yellow
+                    '#e74a3b', // Red
+                    '#5a5c69'  // Gray
                 ],
                 borderColor: '#fff',
                 borderWidth: 1
@@ -368,17 +466,20 @@ document.addEventListener('DOMContentLoaded', function() {
             responsive: true,
             plugins: {
                 legend: {
-                    display: false,
-                    position: 'top'
+                    display: false, // Display the legend
+                    position: 'top' // Position the legend at the top
                 }
             }
         }
     });
 
+    // Find the highest value in category data
     var maxCategoryValue = Math.max(...categoryDataValues);
     var maxCategoryIndex = categoryDataValues.indexOf(maxCategoryValue);
     document.getElementById('categoryMaxInfo').textContent = `${categoryDataLabels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
 });
+
+
 function confirmLogout() {
     Swal.fire({
         title: "Are you sure?",
@@ -402,10 +503,10 @@ function confirmLogout() {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@latest/dist/chartjs-plugin-datalabels.min.js"></script>
+
 
     <script src="../scripts/script.js"></script>
 

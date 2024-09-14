@@ -48,7 +48,7 @@
 
         <li class="nav-item">
             <a class="nav-link" href="barangay_dashboard.php">
-                <i class="bi bi-person large-icon"></i><span class="nav-text">dasboard</span>
+                <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>
             </a>
         </li>
      

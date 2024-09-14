@@ -314,7 +314,7 @@ include '../includes/edit-profile.php';
               <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
             </div>
             <div class="col-lg-6 col-md-12 form-group">
-              <label for="complaints_person">Person Complained Against:</label>
+              <label for="complaints_person">Involved:</label>
               <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
             </div>
           </div>
@@ -466,22 +466,25 @@ include '../includes/edit-profile.php';
                 }
             });
 
-            // Age calculation based on birth date
             document.getElementById('birth_date').addEventListener('change', function() {
-                var birthDate = new Date(this.value);
-                var today = new Date();
-                var age = today.getFullYear() - birthDate.getFullYear();
-                var monthDifference = today.getMonth() - birthDate.getMonth();
-                
-                // Adjust the age if the birthday hasn't occurred yet this year
-                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
+    var birthDate = new Date(this.value);
+    var today = new Date();
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var monthDifference = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust the age if the birthday hasn't occurred yet this year
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
 
-                // Set the calculated age
-                document.getElementById('age').value = age;
-            });
-
+    if (age < 18) {
+        alert("Age must be 18 or above.");
+        this.value = ''; // Clear the birth date field
+        document.getElementById('age').value = ''; // Clear the age field
+    } else {
+        document.getElementById('age').value = age; // Set the calculated age
+    }
+});
 
 
 
@@ -543,6 +546,7 @@ include '../includes/edit-profile.php';
     Date: ${notification.hearing_date}<br>
     Time: ${notification.hearing_time}<br>
     Hearing Status: ${notification.hearing_status}
+     <hr>
 </div>
 
                         `;

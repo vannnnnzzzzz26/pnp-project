@@ -1,8 +1,8 @@
 <?php
 session_start();
+include '../connection/dbconn.php';
 
-include '../connection/dbconn.php'; 
-
+// Fetch user information from session
 $firstName = $_SESSION['first_name'] ?? '';
 $middleName = $_SESSION['middle_name'] ?? '';
 $lastName = $_SESSION['last_name'] ?? '';
@@ -11,40 +11,49 @@ $email = $_SESSION['email'] ?? '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
 $pic_data = $_SESSION['pic_data'] ?? '';
 
+// Get filters from GET request
 $year = isset($_GET['year']) ? intval($_GET['year']) : '';
 $month = isset($_GET['month']) ? intval($_GET['month']) : '';
 
-// Fetch the dashboard data with filters
+// Function to fetch dashboard data
 function fetchDashboardData($pdo, $year, $month) {
     try {
-        $whereClauses = [];
-        $params = [];
+        $dateConditions = [];
+        $paramsTotal = [];
+        $paramsFiledCourt = [];
+        $paramsSettledBarangay = [];
 
         if ($year) {
-            $whereClauses[] = "YEAR(date_filed) = ?";
-            $params[] = $year;
+            $dateConditions[] = "YEAR(c.date_filed) = ?";
+            $paramsTotal[] = $year;
+            $paramsFiledCourt[] = $year;
+            $paramsSettledBarangay[] = $year;
         }
 
         if ($month) {
-            $whereClauses[] = "MONTH(date_filed) = ?";
-            $params[] = $month;
+            $dateConditions[] = "MONTH(c.date_filed) = ?";
+            $paramsTotal[] = $month;
+            $paramsFiledCourt[] = $month;
+            $paramsSettledBarangay[] = $month;
         }
 
-        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+        $dateSql = $dateConditions ? implode(' AND ', $dateConditions) : '';
 
         // Fetch total complaints
-        $stmtTotal = $pdo->prepare("SELECT COUNT(*) AS total_complaints FROM tbl_complaints $whereSql");
-        $stmtTotal->execute($params);
+        $whereSql = $dateSql ? 'WHERE ' . $dateSql : '';
+        $stmtTotal = $pdo->prepare("SELECT COUNT(*) AS total_complaints FROM tbl_complaints c $whereSql");
+        $stmtTotal->execute($paramsTotal);
         $totalComplaints = $stmtTotal->fetchColumn();
 
         // Fetch Filed in the Court
-        $stmtFiledCourt = $pdo->prepare("SELECT COUNT(*) AS filed_in_court FROM tbl_complaints WHERE status = 'Filed in the Court' AND responds = 'pnp' $whereSql");
-        $stmtFiledCourt->execute($params);
+        $additionalWhere = $dateSql ? ' AND ' . $dateSql : '';
+        $stmtFiledCourt = $pdo->prepare("SELECT COUNT(*) AS filed_in_court FROM tbl_complaints c WHERE c.status = 'Filed in the Court' AND c.responds = 'pnp' $additionalWhere");
+        $stmtFiledCourt->execute($paramsFiledCourt);
         $filedInCourt = $stmtFiledCourt->fetchColumn();
 
         // Fetch settled in Barangay
-        $stmtSettledBarangay = $pdo->prepare("SELECT COUNT(*) AS settled_in_barangay FROM tbl_complaints WHERE status = 'settled_in_barangay' AND responds = 'barangay' $whereSql");
-        $stmtSettledBarangay->execute($params);
+        $stmtSettledBarangay = $pdo->prepare("SELECT COUNT(*) AS settled_in_barangay FROM tbl_complaints c WHERE c.status = 'settled_in_barangay' AND c.responds = 'barangay' $additionalWhere");
+        $stmtSettledBarangay->execute($paramsSettledBarangay);
         $settledInBarangay = $stmtSettledBarangay->fetchColumn();
 
         return [
@@ -60,7 +69,7 @@ function fetchDashboardData($pdo, $year, $month) {
 
 $data = fetchDashboardData($pdo, $year, $month);
 
-// Fetch complaints by barangay data with filters
+// Fetch complaints by barangay data
 function fetchComplaintsByBarangay($pdo, $year, $month) {
     try {
         $whereClauses = [];
@@ -95,7 +104,7 @@ function fetchComplaintsByBarangay($pdo, $year, $month) {
 
 $barangayData = fetchComplaintsByBarangay($pdo, $year, $month);
 
-// Fetch gender data with filters
+// Fetch gender data
 function fetchGenderData($pdo, $year, $month) {
     try {
         $whereClauses = [];
@@ -111,13 +120,13 @@ function fetchGenderData($pdo, $year, $month) {
             $params[] = $month;
         }
 
-        $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+        $whereSql = $whereClauses ? 'AND ' . implode(' AND ', $whereClauses) : '';
 
         $stmt = $pdo->prepare("
             SELECT i.gender, COUNT(i.info_id) AS gender_count
             FROM tbl_complaints c
             JOIN tbl_info i ON c.info_id = i.info_id
-            $whereSql
+            WHERE 1=1 $whereSql
             GROUP BY i.gender
         ");
         $stmt->execute($params);
@@ -130,7 +139,7 @@ function fetchGenderData($pdo, $year, $month) {
 
 $genderData = fetchGenderData($pdo, $year, $month);
 
-// Fetch complaint categories data with filters
+// Fetch complaint categories data
 function fetchComplaintCategoriesData($pdo, $year, $month) {
     try {
         $whereClauses = [];
@@ -164,17 +173,8 @@ function fetchComplaintCategoriesData($pdo, $year, $month) {
 }
 
 $categoryData = fetchComplaintCategoriesData($pdo, $year, $month);
-
-$maxComplaints = max(array_column($barangayData, 'complaint_count')) ?: 1; // Avoid division by zero
-
-$maxGenderInfo = "Placeholder for max gender info"; // Replace with actual logic
-$maxCategoryInfo = "Placeholder for max category info"; // Replace with actual logic
-
-// Return JSON data
-
-  
-
 ?>
+
 
 
 
@@ -284,89 +284,96 @@ include '../includes/pnp-bar.php';
 
 
 <div class="content">
-        <h1>Dashboard</h1>
-        <div class="card-container">
+     <center> <h1>Dashboard</h1></center>
+
+     <div class="row">
+        <div class="col-4">
         <div class="card">
-    <i class="bi bi-file-earmark-text"></i>
+    <i class="bi bi-file-earmark-text" style="font-size:50px;"></i>
     <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
     <p>Total Complaints</p>
 </div>
-<div class="card">
-    <i class="bi bi-journal-check"></i>
+        </div>
+        <div class="col-4">
+        <div class="card">
+    <i class="bi bi-journal-check" style="font-size:50px;"></i>
     <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
     <p>Filed in the Court</p>
 </div>
-<div class="card">
-    <i class="bi bi-house-door"></i>
+        </div>
+        <div class="col-4">
+        <div class="card">
+    <i class="bi bi-house-door" style="font-size:50px;"></i>
     <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
     <p>Settled in Barangay</p>
 </div>
-
-    </div>
-        <div class="container mt-4">
-    <h1>Dashboard</h1>
-    
-
-    <!-- Dropdowns for filtering -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <label for="yearFilter">Select Year:</label>
-            <select id="yearFilter" class="form-control">
-                <!-- Populate years dynamically from PHP -->
-                <?php
-                // Example to populate years
-                $years = range(date('Y') - 5, date('Y')); // Last 5 years
-                foreach ($years as $year) {
-                    echo "<option value='$year'>$year</option>";
-                }
-                ?>
-            </select>
         </div>
-        <div class="col-md-6">
-            <label for="monthFilter">Select Month:</label>
-            <select id="monthFilter" class="form-control">
-                <option value="">All Months</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-            </select>
-        </div>
-    </div>
+     </div>
 
-    <!-- Existing content -->
+     <div class="container mt-4">
+    <!-- Filter Form -->
+    <form method="GET" action="">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="year">Select Year</label>
+                <select name="year" id="year" class="form-control">
+                    <option value="">All Years</option>
+                    <?php
+                    $currentYear = date('Y');
+                    for ($i = $currentYear; $i >= 2000; $i--) {
+                        $selected = ($i == $year) ? 'selected' : '';
+                        echo "<option value='$i' $selected>$i</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="month">Select Month</label>
+                <select name="month" id="month" class="form-control">
+                    <option value="">All Months</option>
+                    <?php
+                    for ($m = 1; $m <= 12; $m++) {
+                        $monthName = date('F', mktime(0, 0, 0, $m, 10));
+                        $selected = ($m == $month) ? 'selected' : '';
+                        echo "<option value='$m' $selected>$monthName</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>&nbsp;</label><br>
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Complaints by Barangay Chart -->
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <h2>Complaints by Barangay</h2>
-                    <div class="charts-container">
-                        <canvas id="barangayChartSmall"></canvas>
+                    <div class="chart-container d-flex justify-content-center align-items-center" style="height: 30rem;">
+                    <canvas id="barangayChartSmall"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <!-- Gender and Category Charts -->
+    <div class="row mb-4">
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h2>Gender</h2>
-                    <div class="chart-container">
+                    <div class="chart-container d-flex justify-content-center align-items-center" style="height: 300px;">
+                        
                         <canvas id="genderChart"></canvas>
                     </div>
                     <div class="analytics-info mt-3">
                         <h4>Highest Gender Count:</h4>
-                        <p id="genderMaxInfo"></p>
+                        <p class="" id="genderMaxInfo"></p>
                     </div>
                 </div>
             </div>
@@ -375,12 +382,12 @@ include '../includes/pnp-bar.php';
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h2>Most Complaints Report</h2>
-                    <div class="chart-container">
-                        <canvas id="categoryChart"></canvas>
+                    <h2>Complaint Categories</h2>
+                    <div class="chart-container d-flex justify-content-center align-items-center" style="height: 300px;">
+                    <canvas id="categoryChart"></canvas>
                     </div>
                     <div class="analytics-info mt-3">
-                        <h4>Category with Most Complaints:</h4>
+                        <h4>Highest Complaints  Count:</h4>
                         <p id="categoryMaxInfo"></p>
                     </div>
                 </div>
@@ -388,6 +395,7 @@ include '../includes/pnp-bar.php';
         </div>
     </div>
 </div>
+
 
 
        
@@ -639,6 +647,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                 <hr>
                             </div>
                         `;
                     });
