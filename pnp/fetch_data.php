@@ -4,21 +4,12 @@ include '../connection/dbconn.php';
 
 try {
     // Fetch and prepare data
-    $data = fetchDashboardData($pdo, $year, $month);
+    $data = fetchDashboardData($pdo, $year, $month ,  $month_from, $month_to);
     $barangayData = fetchComplaintsByBarangay($pdo, $year, $month);
-    $genderData = fetchGenderData($pdo, $year, $month);
-    $categoryData = fetchComplaintCategoriesData($pdo, $year, $month);
+    $genderData = fetchGenderData($pdo, $year, $month,$month_from, $month_to);
+    $categoryData = fetchComplaintCategoriesData($pdo, $year, $month,$month_from, $month_to);
 
-    // Debugging output
-    error_log(print_r([
-        'barangayData' => $barangayData,
-        'genderData' => $genderData,
-        'categoryData' => $categoryData,
-        'totalComplaints' => $data['totalComplaints'],
-        'filedInCourt' => $data['filedInCourt'],
-        'settledInBarangay' => $data['settledInBarangay']
-    ], true));
-
+    
     // Send JSON response
     echo json_encode([
         'barangayData' => $barangayData,
@@ -26,6 +17,7 @@ try {
         'categoryData' => $categoryData,
         'totalComplaints' => $data['totalComplaints'],
         'filedInCourt' => $data['filedInCourt'],
+        'Rejected' => $data['Rejected'],
         'settledInBarangay' => $data['settledInBarangay']
     ]);
 } catch (Exception $e) {

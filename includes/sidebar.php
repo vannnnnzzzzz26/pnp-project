@@ -1,3 +1,6 @@
+<div class="container-fluid d-flex">
+
+ 
  <div  style="margin-top: 5rem;" class="sidebar" id="sidebar">
         <!-- Toggle button inside sidebar -->
        
@@ -34,7 +37,7 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" href="barangaylogs.php">
-            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Histrory</span>
+            <i class="bi bi-file-earmark-check-fill large-icon"></i><span class="nav-text">Complaints Histrory</span>
             </a>
         </li>
 

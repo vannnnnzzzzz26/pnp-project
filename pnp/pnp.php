@@ -85,7 +85,7 @@ include '../includes/pnp-nav.php';
 
 ?>
 
-    <div class="content">
+  <center>  <div class="content">
         <div class="container">
             <h2 class="mt-3 mb-4">PNP Complaints</h2>
             <div class="table">
@@ -176,7 +176,7 @@ include '../includes/pnp-nav.php';
         </div>
     </div>
 
-
+  </center>
 
 
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -547,6 +547,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                <hr>
                             </div>
 
 

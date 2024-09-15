@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// Get session values
 $firstName = $_SESSION['first_name'] ?? '';
 $middleName = $_SESSION['middle_name'] ?? '';
 $lastName = $_SESSION['last_name'] ?? '';
@@ -12,13 +13,13 @@ $pic_data = $_SESSION['pic_data'] ?? '';
 // Include database connection file
 include '../connection/dbconn.php';
 
-// Check if barangay_name is not set but barangays_id is set
+// Check if barangay_name is not set, attempt to fetch using barangays_id
 if (empty($barangay_name) && isset($_SESSION['barangays_id'])) {
     try {
         $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
         $stmt->execute([$_SESSION['barangays_id']]);
         $barangay_name = $stmt->fetchColumn();
-        
+
         if ($barangay_name) {
             $_SESSION['barangay_name'] = $barangay_name;
         } else {
@@ -32,28 +33,29 @@ if (empty($barangay_name) && isset($_SESSION['barangays_id'])) {
     }
 }
 
-// Ensure barangay_name and barangays_id are set
-if (empty($barangay_name) || !isset($_SESSION['barangays_id'])) {
-    $_SESSION['error'] = "Barangay name or ID is not set in the session.";
+// Ensure barangay_name is set
+if (empty($barangay_name)) {
+    $_SESSION['error'] = "Barangay name is not set in the session.";
     header("Location: login.php");
     exit();
 }
 
-// Fetch officials data from the database for the specific barangay, excluding deleted officials
+// Fetch officials data from the database using barangay_name only, excluding deleted officials
 try {
     $stmt = $pdo->prepare("
         SELECT o.* 
         FROM tbl_brg_official o
         JOIN tbl_users_barangay b ON o.barangays_id = b.barangays_id
-        WHERE b.barangay_name = ? AND o.barangays_id = ? AND o.is_deleted = 0
+        WHERE b.barangay_name = ? AND o.is_deleted = 0
     ");
-    $stmt->execute([$barangay_name, $_SESSION['barangays_id']]);
+    $stmt->execute([$barangay_name]);
     $officials = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "Error fetching officials: " . htmlspecialchars($e->getMessage());
     exit();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -115,7 +117,6 @@ try {
 
 .navbar-brand{
 color: whitesmoke;
-margin-left: 5rem;
 }
     </style>
 </head>
@@ -125,9 +126,10 @@ include '../includes/resident-nav.php';
 include '../includes/resident-bar.php';
 ?>
 
-<div class="content">
+<center><div class="content">
     <div class="container mt-5">
         <h4 class="mb-4">Officials List</h4>
+
         <div class="table">
             <table class="table table-striped table-bordered">
                 <thead>
@@ -173,7 +175,7 @@ include '../includes/resident-bar.php';
         </div>
     </div>
 </div>
-
+</center>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>

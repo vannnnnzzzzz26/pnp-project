@@ -30,7 +30,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pnplogs.php">
-                    <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints History</span>
+                    <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints History</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -38,7 +38,7 @@
 
                 <li class="nav-item">
                 <a class="nav-link" href="pnp-announcement.php">
-                    <i class="bi bi-check-square-fill large-iconn"></i><span class="nav-text">Announcements</span>
+                    <i class="bi bi-card-text large-icon"></i><span class="nav-text">Announcements</span>
                 </a>
             </li>
             <li class="nav-item">

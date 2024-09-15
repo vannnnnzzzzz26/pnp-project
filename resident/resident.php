@@ -173,10 +173,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 .navbar-brand{
 color: whitesmoke;
-margin-left: 5rem;
 }
 
-
+.sidebar.collapsed {
+    width: 80px; /* Width when collapsed */
+}
+.content {
+    margin-left: 250px; /* Same as initial width of the sidebar */
+    transition: margin-left 0.3s ease;
+    padding: 20px; /* Adjust padding as needed */
+    width: 80%; /* Calculate remaining width */
+}
+.content.expanded {
+    margin-left: 75px; /* Adjust content margin when sidebar expands */
+}
 
 
 

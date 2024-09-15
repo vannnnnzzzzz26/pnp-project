@@ -162,8 +162,8 @@ include '../includes/pnp-bar.php';
 ?>
 
     <!-- Page Content -->
-    <div class="content">
-    <div class="container">
+    <center><div class="content">
+  
         <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
 
         <!-- Search Form -->
@@ -249,7 +249,7 @@ include '../includes/pnp-bar.php';
 </div>
 
 
-
+    </center>
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

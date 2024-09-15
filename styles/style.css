@@ -22,11 +22,12 @@
     margin-left: 250px; /* Same as initial width of the sidebar */
     transition: margin-left 0.3s ease;
     padding: 20px; /* Adjust padding as needed */
-    width: calc(100% - 250px); /* Calculate remaining width */
+    width: 80%; /* Calculate remaining width */
 }
 .content.expanded {
     margin-left: 75px; /* Adjust content margin when sidebar expands */
 }
+
 .sidebar .user-info, .sidebar .nav, .sidebar h4, .sidebar .logout-btn {
     transition: opacity 0.3s ease;
 }

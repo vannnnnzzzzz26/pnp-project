@@ -14,20 +14,48 @@ $pic_data = $_SESSION['pic_data'] ?? '';
 // Get filters from GET request
 $year = isset($_GET['year']) ? intval($_GET['year']) : '';
 $month = isset($_GET['month']) ? intval($_GET['month']) : '';
+$month_from = isset($_GET['month_from']) ? intval($_GET['month_from']) : '';
+$month_to = isset($_GET['month_to']) ? intval($_GET['month_to']) : '';
 
 // Function to fetch dashboard data
-function fetchDashboardData($pdo, $year, $month) {
+function fetchDashboardData($pdo, $year, $month,  $month_from, $month_to) {
     try {
         $dateConditions = [];
         $paramsTotal = [];
         $paramsFiledCourt = [];
         $paramsSettledBarangay = [];
+        $paramsRejected = [];
 
         if ($year) {
             $dateConditions[] = "YEAR(c.date_filed) = ?";
             $paramsTotal[] = $year;
             $paramsFiledCourt[] = $year;
             $paramsSettledBarangay[] = $year;
+            $paramsRejected [] = $year;
+
+        }
+        if ($month_from && $month_to) {
+            $dateConditions[] = "MONTH(c.date_filed) BETWEEN ? AND ?";
+            $paramsTotal[] = $month_from;
+            $paramsTotal[] = $month_to;
+            $paramsFiledCourt[] = $month_from;
+            $paramsFiledCourt[] = $month_to;
+            $paramsSettledBarangay[] = $month_from;
+            $paramsSettledBarangay[] = $month_to;
+            $paramsRejected[] = $month_from;
+            $paramsRejected[] = $month_to;
+        } elseif ($month_from) {
+            $dateConditions[] = "MONTH(c.date_filed) >= ?";
+            $paramsTotal[] = $month_from;
+            $paramsFiledCourt[] = $month_from;
+            $paramsSettledBarangay[] = $month_from;
+            $paramsRejected[] = $month_from;
+        } elseif ($month_to) {
+            $dateConditions[] = "MONTH(c.date_filed) <= ?";
+            $paramsTotal[] = $month_to;
+            $paramsFiledCourt[] = $month_to;
+            $paramsSettledBarangay[] = $month_to;
+            $paramsRejected[] = $month_to;
         }
 
         if ($month) {
@@ -35,6 +63,7 @@ function fetchDashboardData($pdo, $year, $month) {
             $paramsTotal[] = $month;
             $paramsFiledCourt[] = $month;
             $paramsSettledBarangay[] = $month;
+            $paramsRejected [] = $month;
         }
 
         $dateSql = $dateConditions ? implode(' AND ', $dateConditions) : '';
@@ -56,10 +85,17 @@ function fetchDashboardData($pdo, $year, $month) {
         $stmtSettledBarangay->execute($paramsSettledBarangay);
         $settledInBarangay = $stmtSettledBarangay->fetchColumn();
 
+
+
+        $stmtRejected = $pdo->prepare("SELECT COUNT(*) AS rejected FROM tbl_complaints c WHERE c.status = 'Rejected' AND c.responds = 'barangay' $additionalWhere");
+        $stmtRejected->execute($paramsRejected);
+        $Rejected = $stmtRejected->fetchColumn();
+
         return [
             'totalComplaints' => $totalComplaints,
             'filedInCourt' => $filedInCourt,
-            'settledInBarangay' => $settledInBarangay
+            'settledInBarangay' => $settledInBarangay,
+            'Rejected' => $Rejected
         ];
     } catch (PDOException $e) {
         echo json_encode(['error' => $e->getMessage()]);
@@ -67,10 +103,10 @@ function fetchDashboardData($pdo, $year, $month) {
     }
 }
 
-$data = fetchDashboardData($pdo, $year, $month);
+$data = fetchDashboardData($pdo, $year, $month,$month_from, $month_to,);
 
 // Fetch complaints by barangay data
-function fetchComplaintsByBarangay($pdo, $year, $month) {
+function fetchComplaintsByBarangay($pdo, $year, $month,$month_from, $month_to) {
     try {
         $whereClauses = [];
         $params = [];
@@ -83,6 +119,18 @@ function fetchComplaintsByBarangay($pdo, $year, $month) {
         if ($month) {
             $whereClauses[] = "MONTH(c.date_filed) = ?";
             $params[] = $month;
+        }
+
+        if ($month_from && $month_to) {
+            $whereClauses[] = "MONTH(c.date_filed) BETWEEN ? AND ?";
+            $params[] = $month_from;
+            $params[] = $month_to;
+        } elseif ($month_from) {
+            $whereClauses[] = "MONTH(c.date_filed) >= ?";
+            $params[] = $month_from;
+        } elseif ($month_to) {
+            $whereClauses[] = "MONTH(c.date_filed) <= ?";
+            $params[] = $month_to;
         }
 
         $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
@@ -102,10 +150,10 @@ function fetchComplaintsByBarangay($pdo, $year, $month) {
     }
 }
 
-$barangayData = fetchComplaintsByBarangay($pdo, $year, $month);
+$barangayData = fetchComplaintsByBarangay($pdo, $year, $month,$month_from, $month_to);
 
 // Fetch gender data
-function fetchGenderData($pdo, $year, $month) {
+function fetchGenderData($pdo, $year, $month ,$month_from, $month_to) {
     try {
         $whereClauses = [];
         $params = [];
@@ -118,6 +166,18 @@ function fetchGenderData($pdo, $year, $month) {
         if ($month) {
             $whereClauses[] = "MONTH(c.date_filed) = ?";
             $params[] = $month;
+        }
+
+        if ($month_from && $month_to) {
+            $whereClauses[] = "MONTH(c.date_filed) BETWEEN ? AND ?";
+            $params[] = $month_from;
+            $params[] = $month_to;
+        } elseif ($month_from) {
+            $whereClauses[] = "MONTH(c.date_filed) >= ?";
+            $params[] = $month_from;
+        } elseif ($month_to) {
+            $whereClauses[] = "MONTH(c.date_filed) <= ?";
+            $params[] = $month_to;
         }
 
         $whereSql = $whereClauses ? 'AND ' . implode(' AND ', $whereClauses) : '';
@@ -137,10 +197,10 @@ function fetchGenderData($pdo, $year, $month) {
     }
 }
 
-$genderData = fetchGenderData($pdo, $year, $month);
+$genderData = fetchGenderData($pdo, $year, $month,$month_from, $month_to);
 
 // Fetch complaint categories data
-function fetchComplaintCategoriesData($pdo, $year, $month) {
+function fetchComplaintCategoriesData($pdo, $year, $month,$month_from, $month_to) {
     try {
         $whereClauses = [];
         $params = [];
@@ -153,6 +213,18 @@ function fetchComplaintCategoriesData($pdo, $year, $month) {
         if ($month) {
             $whereClauses[] = "MONTH(c.date_filed) = ?";
             $params[] = $month;
+        }
+
+        if ($month_from && $month_to) {
+            $whereClauses[] = "MONTH(c.date_filed) BETWEEN ? AND ?";
+            $params[] = $month_from;
+            $params[] = $month_to;
+        } elseif ($month_from) {
+            $whereClauses[] = "MONTH(c.date_filed) >= ?";
+            $params[] = $month_from;
+        } elseif ($month_to) {
+            $whereClauses[] = "MONTH(c.date_filed) <= ?";
+            $params[] = $month_to;
         }
 
         $whereSql = $whereClauses ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
@@ -172,7 +244,7 @@ function fetchComplaintCategoriesData($pdo, $year, $month) {
     }
 }
 
-$categoryData = fetchComplaintCategoriesData($pdo, $year, $month);
+$categoryData = fetchComplaintCategoriesData($pdo, $year, $month,$month_from, $month_to);
 ?>
 
 
@@ -186,6 +258,8 @@ $categoryData = fetchComplaintCategoriesData($pdo, $year, $month);
     <title>Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -283,36 +357,52 @@ include '../includes/pnp-bar.php';
 ?>
 
 
-<div class="content">
+<center><div class="content">
      <center> <h1>Dashboard</h1></center>
-
      <div class="row">
-        <div class="col-4">
-        <div class="card">
-    <i class="bi bi-file-earmark-text" style="font-size:50px;"></i>
-    <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
-    <p>Total Complaints</p>
+   <div class="col-md-3">
+      <div class="card">
+         <i class="fas fa-file-alt" style="font-size:50px;color: green;"></i>
+         <h2><?php echo htmlspecialchars($data['totalComplaints']); ?></h2>
+         <p>Total Complaints</p>
+      </div>
+   </div>
+   <div class="col-md-3">
+      <div class="card">
+         <i class="fas fa-gavel" style="font-size:50px; color: cyan;"></i>
+         
+         <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
+         <p>Filed in the Court</p>
+      </div>
+   </div>
+   <div class="col-md-3">
+      <div class="card">
+         <i class="fas fa-check-circle" style="font-size:50px;color: blue;"></i>
+         <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
+         <p>Settled in Barangay</p>
+      </div>
+   </div>
+   <div class="col-md-3">
+      <div class="card">
+         <i class="fas fa-times-circle" style="font-size:50px; color: red;"></i>
+         <h2><?php echo htmlspecialchars($data['Rejected']); ?></h2>
+         <p>Rejected</p>
+      </div>
+   </div>
 </div>
-        </div>
-        <div class="col-4">
-        <div class="card">
-    <i class="bi bi-journal-check" style="font-size:50px;"></i>
-    <h2><?php echo htmlspecialchars($data['filedInCourt']); ?></h2>
-    <p>Filed in the Court</p>
-</div>
-        </div>
-        <div class="col-4">
-        <div class="card">
-    <i class="bi bi-house-door" style="font-size:50px;"></i>
-    <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
-    <p>Settled in Barangay</p>
-</div>
-        </div>
-     </div>
+
 
      <div class="container mt-4">
     <!-- Filter Form -->
-    <form method="GET" action="">
+
+
+    <!-- Complaints by Barangay Chart -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Complaints by Barangay</h2>
+                    <form method="GET" action="">
         <div class="row mb-4">
             <div class="col-md-4">
                 <label for="year">Select Year</label>
@@ -329,7 +419,7 @@ include '../includes/pnp-bar.php';
             </div>
             <div class="col-md-4">
                 <label for="month">Select Month</label>
-                <select name="month" id="month" class="form-control">
+                <select name="month" id="month" class="form-control  ">
                     <option value="">All Months</option>
                     <?php
                     for ($m = 1; $m <= 12; $m++) {
@@ -340,20 +430,45 @@ include '../includes/pnp-bar.php';
                     ?>
                 </select>
             </div>
-            <div class="col-md-4">
+
+            <div class="col-md-2">
+            <label for="month_from">Month From</label>
+            <select name="month_from" id="month_from" class="form-control">
+                <option value="">select</option>
+                <?php
+                for ($m = 1; $m <= 12; $m++) {
+                    $monthName = date('F', mktime(0, 0, 0, $m, 10));
+                    $selected = ($m == $month_from) ? 'selected' : '';
+                    echo "<option value='$m' $selected>$monthName</option>";
+                }
+                ?>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="month_to">Month To</label>
+            <select name="month_to" id="month_to" class="form-control">
+                <option value="">Select</option>
+                <?php
+                for ($m = 1; $m <= 12; $m++) {
+                    $monthName = date('F', mktime(0, 0, 0, $m, 10));
+                    $selected = ($m == $month_to) ? 'selected' : '';
+                    echo "<option value='$m' $selected>$monthName</option>";
+                }
+                ?>
+            </select>
+        </div>
+            <div>
                 <label>&nbsp;</label><br>
                 <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </div>
     </form>
 
-    <!-- Complaints by Barangay Chart -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <h2>Complaints by Barangay</h2>
+
+    
                     <div class="chart-container d-flex justify-content-center align-items-center" style="height: 30rem;">
+                        
                     <canvas id="barangayChartSmall"></canvas>
                     </div>
                 </div>
@@ -443,6 +558,7 @@ include '../includes/pnp-bar.php';
         </div>
     </div>
 </div>
+</center>
 
 
     <script>

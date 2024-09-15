@@ -142,7 +142,7 @@ include '../includes/pnp-nav.php';
 include '../includes/pnp-bar.php';
 ?>
 
-  <div class="content"> 
+ <center> <div class="content"> 
     <div class="row">
         <div class="col-md-4">
             <h2>Add Announcement</h2>
@@ -230,6 +230,7 @@ include '../includes/pnp-bar.php';
         </div>
     </div>
 </div> 
+ </center>
  
 
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">

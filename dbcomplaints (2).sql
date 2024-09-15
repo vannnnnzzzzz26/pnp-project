@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 14, 2024 at 03:44 PM
+-- Generation Time: Sep 15, 2024 at 03:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -91,26 +91,10 @@ CREATE TABLE `tbl_brg_official` (
 --
 
 INSERT INTO `tbl_brg_official` (`official_id`, `name`, `position`, `image`, `barangays_id`, `is_deleted`) VALUES
-(43, 'trisha', 'Barangay Captain', '../uploads/fvdfv(50).jpg', 122, 1),
-(44, 'princess Rosario', 'Kagawad 1', '../uploads/457368489_528714303027535_3753519382645185170_n.jpg', 122, 0),
-(45, 'bj', 'Barangay Captain', '../uploads/bj.jpg', 122, 0),
-(46, 'reyven', 'Kagawad 4', '../uploads/profile_66b58b8079dfe.jpg', 122, 0),
-(47, 'trisha', 'Kagawad 3', '../uploads/454161426_422473144170475_7745676165870487336_n.jpg', 122, 0),
-(48, 'princess', 'Barangay Captain', '../uploads/457368489_528714303027535_3753519382645185170_n.jpg', 121, 0),
-(49, 'bj', 'Kagawad 1', '../uploads/bj.jpg', 121, 0),
-(50, 'reyven', 'Kagawad 3', '../uploads/profile_66cc76ae2ecec.jpg', 121, 1),
-(51, 'excel', 'Kagawad 2', '../uploads/Screenshot 2024-06-20 153343.png', 121, 0),
-(52, 'wehhhhhhhh', 'Kagawad 4', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 121, 0),
-(53, 'Dindaxy', 'Barangay Captain', '../uploads/10.jpg', 182, 0),
-(54, 'princess', 'Barangay Captain', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 108, 0),
-(55, 'Brayan John V Aquino', 'Barangay Captain', '../uploads/profile_66b1054a599f2.jpg', 99, 0),
-(56, 'Princess Rosario', 'Kagawad 1', '../uploads/1000038104.jpg', 99, 0),
-(57, 'John lloyd manuel', 'Kagawad 2', '../uploads/459116026_2167533256980735_4089694213094330184_n.jpg', 99, 0),
-(58, 'Excel Preza', 'Kagawad 3', '../uploads/profile_669af75c84736.jpg', 99, 0),
-(59, 'Haryl Conception', 'Kagawad 4', '../uploads/profile_66d066dee6955.jpg', 99, 0),
-(60, 'Monkey D. Luffy', 'Kagawad 5', '../uploads/15.jpg', 99, 0),
-(61, 'Abdhul Jakhoul', 'Kagawad 6', '../uploads/27.png', 99, 0),
-(62, 'Zoro Mylabs', 'Kagawad 7', '../uploads/10.jpg', 99, 0);
+(63, 'bj', 'Kagawad 1', '../uploads/bj.jpg', 118, 1),
+(64, 'bj aquino', 'Barangay Captain', '../uploads/bj.jpg', 118, 0),
+(65, 'wehhhhhhhh', 'Kagawad 1', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 118, 1),
+(66, 'princess', 'Kagawad 1', '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', 118, 0);
 
 -- --------------------------------------------------------
 
@@ -207,8 +191,8 @@ CREATE TABLE `tbl_complaints` (
 --
 
 INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `complaints_person`, `status`, `complaints`, `responds`, `date_filed`, `approved`, `category_id`, `barangays_id`, `image_id`, `info_id`, `user_id`) VALUES
-(288, 'reyven ojadas pili ', '0909850347', 'bj', 'settled_in_barangay', 'dsdsd', 'barangay', '2024-08-21', 0, 250, 121, 306, 218, 0),
-(289, 'excel nnn preza ', '0927142858', 'eso', 'Settled in PNP', 'sdsdsds', 'pnp', '2024-08-21', 0, 250, 124, 307, 219, 0),
+(288, 'reyven ojadas pili ', '0909850347', 'bj', 'settled_in_barangay', 'dsdsd', 'barangay', '2024-01-21', 0, 250, 121, 306, 218, 0),
+(289, 'excel nnn preza ', '0927142858', 'eso', 'Filed in the court', 'sdsdsds', 'pnp', '2024-01-21', 0, 250, 124, 307, 219, 0),
 (290, 'reyven ojadas pili ', '0909850347', 'bjsd', 'Completed', 'fxgdfgdgd', 'barangay', '2024-08-22', 0, 250, 121, 308, 220, 0),
 (291, 'denver nnnn gorospe ', '0909850347', 'bj', 'Filed in the court', 'sdsdsd', 'pnp', '2024-08-24', 0, 250, 122, 309, 221, 0),
 (292, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'asasas', 'pnp', '2024-08-25', 0, 250, 121, 310, 222, 0),
@@ -218,20 +202,20 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (297, 'brayan villanueva Aquino ', '0927142858', 'GINffsfdfdfdf', 'Read', 'asasas', 'barangay', '2024-08-26', 0, 250, 121, 315, 227, 0),
 (298, 'trisha Nicole Yaranon ', '0909850347', 'bj', 'Approved', 'asasa', 'barangay', '2024-08-26', 0, 250, 125, 316, 228, 0),
 (299, 'brayan villanueva Aquino ', '0909850347', 'sxss', 'Read', 'Sasasa', 'barangay', '2024-08-27', 0, 250, 121, 317, 229, 0),
-(300, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'sdsdsd', 'pnp', '2024-08-27', 0, 250, 121, 318, 230, 0),
+(300, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Filed in the court', 'sdsdsd', 'pnp', '2024-04-27', 0, 250, 121, 318, 230, 0),
 (302, 'leslie Pascual Rigor ', '0909850347', 'GIN', 'Filed in the court', 'sdsds', 'pnp', '2024-08-28', 0, 250, 127, 320, 232, 0),
-(303, 'leslie Pascual Rigor ', '0909850347', 'GIN', 'Settled', 'sdsds', 'pnp', '2024-08-28', 0, 250, 127, 321, 233, 0),
+(303, 'leslie Pascual Rigor ', '0909850347', 'GIN', 'Settled', 'sdsds', 'pnp', '2024-05-28', 0, 250, 127, 321, 233, 0),
 (304, 'leslie Pascual Rigor ', '0909850347', 'sdsds', 'settled_in_barangay', 'ddcdcd', 'barangay', '2024-08-28', 0, 250, 127, 322, 234, 0),
-(305, 'brayan villanueva Aquino ', '0909850347', 'eso', 'Read', 'cxcxc', 'pnp', '2024-08-28', 0, 250, 121, 323, 235, 0),
-(306, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'sdsdsd', 'barangay', '2024-08-28', 0, 250, 121, 324, 236, 0),
+(305, 'brayan villanueva Aquino ', '0909850347', 'eso', 'Filed in the court', 'cxcxc', 'pnp', '2024-06-28', 0, 250, 121, 323, 235, 0),
+(306, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'sdsdsd', 'barangay', '2024-06-28', 0, 250, 121, 324, 236, 0),
 (307, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'vdfvxv', 'barangay', '2024-08-28', 0, 250, 121, 325, 237, 0),
 (308, 'brayan villanueva Aquino ', 'dssdsdsdsd', 'bj', 'Read', 'cdsfsfsff', 'barangay', '2024-08-28', 0, 250, 121, 326, 238, 0),
 (309, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'dsds', 'barangay', '2024-08-29', 0, 250, 121, 327, 239, 0),
 (310, 'brayan villanueva Aquino ', '0927142858', 'eeeeeeeeeeeeeee', 'Read', 'xzxz', 'barangay', '2024-08-29', 0, 251, 121, 328, 240, 0),
 (311, 'brayan villanueva Aquino ', '0909850347', 'bungol', 'Read', 'tangina', 'barangay', '2024-08-29', 0, 252, 121, 329, 241, 0),
 (312, 'bungol kha bhou ', '0909850347', 'monks', 'Filed in the court', 'diko alam bigla nalang nila ako sinagasahan', 'pnp', '2024-08-29', 0, 253, 137, 330, 242, 0),
-(313, 'bungol kha bhou ', '0927142858', 'aneluv', 'Rejected', 'dik ammo', 'barangay', '2024-08-29', 0, 254, 137, 331, 243, 0),
-(314, 'bungol kha bhou ', '0927142858', 'kabbo', 'Rejected', 'legit fr fr ', 'barangay', '2024-08-29', 0, 255, 137, 332, 244, 0),
+(313, 'bungol kha bhou ', '0927142858', 'aneluv', 'Rejected', 'dik ammo', 'barangay', '2009-08-29', 0, 254, 137, 331, 243, 0),
+(314, 'bungol kha bhou ', '0927142858', 'kabbo', 'Rejected', 'legit fr fr ', 'barangay', '2008-08-29', 0, 255, 137, 332, 244, 0),
 (315, 'bungol kha bhou ', '0909850347', 'rubirt', 'Rejected', 'ukiribit', 'barangay', '2024-08-29', 0, 250, 137, 333, 245, 0),
 (316, 'brayan villanueva Aquino ', '0909850347', 'bj', 'Read', 'dssd', 'barangay', '2024-08-29', 0, 256, 121, 334, 246, 0),
 (317, 'din da xy ', '0978544696', 'harel', 'Unresolved', 'nyametin', 'barangay', '2024-08-29', 0, 250, 138, 335, 248, 0),
@@ -312,7 +296,7 @@ INSERT INTO `tbl_complaints` (`complaints_id`, `complaint_name`, `cp_number`, `c
 (393, 'excel N Preza ', '0927142858', 'dinda', 'settled_in_barangay', 'nag nakaw sa bahay', 'barangay', '2024-09-12', 0, 282, 99, 411, 327, 0),
 (394, 'Princess Del Valle Moon ', '0927142858', 'Bayan Jan Abino', 'pnp', 'nag nakaw sa kantina namin', 'pnp', '2024-09-12', 0, 282, 204, 412, 328, 0),
 (395, 'Princess Del Valle Moon ', '0927142858', 'jabi', 'Rejected', 'sinuntok ba naman ako', '', '2024-09-12', 0, 257, 99, 413, 329, 0),
-(396, 'excel N Preza ', '0927142858', 'bj', 'settled_in_barangay', 'scsfsfsf', 'barangay', '2024-09-14', 0, 285, 99, 414, 330, 0);
+(396, 'excel N Preza ', '0927142858', 'bj', 'settled_in_barangay', 'scsfsfsf', 'barangay', '2024-05-14', 0, 285, 99, 414, 330, 0);
 
 -- --------------------------------------------------------
 
@@ -775,7 +759,7 @@ INSERT INTO `tbl_info` (`info_id`, `age`, `gender`, `birth_date`, `place_of_birt
 (327, 21, 'Male', '2003-08-28', 'Bohol', 'Married', 'Primary'),
 (328, 36, 'Female', '1988-09-12', 'Bohol', 'Married', 'Tertiary'),
 (329, 36, 'Female', '1988-08-29', 'sa rantay', 'Single', 'Secondary'),
-(330, 24, 'Male', '2000-02-03', 'sa rantay', 'Married', 'Primary');
+(330, 24, 'Female', '2000-02-03', 'sa rantay', 'Married', 'Primary');
 
 -- --------------------------------------------------------
 
@@ -815,7 +799,7 @@ INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `e
 (88, 'bj', 'villanueva', 'Aquino', '', 'bjaquino@gmail.com', '$2y$10$zIuH.Hf3SqI0tF7LuU1ep.59VjW.mBFloZw5It0LEllb0G4un6Ese', 'Barangay Official', 118, '../uploads/435559638_928560769060280_7584294412764526119_n.jpg', '', '', '', '', '', '', 'b3fb01a3e82c4acc34b4c4c34243ae98', 1, NULL, 0, NULL),
 (89, 'Excel', 'nnnn', 'Preza', '', 'excel27@gmail.com', '$2y$10$/otNt0hA5d3b3V1xX5nzCOThzRA0.tGdwBq.mBrdvYJCW8AaQdRPW', 'Resident', 119, 'uploads/profile_66b35dfc81120.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
 (90, 'princess', 'Cadiente', 'Rosario', '', 'immajvadhing@gmail.com', '$2y$10$zIuH.Hf3SqI0tF7LuU1ep.59VjW.mBFloZw5It0LEllb0G4un6Ese', 'PNP Officer', 120, '../uploads/uploads456864062_827865415993505_5703441178082039818_n.jpg', '', '', '', '', '', '', NULL, 1, NULL, 0, NULL),
-(91, 'brayan', 'villanueva', 'Aquino', '', 'resident@gmail.com', '$2y$10$eDd76Og1S4TLos2N4J4Y1eLSobv5n5MkSRywhcFUhdFnA4Rc0HhjG', 'Resident', 121, '../uploads/excel.jpg', '', '', '', '', '', '', NULL, 0, '275931', 1, NULL),
+(91, 'brayan', 'villanueva', 'Aquino', '', 'resident@gmail.com', '$2y$10$eDd76Og1S4TLos2N4J4Y1eLSobv5n5MkSRywhcFUhdFnA4Rc0HhjG', 'Resident', 121, '../uploads/excel.jpg', '', '', '', '', '', '', NULL, 0, '927036', 0, NULL),
 (92, 'excel', 'nnnn', 'preza', '', 'barangay@gmail.com', '$2y$10$1AtIP9iYRzjHMlsCEmSAqOI6m7moC3sWnPP1p/7k3V1mnVD1rwE/W', 'Barangay Official', 122, '../uploads/profile_669f988fa9760.jpg', '', '', '', '', '', '', NULL, 0, NULL, 1, '2024-09-13 08:55:02'),
 (93, 'Desiray', 'Domael', 'Naya', 'Sr.', 'desiray.d.nayga@isu.edu.ph', '$2y$10$LmMrEMdaLDuLc3Lk3GIey.vNaaMqWfTz0Ozlyafwidp.fypnXkspe', 'Resident', 123, 'uploads/profile_66c3bedba896e.png', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
 (94, 'excel', 'nnn', 'preza', '', 'excel@gmail.com', '$2y$10$dmxu96P0WEASLgJMGL9pOuRxpJabK6jwdVo.8cAQB4hot3lZowS.m', 'Resident', 124, 'uploads/profile_66c5c31494af3.jpg', '', '', '', '', '', '', NULL, 0, NULL, 0, NULL),
@@ -889,7 +873,8 @@ INSERT INTO `tbl_users` (`user_id`, `first_name`, `middle_name`, `last_name`, `e
 (164, 'aldrin', 'Domael', 'damance', '', 'a@gmail.com', '$2y$10$P/PcqT.1Ca3NKdkZUi12EuiF4tZgXhF5PMSLZks1Xfc3/tQ471fnq', 'Barangay Official', 197, '../uploads/profile_66e2baa6e7dca.png', 'What was your childhood nickname?', '$2y$10$34B6/QfDK.SxnjSNuZuw5u2kVgvmopqFxuxfruf80S6xeLU82bw36', 'In what city were you born?', '$2y$10$VhETvfWZGxvV3JEHSFriueJqLTXEepyzBEMha5mnTtPpNrG/DwZkK', 'What was your high school mascot?', '$2y$10$DrPOwguyLW2Z3bXHg.4SzubWBRqL/b.Ob3QuSKAE30O8YERibB/EO', NULL, 1, NULL, 1, NULL),
 (165, 'excel', 'Mondragon', 'Aquino', '', 'reyvenpili04@gmail.com', '$2y$10$QWr8jkGU3Zq9hfxd6bX2zOWyPwOMKYlmWjcjmkmd0rH65lr0/ITKW', 'Barangay Official', 198, '../uploads/profile_66e2bb14863c0.jpg', 'What was your childhood nickname?', '$2y$10$uTIpejp4/EWwh20pn3WhPu5Xga7T5njHVEWn6F3hQgjzGWr1LKGoy', 'In what city were you born?', '$2y$10$.vr9H9hBOdXGUqvgld3sAO59tffQztpb7j.1MqDes07iSlbdqZNh2', 'What is your mother’s maiden name?', '$2y$10$jPc9Ml3yXGhYRZ7pVN3Ovu3/k5JTkjqO5Qu01xXOeQ7iz4d618KCe', NULL, 0, '380186', 0, NULL),
 (166, 'excel', 'Nicole', 'Aquino', '', 'ketnana101@gmail.com', '$2y$10$0C6hscCrDkc9V6l6b5zChuyNldE2NJUd7kgkFhW/5aV0aPiXi82hW', 'Barangay Official', 203, '../uploads/profile_66e2bd4210ce0.jpg', 'What was your childhood nickname?', '$2y$10$AzKh1aOqnKTLwojB0jqaqeKfRPtPpiF2fdlEltMQGdqtD1jGufyAK', 'In what city were you born?', '$2y$10$HhfFsEO0Zb3AJSeiuhOhfuLMcGVor9396.F5n7F96aazBYQxO2cVG', 'What was your high school mascot?', '$2y$10$EjF6kHKNLR3acpIrX69BG.Jou8xo6rUQccTQTkm0sI6ktyzVOg.c2', NULL, 0, '519497', 0, NULL),
-(167, 'Princess', 'Del Valle', 'Moon', '', 'moon@gmail.com', '$2y$10$B2mimNgyFHyTBqwU40K0be12G6X0hkCQUOFhz8HqrDsH48CxGgtwW', 'Resident', 99, '../uploads/profile_66e358edace8d.jfif', 'What was your childhood nickname?', '$2y$10$hzXVvVNVvnGVkU9/3DCvEOFlScUORk4oyOZsx6wo3F8edzYnHjQJy', 'In what city were you born?', '$2y$10$AQ1gGkD2Ml7No99Aul1B2uKgpFoo90HbU3yVxFaRc/qfdmYLHN6wK', 'What is your mother’s maiden name?', '$2y$10$WhqesGCnaMZlaNLhqFuMtuD8st1x2K7P7acYjP1oR61WBsg9G20z6', NULL, 1, NULL, 0, NULL);
+(167, 'Princess', 'Del Valle', 'Moon', '', 'moon@gmail.com', '$2y$10$B2mimNgyFHyTBqwU40K0be12G6X0hkCQUOFhz8HqrDsH48CxGgtwW', 'Resident', 99, '../uploads/profile_66e358edace8d.jfif', 'What was your childhood nickname?', '$2y$10$hzXVvVNVvnGVkU9/3DCvEOFlScUORk4oyOZsx6wo3F8edzYnHjQJy', 'In what city were you born?', '$2y$10$AQ1gGkD2Ml7No99Aul1B2uKgpFoo90HbU3yVxFaRc/qfdmYLHN6wK', 'What is your mother’s maiden name?', '$2y$10$WhqesGCnaMZlaNLhqFuMtuD8st1x2K7P7acYjP1oR61WBsg9G20z6', NULL, 1, NULL, 0, NULL),
+(168, 'lance', 'gantec', 'lazaro', '', 'lancephilip.lazaro@gmail.com', '$2y$10$LSButk5iWTHQXrN112FThecNjVz5UV/flHslOYz6BmoZyYmBpDksS', 'Resident', 205, '../uploads/profile_66e6cb32b7f1b.jpg', 'What was your childhood nickname?', '$2y$10$XcaZtCKskLlMZdlQCgwpTOIAiDZP73tqtWdeJsfy3U5xMUauNBpE6', 'In what city were you born?', '$2y$10$BC1gm1EfI5Lx58rO.z9w4O2exFYH3nj3h.hx0SZdJx.3XqaJkoyve', 'What is your mother’s maiden name?', '$2y$10$re99YrbwJ30XMaEAqc.5oOeqZ207uV9DVOuESDvA/81ZQWtOb6QYC', NULL, 1, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -1013,7 +998,8 @@ INSERT INTO `tbl_users_barangay` (`barangays_id`, `barangay_name`, `official_id`
 (201, 'Angoluan', 0),
 (202, 'Angoluan', 0),
 (203, 'Angoluan', 0),
-(204, 'Maligaya', 0);
+(204, 'Maligaya', 0),
+(205, 'Maligaya', 0);
 
 --
 -- Indexes for dumped tables
@@ -1103,7 +1089,7 @@ ALTER TABLE `tbl_announcement`
 -- AUTO_INCREMENT for table `tbl_brg_official`
 --
 ALTER TABLE `tbl_brg_official`
-  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `official_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT for table `tbl_complaintcategories`
@@ -1139,13 +1125,13 @@ ALTER TABLE `tbl_info`
 -- AUTO_INCREMENT for table `tbl_users`
 --
 ALTER TABLE `tbl_users`
-  MODIFY `user_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=168;
+  MODIFY `user_id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=169;
 
 --
 -- AUTO_INCREMENT for table `tbl_users_barangay`
 --
 ALTER TABLE `tbl_users_barangay`
-  MODIFY `barangays_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
+  MODIFY `barangays_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
 
 --
 -- Constraints for dumped tables

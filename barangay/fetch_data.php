@@ -6,11 +6,12 @@ try {
     // Get year and month from request
     $year = isset($_GET['year']) ? intval($_GET['year']) : null;
     $month = isset($_GET['month']) ? intval($_GET['month']) : null;
-
+    $month_from = isset($_GET['month_from']) ? intval($_GET['month_from']) : '';
+    $month_to = isset($_GET['month_to']) ? intval($_GET['month_to']) : '';
     // Fetch data
-    $data = fetchDashboardData($pdo, 'YourBarangayName', $year, $month);
-    $genderData = fetchGenderData($pdo, 'YourBarangayName', $year, $month);
-    $categoryData = fetchComplaintCategoriesData($pdo, 'YourBarangayName', $year, $month);
+    $data = fetchDashboardData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
+    $genderData = fetchGenderData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
+    $categoryData = fetchComplaintCategoriesData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
 
     // Check and access data
     $settledInBarangay = isset($data['settledInBarangay']) ? $data['settledInBarangay'] : 0;

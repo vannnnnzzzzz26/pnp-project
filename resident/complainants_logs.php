@@ -97,7 +97,6 @@ foreach ($complaints as $complaint) {
 
 .navbar-brand{
 color: whitesmoke;
-margin-left: 5rem;
 }
 
 

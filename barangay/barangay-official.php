@@ -8,7 +8,9 @@ $middleName = $_SESSION['middle_name'] ?? '';
 $lastName = $_SESSION['last_name'] ?? '';
 $extensionName = $_SESSION['extension_name'] ?? '';
 $email = $_SESSION['email'] ?? '';
+$barangays_id = $_SESSION['barangays_id'] ?? '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
+
 $pic_data = $_SESSION['pic_data'] ?? '';
 
 // Ensure barangay_name is set in the session
@@ -18,13 +20,17 @@ if (!$barangay_name) {
     exit();
 }
 
-// Fetch barangays_id based on barangay_name
-$stmt = $pdo->prepare("SELECT barangays_id FROM tbl_users_barangay WHERE barangay_name = ?");
+// Fetch barangay_name based on the session or other criteria
+$barangay_name = $_SESSION['barangay_name'] ?? '';
+
+// Query to fetch barangay name from the database
+$stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangay_name = ?");
 $stmt->execute([$barangay_name]);
-$barangay = $stmt->fetch();
+$barangay = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($barangay) {
-    $barangays_id = $barangay['barangays_id'];
+    // Barangay name exists, you can use it here
+    $barangay_name = $barangay['barangay_name'];
 } else {
     $_SESSION['error'] = "Barangay not found.";
     header("Location: login.php");
