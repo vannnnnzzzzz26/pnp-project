@@ -1,8 +1,9 @@
- <div  style="margin-top: 3rem;" class="sidebar bg-dark" id="sidebar">
+<div class="container-fluid d-flex">
+
+ 
+ <div  style="margin-top: 5rem;" class="sidebar" id="sidebar">
         <!-- Toggle button inside sidebar -->
-        <button class="sidebar-toggler" type="button" onclick="toggleSidebar()">
-        <i class="bi bi-grid-fill large-icon"></i><span class="nav-text menu-icon-text">Menu</span>
-        </button>
+       
 
         <!-- User Information -->
         <div class="user-info px-3 py-2 text-center">
@@ -26,29 +27,37 @@
         <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link" href="manage-complaints.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints</span>
+                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Resident's Complaint</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="barangay-responder.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Complaints Logs</span>
+                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Barangay Responder</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="barangaylogs.php">
-            <i class="bi bi-check-square-fill large-icon"></i><span class="nav-text">Complaints Responder</span>
+            <i class="bi bi-file-earmark-check-fill large-icon"></i><span class="nav-text">Complaints Histrory</span>
             </a>
         </li>
 
+        
         <li class="nav-item">
             <a class="nav-link" href="barangay-official.php">
-                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Official</span>
+                <i class="bi bi-person large-icon"></i><span class="nav-text">Barangay Officials</span>
+            </a>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link" href="barangay_dashboard.php">
+                <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>
             </a>
         </li>
      
+     
     </ul>
     
-
         <!-- Logout Form -->
         <form action="../logout.php" method="post" id="logoutForm">
 

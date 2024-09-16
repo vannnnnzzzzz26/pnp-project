@@ -25,78 +25,131 @@ $pic_data = $_SESSION['pic_data'] ?? '';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
+
+<style>
+.popover-content {
+    background-color: whitesmoke; 
+    padding: 10px; /* Add some padding */
+    border: 1px solid #495057; /* Optional: border for better visibility */
+    border-radius: 5px; /* Optional: rounded corners */
+    max-height: 300px; /* Ensure it doesn't grow too large */
+    overflow-y: auto; /* Add vertical scroll if needed */
+}
+
+
+/* Adjust the arrow for the popover to ensure it points correctly */
+.popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}
+
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+.table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+        
+        }
+
+      
+    </style>
 <body>
  
 
 <?php 
-
-include '../includes/pnp-nav.php';
 include '../includes/pnp-bar.php';
+include '../includes/pnp-nav.php';
+
 ?>
 
-    <div class="content">
+  <center>  <div class="content">
         <div class="container">
             <h2 class="mt-3 mb-4">PNP Complaints</h2>
             <div class="table">
-                <table class="table table-striped table-bordered table-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Name</th>
-                            <th>Address</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
+    <table class="table table-striped table-bordered table-center">
+        <thead>
+            <tr>
+                <th>#</th> <!-- Added # column -->
+                <th>Name</th>
+                <th>Address</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
 
+        include '../connection/dbconn.php'; 
 
-include '../connection/dbconn.php'; 
+        // Function to display PNP complaints
+        function displayPNPComplaints($pdo) {
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
+                           c.barangays_id, c.cp_number, c.complaints_person
+                    FROM tbl_complaints c
+                    WHERE c.status = 'pnp'
+                    ORDER BY c.date_filed ASC
+                ");
+                $stmt->execute();
 
-// Use null coalescing operators to provide default values
-;
+                $row_number = 1; // Initialize the row number
 
-// Function to display PNP complaints
-function displayPNPComplaints($pdo) {
-    try {
-        $stmt = $pdo->prepare("
-            SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
-                   c.barangays_id, c.cp_number, c.complaints_person
-            FROM tbl_complaints c
-            WHERE c.status = 'pnp'
-            ORDER BY c.date_filed ASC
-        ");
-        $stmt->execute();
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $complaint_id = $row['complaints_id'];
+                    $complaint_name = htmlspecialchars($row['complaint_name']);
 
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $complaint_id = $row['complaints_id'];
-            $complaint_name = htmlspecialchars($row['complaint_name']);
+                    if (!empty($row['barangays_id'])) {
+                        $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                        $stmtBar->execute([$row['barangays_id']]);
+                        $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
+                    } else {
+                        $barangay_name = 'Unknown';
+                    }
+                    
+                    $address = $barangay_name;
 
-            if (!empty($row['barangays_id'])) {
-                $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                $stmtBar->execute([$row['barangays_id']]);
-                $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
-            } else {
-                $barangay_name = 'Unknown';
+                    echo "<tr>";
+                    echo "<td>{$row_number}</td>"; // Display row number
+                    echo "<td>{$complaint_name}</td>";
+                    echo "<td>{$address}</td>";
+                    echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
+                    echo "</tr>";
+
+                    $row_number++; // Increment row number for each row
+                }
+            } catch (PDOException $e) {
+                echo "<tr><td colspan='4'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
             }
-            
-            $address = $barangay_name;
-
-            echo "<tr>";
-            echo "<td>{$complaint_name}</td>";
-            echo "<td>{$address}</td>";
-            echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
-            echo "</tr>";
         }
-    } catch (PDOException $e) {
-        echo "<tr><td colspan='3'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
-    }
-}
 
-displayPNPComplaints($pdo);
-?>
+        displayPNPComplaints($pdo);
+        ?>
+        </tbody>
+    </table>
 
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -122,6 +175,8 @@ displayPNPComplaints($pdo);
             </div>
         </div>
     </div>
+
+  </center>
 
 
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -171,10 +226,143 @@ displayPNPComplaints($pdo);
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="../scripts/script.js"></script>
     <script>
- document.addEventListener('DOMContentLoaded', function () {
+
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
+
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                            <div class="dropdown-item" 
+                                 data-id="${notification.complaints_id}" 
+                                 data-status="${notification.status}" 
+                                 data-complaint-name="${notification.complaint_name}" 
+                                 data-barangay-name="${notification.barangay_name}">
+                                Complaint: ${notification.complaint_name}<br>
+                                Barangay: ${notification.barangay_name}<br>
+                                Status: ${notification.status}
+                                 <hr>
+                            </div>
+                        `;
+                    });
+                } else {
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const notificationId = this.getAttribute('data-id');
+                        markNotificationAsRead(notificationId);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    function markNotificationAsRead(notificationId) {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationId: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notification marked as read');
+                fetchNotifications(); // Refresh notifications
+            } else {
+                console.error("Failed to mark notification as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+    fetchNotifications();
+
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
     var viewDetailsButtons = document.querySelectorAll('button[data-bs-target="#viewDetailsModal"]');
 
     viewDetailsButtons.forEach(function (button) {
@@ -188,6 +376,37 @@ displayPNPComplaints($pdo);
                     if (data.error) {
                         modalContent.innerHTML = `<p>Error: ${data.error}</p>`;
                     } else {
+                        var evidenceHtml = '';
+
+                        if (data.evidence && data.evidence.length > 0) {
+                            evidenceHtml = '<h5>Evidence:</h5><ul>';
+                            data.evidence.forEach(function(evidencePath) {
+                                evidenceHtml += `<li><a href="../uploads/${evidencePath}" target="_blank">View Evidence</a></li>`;
+                            });
+                            evidenceHtml += '</ul>';
+                        } else {
+                            evidenceHtml = '<p>No evidence available.</p>';
+                        }
+
+                        var hearingHistoryHtml = '';
+
+                        if (data.hearing_history && data.hearing_history.length > 0) {
+                            hearingHistoryHtml = '<h5>Hearing History:</h5><table class="table"><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Status</th></tr></thead><tbody>';
+                            data.hearing_history.forEach(function(hearing) {
+                                hearingHistoryHtml += `
+                                    <tr>
+                                        <td>${hearing.hearing_date}</td>
+                                        <td>${hearing.hearing_time}</td>
+                                        <td>${hearing.hearing_type}</td>
+                                        <td>${hearing.hearing_status}</td>
+                                    </tr>
+                                `;
+                            });
+                            hearingHistoryHtml += '</tbody></table>';
+                        } else {
+                            hearingHistoryHtml = '<p>No hearing history available.</p>';
+                        }
+
                         modalContent.innerHTML = `
                             <p><strong>Complaint Name:</strong> ${data.complaint_name}</p>
                             <p><strong>Description:</strong> ${data.description}</p>
@@ -201,7 +420,9 @@ displayPNPComplaints($pdo);
                             <p><strong>Age:</strong> ${data.age}</p>
                             <p><strong>Educational Background:</strong> ${data.educational_background}</p>
                             <p><strong>Civil Status:</strong> ${data.civil_status}</p>
-                           
+
+                            ${evidenceHtml}
+                            ${hearingHistoryHtml}
                         `;
 
                         // Add complaint ID to the settle button
@@ -215,6 +436,7 @@ displayPNPComplaints($pdo);
                 });
         });
     });
+});
 
 
     // Handle "Settle Complaint" button click with SweetAlert
@@ -273,7 +495,11 @@ displayPNPComplaints($pdo);
             });
         }
     });
-});
+
+
+   
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
         var profilePic = document.querySelector('.profile');
@@ -284,7 +510,136 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
 
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                            <div class="dropdown-item" 
+                                 data-id="${notification.complaints_id}" 
+                                 data-status="${notification.status}" 
+                                 data-complaint-name="${notification.complaint_name}" 
+                                 data-barangay-name="${notification.barangay_name}">
+                                Complaint: ${notification.complaint_name}<br>
+                                Barangay: ${notification.barangay_name}<br>
+                                Status: ${notification.status}
+                                <hr>
+                            </div>
+
+
+                            
+                        `;
+                    });
+                } else {
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const notificationId = this.getAttribute('data-id');
+                        markNotificationAsRead(notificationId);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    function markNotificationAsRead(notificationId) {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationId: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notification marked as read');
+                fetchNotifications(); // Refresh notifications
+            } else {
+                console.error("Failed to mark notification as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+    fetchNotifications();
+
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
     function confirmLogout() {
         Swal.fire({
             title: "Are you sure?",
@@ -297,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
     }

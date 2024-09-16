@@ -1,5 +1,5 @@
 <?php
-  include '../connection/dbconn.php'; 
+include '../connection/dbconn.php'; 
 
 if (isset($_GET['id'])) {
     $announcement_id = $_GET['id'];
@@ -7,9 +7,8 @@ if (isset($_GET['id'])) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$announcement_id]);
 
-    echo '<script>
-        alert("Announcement deleted successfully!");
-        window.location.href = "pnp-announcement.php";
-    </script>';
+    // Redirect with a success query parameter
+    header('Location: pnp-announcement.php?deleted=success');
+    exit;
 }
 ?>

@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if (in_array($fileType, $allowedTypes) && $fileSize <= 2000000) { // 2MB limit
                 $profilePicFilename = basename($_FILES['profile_pic']['name']);
-                $profilePicPath = 'uploads/' . $profilePicFilename;
+                $profilePicPath = '../uploads/' . $profilePicFilename;
 
                 // Create 'uploads' directory if it doesn't exist
                 if (!file_exists('uploads')) {

@@ -1,6 +1,5 @@
-
 <?php
-// Start output buffering
+// Start session and retrieve user details
 session_start();
 $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
@@ -12,13 +11,24 @@ $pic_data = $_SESSION['pic_data'] ?? '';
 
 include '../connection/dbconn.php'; 
 
-// Function to display basic complaint information in the table
-function displayComplaintDetails($pdo, $search_query = '') {
+$results_per_page = 10; // Number of complaints per page
+
+// Get the current page number from GET, if available, otherwise set to 1
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+
+// Calculate the start row number for the SQL LIMIT clause
+$start_from = ($page - 1) * $results_per_page;
+
+// Get the search query from the GET request if available
+$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Function to display complaints with pagination
+function displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page) {
     try {
-        // Prepare the search query
+        // Prepare the search query for LIKE
         $search_query = '%' . $search_query . '%';
 
-        // Fetch complaints from tbl_complaints table with additional information and search filter
+        // Fetch complaints with search filter, limited by pagination
         $stmt = $pdo->prepare("
             SELECT c.complaints_id, c.complaint_name, b.barangay_name
             FROM tbl_complaints c
@@ -26,17 +36,22 @@ function displayComplaintDetails($pdo, $search_query = '') {
             WHERE c.responds = 'pnp'
             AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
             ORDER BY c.date_filed ASC
+            LIMIT ?, ?
         ");
 
-        // Bind search parameters
+        // Bind the parameters
         $stmt->bindParam(1, $search_query, PDO::PARAM_STR);
         $stmt->bindParam(2, $search_query, PDO::PARAM_STR);
+        $stmt->bindParam(3, $start_from, PDO::PARAM_INT);
+        $stmt->bindParam(4, $results_per_page, PDO::PARAM_INT);
 
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) {
-            echo "<tr><td colspan='3'>No complaints found.</td></tr>";
+            echo "<tr><td colspan='4'>No complaints found.</td></tr>";
         } else {
+            $row_number = $start_from + 1; // Start numbering from the current page
+
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 // Display complaint details
                 $complaint_id = htmlspecialchars($row['complaints_id']);
@@ -44,21 +59,38 @@ function displayComplaintDetails($pdo, $search_query = '') {
                 $barangay_name = htmlspecialchars($row['barangay_name']);
 
                 echo "<tr>";
-                echo "<td>{$complaint_name}</td>";
-                echo "<td>{$barangay_name}</td>";
-                echo "<td><button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button></td>";
+                echo "<td class='align-middle'>{$row_number}</td>"; // Row number aligned vertically
+                echo "<td class='align-middle'>{$complaint_name}</td>"; // Complaint Name aligned
+                echo "<td class='align-middle'>{$barangay_name}</td>"; // Barangay Name aligned
+                echo "<td '>
+                        <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button>
+                      </td>"; // Button aligned in the center
                 echo "</tr>";
+
+                $row_number++; // Increment row number
             }
         }
     } catch (PDOException $e) {
-        echo "<tr><td colspan='3'>Error fetching PNP complaints logs: " . $e->getMessage() . "</td></tr>";
+        echo "<tr><td colspan='4'>Error fetching PNP complaints logs: " . $e->getMessage() . "</td></tr>";
     }
 }
 
-// Get the search query from the GET request if available
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
-?>
+// Count the total number of complaints for pagination
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) AS total 
+    FROM tbl_complaints c
+    LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+    WHERE c.responds = 'pnp'
+    AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
+");
+$search_query_like = '%' . $search_query . '%';
+$stmt->execute([$search_query_like, $search_query_like]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$total_complaints = $row['total'];
 
+// Calculate the total number of pages
+$total_pages = ceil($total_complaints / $results_per_page);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,6 +102,58 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../styles/style.css">
 </head>
+
+
+<style>
+.popover-content {
+    background-color: whitesmoke; 
+    padding: 10px; /* Add some padding */
+    border: 1px solid #495057; /* Optional: border for better visibility */
+    border-radius: 5px; /* Optional: rounded corners */
+    max-height: 300px; /* Ensure it doesn't grow too large */
+    overflow-y: auto; /* Add vertical scroll if needed */
+}
+
+
+/* Adjust the arrow for the popover to ensure it points correctly */
+.popover .popover-arrow {
+    border-top-color: #343a40; /* Match the background color */
+}
+
+
+
+.sidebar-toggler {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: transparent; /* Changed from #082759 to transparent */
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-align: left;
+    width: auto; /* Adjust width automatically */
+}
+.sidebar{
+  background-color: #082759;
+}
+.navbar{
+  background-color: #082759;
+
+}
+
+.navbar-brand{
+color: whitesmoke;
+margin-left: 5rem;
+}
+
+.table thead th {
+            background-color: #082759;
+
+            color: #ffffff;
+           ;
+        }
+     
+    </style>
 <body>
 <?php 
 
@@ -78,34 +162,94 @@ include '../includes/pnp-bar.php';
 ?>
 
     <!-- Page Content -->
-    <div class="content">
-        <div class="container">
-            <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
-            
-            <!-- Search Form -->
-           
-            <div class="table">
-                <table class="table table-striped table-bordered">
+    <center><div class="content">
+  
+        <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
+
+        <!-- Search Form -->
+
+        <div class="table">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th> <!-- Added column for numbering -->
+                        <th>Name</th>
+                        <th>Barangay</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                        displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page);
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&search=<?= htmlspecialchars($search_query); ?>">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page - 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Previous</a>
+                </li>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?= $i; ?>&search=<?= htmlspecialchars($search_query); ?>"><?= $i; ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page + 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $total_pages; ?>&search=<?= htmlspecialchars($search_query); ?>">Last</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+
+    
+
+    <div class="modal fade" id="hearingHistoryModal" tabindex="-1" aria-labelledby="hearingHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hearingHistoryModalLabel">Hearing History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Barangay</th>
-                            <th>Action</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php
-                        // Function call to display PNP complaints logs with search filter
-                        displayComplaintDetails($pdo, $search_query);
-                        ?>
+                    <tbody id="hearingHistoryTableBody">
+                        <!-- Hearing history rows will be populated here -->
                     </tbody>
                 </table>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
+</div>
 
 
-
+    </center>
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -175,6 +319,42 @@ include '../includes/pnp-bar.php';
     <script>
 
 
+
+document.addEventListener('DOMContentLoaded', function () {
+    var hearingHistoryModal = document.getElementById('hearingHistoryModal');
+    
+    hearingHistoryModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var complaintId = button.getAttribute('data-complaint-id');
+
+        // Fetch hearing history
+        fetch(`hearing.php?complaint_id=${complaintId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('hearingHistoryTableBody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+
+                data.forEach(hearing => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${hearing.hearing_date}</td>
+                        <td>${hearing.hearing_time}</td>
+                        <td>${hearing.hearing_type}</td>
+                        <td>${hearing.hearing_status}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Fetch error:', error));
+    });
+});
+
+
         var profilePic = document.querySelector('.profile');
         var editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
 
@@ -199,6 +379,136 @@ include '../includes/pnp-bar.php';
                     document.getElementById('complaintDetails').innerHTML = "Error loading details.";
                 });
         }
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+    const notificationButton = document.getElementById('notificationButton');
+    const modalBody = document.getElementById('notificationModalBody');
+
+    function fetchNotifications() {
+        return fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(data => {
+            if (data.success) {
+                const notificationCount = data.notifications.length;
+                const notificationCountBadge = document.getElementById("notificationCount");
+
+                if (notificationCount > 0) {
+                    notificationCountBadge.textContent = notificationCount;
+                    notificationCountBadge.classList.remove("d-none");
+                } else {
+                    notificationCountBadge.textContent = "0";
+                    notificationCountBadge.classList.add("d-none");
+                }
+
+                let notificationListHtml = '';
+                if (notificationCount > 0) {
+                    data.notifications.forEach(notification => {
+                        notificationListHtml += `
+                            <div class="dropdown-item" 
+                                 data-id="${notification.complaints_id}" 
+                                 data-status="${notification.status}" 
+                                 data-complaint-name="${notification.complaint_name}" 
+                                 data-barangay-name="${notification.barangay_name}">
+                                Complaint: ${notification.complaint_name}<br>
+                                Barangay: ${notification.barangay_name}<br>
+                                Status: ${notification.status}
+                                 <hr>
+                            </div>
+                        `;
+                    });
+                } else {
+                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
+                }
+
+                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+                if (popoverInstance) {
+                    popoverInstance.setContent({
+                        '.popover-body': notificationListHtml
+                    });
+                } else {
+                    new bootstrap.Popover(notificationButton, {
+                        html: true,
+                        content: function () {
+                            return `<div class="popover-content">${notificationListHtml}</div>`;
+                        },
+                        container: 'body'
+                    });
+                }
+
+                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const notificationId = this.getAttribute('data-id');
+                        markNotificationAsRead(notificationId);
+                    });
+                });
+            } else {
+                console.error("Failed to fetch notifications");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching notifications:", error);
+        });
+    }
+
+    function markNotificationAsRead(notificationId) {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationId: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notification marked as read');
+                fetchNotifications(); // Refresh notifications
+            } else {
+                console.error("Failed to mark notification as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+    fetchNotifications();
+
+    notificationButton.addEventListener('shown.bs.popover', function () {
+        markNotificationsAsRead();
+    });
+
+    function markNotificationsAsRead() {
+        fetch('notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ markAsRead: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector(".badge.bg-danger");
+                if (badge) {
+                    badge.classList.add("d-none");
+                }
+            } else {
+                console.error("Failed to mark notifications as read");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
     </script>
 
     <!-- Toggle Sidebar Script -->
@@ -215,7 +525,7 @@ include '../includes/pnp-bar.php';
         }).then((result) => {
             if (result.isConfirmed) {
                 // Redirect to logout URL
-                window.location.href = " ../login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
             }
         });
         }
