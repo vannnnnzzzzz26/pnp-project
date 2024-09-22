@@ -48,6 +48,10 @@
             </a>
         </li>
 
+        <li class="nav-item">
+        <a class="nav-link" href="login_logs.php"><i class="bi bi-people-fill"></i><span class="nav-text">Login Logs</span></a>
+        </li>
+
 
         <li class="nav-item">
             <a class="nav-link" href="barangay_dashboard.php">

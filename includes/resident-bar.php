@@ -35,6 +35,9 @@
         <li class="nav-item">
         <a class="nav-link" href="barangay-official.php"><i class="bi bi-person-check-fill"></i><span class="nav-text">Barangay Official</span></a>
         </li>
+        <li class="nav-item">
+        <a class="nav-link" href="login_logs.php"><i class="bi bi-people-fill"></i><span class="nav-text">Login Logs</span></a>
+        </li>
 
        
      

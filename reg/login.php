@@ -77,6 +77,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $_SESSION['login_success'] = "Welcome " . $user['first_name'] . "!";
 
+
+            $ip_address = $_SERVER['REMOTE_ADDR']; // Get the user's IP address
+            $user_agent = $_SERVER['HTTP_USER_AGENT']; // Get the user's browser info
+
+          // Prepare the SQL statement without ip_address and user_agent
+$stmt = $pdo->prepare("INSERT INTO tbl_login_logs (user_id, login_time) VALUES (?, NOW())");
+
+// Execute the statement with only the user_id parameter
+$stmt->execute([$user['user_id']]);
+
             // Redirect based on account type
             if ($user['accountType'] == 'Barangay Official') {
                 $redirectUrl = "../barangay/barangay-responder.php";
@@ -276,13 +286,16 @@ function sendOtpEmail($email, $otp) {
             <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                 <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
+                
             </div>
 
             <div class="mb-3 input-group">
-                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
-            </div>
-
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+            <span class="input-group-text">
+                <i class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+            </span>
+        </div>
             <div class="mb-3 form-check d-flex justify-content-start">
                
                 <a href="../forgot-password.php" class="forgot-password">Forgot Password?</a>
@@ -297,6 +310,18 @@ function sendOtpEmail($email, $otp) {
     </div>
 
     <script>
+      const togglePassword = document.querySelector('#togglePassword');
+    const passwordField = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        
+        // Toggle the eye / eye-slash icon
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
         <?php if (isset($_SESSION['login_success'])): ?>
             Swal.fire({
                 position: 'center',

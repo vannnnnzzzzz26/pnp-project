@@ -327,6 +327,7 @@ include '../includes/pnp-bar.php';
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                <hr>
                             </div>
                         `;
                     });

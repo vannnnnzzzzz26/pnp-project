@@ -121,7 +121,6 @@ $total_pages = ceil($total_complaints / $results_per_page);
 }
 
 
-
 .sidebar-toggler {
     display: flex;
     align-items: center;
@@ -150,9 +149,9 @@ margin-left: 5rem;
             background-color: #082759;
 
             color: #ffffff;
-           ;
+        
         }
-     
+
     </style>
 <body>
 <?php 
@@ -381,73 +380,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-
         document.addEventListener("DOMContentLoaded", function () {
     const notificationButton = document.getElementById('notificationButton');
-    const modalBody = document.getElementById('notificationModalBody');
+    const notificationCountBadge = document.getElementById("notificationCount");
 
     function fetchNotifications() {
         return fetch('notifications.php', {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const notificationCount = data.notifications.length;
-                const notificationCountBadge = document.getElementById("notificationCount");
-
-                if (notificationCount > 0) {
-                    notificationCountBadge.textContent = notificationCount;
-                    notificationCountBadge.classList.remove("d-none");
-                } else {
-                    notificationCountBadge.textContent = "0";
-                    notificationCountBadge.classList.add("d-none");
-                }
-
-                let notificationListHtml = '';
-                if (notificationCount > 0) {
-                    data.notifications.forEach(notification => {
-                        notificationListHtml += `
-                            <div class="dropdown-item" 
-                                 data-id="${notification.complaints_id}" 
-                                 data-status="${notification.status}" 
-                                 data-complaint-name="${notification.complaint_name}" 
-                                 data-barangay-name="${notification.barangay_name}">
-                                Complaint: ${notification.complaint_name}<br>
-                                Barangay: ${notification.barangay_name}<br>
-                                Status: ${notification.status}
-                                 <hr>
-                            </div>
-                        `;
-                    });
-                } else {
-                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
-                }
-
-                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
-                if (popoverInstance) {
-                    popoverInstance.setContent({
-                        '.popover-body': notificationListHtml
-                    });
-                } else {
-                    new bootstrap.Popover(notificationButton, {
-                        html: true,
-                        content: function () {
-                            return `<div class="popover-content">${notificationListHtml}</div>`;
-                        },
-                        container: 'body'
-                    });
-                }
-
-                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
-                    item.addEventListener('click', function () {
-                        const notificationId = this.getAttribute('data-id');
-                        markNotificationAsRead(notificationId);
-                    });
-                });
+                updateNotificationBadge(notificationCount);
+                updatePopoverContent(data.notifications);
             } else {
                 console.error("Failed to fetch notifications");
             }
@@ -457,18 +406,57 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function updateNotificationBadge(count) {
+        notificationCountBadge.textContent = count > 0 ? count : "0";
+        notificationCountBadge.classList.toggle("d-none", count === 0);
+    }
+
+    function updatePopoverContent(notifications) {
+        let notificationListHtml = notifications.length > 0 ?
+            notifications.map(notification => `
+                <div class="dropdown-item" data-id="${notification.complaints_id}">
+                    Complaint: ${notification.complaint_name}<br>
+                    Barangay: ${notification.barangay_name}<br>
+                    Status: ${notification.status}
+                    <hr>
+                </div>
+            `).join('') :
+            '<div class="dropdown-item text-center">No new notifications</div>';
+
+        const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
+        if (popoverInstance) {
+            popoverInstance.setContent({ '.popover-body': notificationListHtml });
+        } else {
+            new bootstrap.Popover(notificationButton, {
+                html: true,
+                content: function () {
+                    return `<div class="popover-content">${notificationListHtml}</div>`;
+                },
+                container: 'body'
+            });
+        }
+
+        // Add click event listener to mark as read
+        document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
+                markNotificationAsRead(notificationId);
+            });
+        });
+    }
+
     function markNotificationAsRead(notificationId) {
-        fetch('notifications.php', {
+  
+        fetch('notifications.php?action=update', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ notificationId: notificationId })
+            body: JSON.stringify({ notificationId, userId })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                console.log('Notification marked as read');
                 fetchNotifications(); // Refresh notifications
             } else {
                 console.error("Failed to mark notification as read");
@@ -479,40 +467,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Fetch notifications when the page loads
     fetchNotifications();
-
-    notificationButton.addEventListener('shown.bs.popover', function () {
-        markNotificationsAsRead();
-    });
-
-    function markNotificationsAsRead() {
-        fetch('notifications.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ markAsRead: true })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const badge = document.querySelector(".badge.bg-danger");
-                if (badge) {
-                    badge.classList.add("d-none");
-                }
-            } else {
-                console.error("Failed to mark notifications as read");
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
-    }
 });
-    </script>
 
-    <!-- Toggle Sidebar Script -->
-    <script>
+
+   
      function confirmLogout() {
         Swal.fire({
             title: "Are you sure?",
