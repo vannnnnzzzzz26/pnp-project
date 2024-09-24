@@ -186,6 +186,14 @@ try {
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
+
+
+
+
+$stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE c.status = 'settled_in_barangay' AND b.barangay_name = ?");
+$stmt->execute([$barangay_name]);
+$total_results = $stmt->fetchColumn();
+$total_pages = ceil($total_results / $results_per_page);
 ?>
 
                     </tbody>
@@ -195,31 +203,34 @@ try {
 
 
 
+            <nav>
+        <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&search=<?= htmlspecialchars($search_query); ?>">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page - 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Previous</a>
+                </li>
+            <?php endif; ?>
 
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?= $i; ?>&search=<?= htmlspecialchars($search_query); ?>"><?= $i; ?></a>
+                </li>
+            <?php endfor; ?>
 
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    <?php
-                    // Calculate total pages
-                    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE c.status = 'settled_in_barangay' AND b.barangay_name = ?");
-                    $stmt->execute([$barangay_name]);
-                    $total_results = $stmt->fetchColumn();
-                    $total_pages = ceil($total_results / $results_per_page);
+            <?php if ($page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page + 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $total_pages; ?>&search=<?= htmlspecialchars($search_query); ?>">Last</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
 
-                    if ($page > 1) {
-                        echo "<li class='page-item'><a class='page-link' href='?page=" . ($page - 1) . "'>Previous</a></li>";
-                    }
-                    for ($i = 1; $i <= $total_pages; $i++) {
-                        $active = ($i == $page) ? 'active' : '';
-                        echo "<li class='page-item $active'><a class='page-link' href='?page=$i'>$i</a></li>";
-                    }
-                    if ($page < $total_pages) {
-                        echo "<li class='page-item'><a class='page-link' href='?page=" . ($page + 1) . "'>Next</a></li>";
-                    }
-                    ?>
-                </ul>
-            </nav>
         </div>
     </div>
 

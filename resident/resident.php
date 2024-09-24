@@ -31,10 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $educational_background = isset($_POST['educational_background']) ? htmlspecialchars($_POST['educational_background']) : '';
         $date_filed = date('Y-m-d H:i:s');
 
-        $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
-        if ($category === 'Other' && !empty($other_category)) {
-            $category = $other_category;
-        }
+        
 
         $pdo->beginTransaction();
 
@@ -80,12 +77,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$age, $gender, $birth_date, $place_of_birth, $civil_status, $educational_background]);
         $info_id = $pdo->lastInsertId();
 
-        // Determine the responds value
-        $responds = ($category === 'Other') ? 'pnp' : '';
 
-        // Insert into tbl_complaints with status
+
+
+          $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
+        if ($category === 'Other' && !empty($other_category)) {
+            $category = $other_category; // Use the specified complaint text
+        }
+
+        // Check if category is 'Other' to set status and responds
+        if ($category === 'Other') {
+            $status = 'pnp'; // Set status to 'pnp'
+            $responds = 'pnp'; // Set responds to 'pnp' as well
+        } else {
+            $status = 'inprogress'; // Default status for other categories
+            $responds = ''; // Default responds
+        }
+
+        // Proceed with the rest of your database operations
         $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, cp_number, complaints_person, info_id, image_id, status, responds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, 'inprogress', $responds]);
+        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, $status, $responds]);
+
+
+// Insert into tbl_complaints with dynamic status and responds
+$stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, cp_number, complaints_person, info_id, image_id, status, responds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, $status, $responds]);
+$complaint_id = $pdo->lastInsertId(); // Get the inserted complaint ID
+
         $complaint_id = $pdo->lastInsertId(); // Get the inserted complaint ID
 
         // Handle evidence upload if provided
@@ -243,6 +261,10 @@ include '../includes/edit-profile.php';
             </div>
             <div class="col-lg-6 col-md-12 form-group">
               <label for="category">Category:</label>
+<?php include 'category.php';
+?>
+           <button id="openModalButton" class="btn btn-primary">Viewn Category</button>
+<br>
               <select id="category" name="category" class="form-control" required>
                 <option value="">select</option>
                 <option value="Unlawful Use of Means of Publication and Unlawful Utterances (Art. 154)">Unlawful Use of Means of Publication and Unlawful Utterances (Art. 154)</option>
@@ -331,10 +353,12 @@ include '../includes/edit-profile.php';
 
           <!-- Contact and Birth Information -->
           <div class="row">
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="cp_number">CP Number:</label>
-              <input type="text" id="cp_number" name="cp_number" class="form-control" required>
-            </div>
+          <div class="col-lg-6 col-md-12 form-group">
+    <label for="cp_number">CP Number:</label>
+    <input type="tel" id="cp_number" name="cp_number" class="form-control" required 
+           pattern="\d{11}" maxlength="11" title="Please enter an 11-digit number">
+</div>
+
             <div class="col-lg-6 col-md-12 form-group">
               <label for="birth_date">Birth Date:</label>
               <input type="date" id="birth_date" name="birth_date" class="form-control" required>
@@ -415,6 +439,38 @@ include '../includes/edit-profile.php';
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
     <script>
+
+
+
+$(document).ready(function() {
+  // Open the modal when a button is clicked
+  $('#openModalButton').click(function() {
+    $('#categoryModal').modal('show');
+  });
+
+  // Close the modal
+  $('#categoryModal').on('hidden.bs.modal', function () {
+    // You can reset any content here if necessary
+    console.log('Modal closed');
+  });
+
+  // Optional: Any additional logic when the modal is shown
+  $('#categoryModal').on('shown.bs.modal', function () {
+    console.log('Modal is open');
+  });
+});
+
+
+document.getElementById('cp_number').addEventListener('input', function (e) {
+    // Remove non-numeric characters
+    this.value = this.value.replace(/\D/g, '');
+    // Limit to 11 digits
+    if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+    }
+});
+
+
         // Check if the session variable is set and show SweetAlert
         <?php if (isset($_SESSION['success'])): ?>
             Swal.fire({
@@ -511,7 +567,6 @@ include '../includes/edit-profile.php';
 
 
 
-
     document.addEventListener("DOMContentLoaded", function () {
     const notificationButton = document.getElementById('notificationButton');
     const modalBody = document.getElementById('notificationModalBody');
@@ -524,7 +579,13 @@ include '../includes/edit-profile.php';
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                // If no content (204) or other error, handle it
+                return {};
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 const notificationCount = data.notifications.length;
@@ -544,25 +605,22 @@ include '../includes/edit-profile.php';
                 if (notificationCount > 0) {
                     data.notifications.forEach(notification => {
                         notificationListHtml += `
-                                  <div class="dropdown-item" 
-     data-id="${notification.id}" 
-     data-status="${notification.status}" 
-     data-hearing-type="${notification.hearing_type}" 
-     data-hearing-date="${notification.hearing_date}" 
-     data-hearing-time="${notification.hearing_time}" 
-     data-hearing-status="${notification.hearing_status}">
-    Status: ${notification.status}<br>
-    Hearing Type: ${notification.hearing_type}<br>
-    Date: ${notification.hearing_date}<br>
-    Time: ${notification.hearing_time}<br>
-    Hearing Status: ${notification.hearing_status}
-     <hr>
-</div>
-
-                        `;
+                            <div class="dropdown-item" 
+                                data-id="${notification.complaints_id}" 
+                                data-status="${notification.status}" 
+                                data-hearing-type="${notification.hearing_type}" 
+                                data-hearing-date="${notification.hearing_date}" 
+                                data-hearing-time="${notification.hearing_time}" 
+                                data-hearing-status="${notification.hearing_status}">
+                                Status: ${notification.status}<br>
+                                Hearing Type: ${notification.hearing_type}<br>
+                                Date: ${notification.hearing_date}<br>
+                                Time: ${notification.hearing_time}<br>
+                                Hearing Status: ${notification.hearing_status}
+                                <hr>
+                            </div>`;
                     });
                 } else {
-                    // If no new notifications
                     notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
                 }
 
@@ -573,7 +631,6 @@ include '../includes/edit-profile.php';
                         '.popover-body': notificationListHtml
                     });
                 } else {
-                    // Initialize the popover
                     new bootstrap.Popover(notificationButton, {
                         html: true,
                         content: function () {
@@ -582,13 +639,6 @@ include '../includes/edit-profile.php';
                         container: 'body'
                     });
                 }
-
-                // Attach click event listeners to notifications
-                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
-                    item.addEventListener('click', function () {
-                        openNotificationDetail(this);
-                    });
-                });
             } else {
                 console.error("Failed to fetch notifications");
             }
@@ -597,9 +647,6 @@ include '../includes/edit-profile.php';
             console.error("Error fetching notifications:", error);
         });
     }
-
-    // Function to open notification detail in a modal
-    
 
     // Initialize or refresh the popover when needed
     fetchNotifications();
@@ -610,7 +657,6 @@ include '../includes/edit-profile.php';
     });
 
     function markNotificationsAsRead() {
-        // Make an AJAX request to the server to mark notifications as read
         fetch('notifications.php', {
             method: 'POST',
             headers: {
@@ -621,7 +667,6 @@ include '../includes/edit-profile.php';
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Handle the response, e.g., update the UI to reflect read notifications
                 const badge = document.querySelector(".badge.bg-danger");
                 if (badge) {
                     badge.classList.add("d-none");
@@ -635,6 +680,7 @@ include '../includes/edit-profile.php';
         });
     }
 });
+
 
 
             

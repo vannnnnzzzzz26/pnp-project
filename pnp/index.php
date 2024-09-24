@@ -152,37 +152,58 @@ margin-left: 5rem;
         </div>
     </nav>
 
+
     <div class="container mt-4">
-        <h2 class="text-center">Announcements</h2>
-        <div class="announcement-container">
-            <?php if (!empty($announcements)): ?>
-                <?php foreach ($announcements as $announcement): ?>
-                    <div class="card announcement-card">
-                        <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted"><?php echo htmlspecialchars($announcement['date_posted']); ?></h6>
-                            <h5 class="card-title"><?php echo htmlspecialchars($announcement['title']); ?></h5>
-                            <p class="card-text"><?php echo nl2br(htmlspecialchars($announcement['content'])); ?></p>
-                          <center> <?php if ($announcement['image_path']): ?>
-                                <img src="<?php echo htmlspecialchars($announcement['image_path']); ?>" class="img-fluid announcement-image" alt="Announcement Image">
-                            <?php endif; ?></center> 
-                            <br>
-                            <button class="btn btn-primary share-button" 
-                                    onclick="shareAnnouncement(
-                                        <?php echo $announcement['announcement_id']; ?>, 
-                                        '<?php echo addslashes(htmlspecialchars($announcement['title'])); ?>', 
-                                        '<?php echo addslashes(htmlspecialchars($announcement['content'])); ?>', 
-                                        window.location.href
-                                    )">
-                                Share <i class="bi bi-share"></i> <span id="share-count-<?php echo $announcement['announcement_id']; ?>"><?php echo $announcement['share_count']; ?></span>
-                            </button>
+    <div class="row">
+        <?php if (isset($_SESSION['pnp_officer_logo_path']) && !empty($_SESSION['pnp_officer_logo_path'])): ?>
+            <div class="col-md-4 mt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">PNP Officer Logo</h3>
+                        <div class="image-container mb-2">
+                            <img src="<?php echo htmlspecialchars($_SESSION['pnp_officer_logo_path']); ?>" class="img-fluid card-img-top" alt="PNP Officer Logo">
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-center">No announcements found.</p>
-            <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="<?php echo isset($_SESSION['pnp_officer_logo_path']) ? 'col-md-8 mt-4' : 'col-md-12 mt-4'; ?>">
+            <h2 class="text-center">Announcements</h2>
+            <div class="announcement-container">
+                <?php if (!empty($announcements)): ?>
+                    <?php foreach ($announcements as $announcement): ?>
+                        <div class="card announcement-card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted"><?php echo htmlspecialchars($announcement['date_posted']); ?></h6>
+                                <h5 class="card-title"><?php echo htmlspecialchars($announcement['title']); ?></h5>
+                                <p class="card-text"><?php echo nl2br(htmlspecialchars($announcement['content'])); ?></p>
+                                <center>
+                                    <?php if ($announcement['image_path']): ?>
+                                        <img src="<?php echo htmlspecialchars($announcement['image_path']); ?>" class="img-fluid announcement-image" alt="Announcement Image">
+                                    <?php endif; ?>
+                                </center>
+                                <br>
+                                <button class="btn btn-primary share-button" 
+                                        onclick="shareAnnouncement(
+                                            <?php echo $announcement['announcement_id']; ?>, 
+                                            '<?php echo addslashes(htmlspecialchars($announcement['title'])); ?>', 
+                                            '<?php echo addslashes(htmlspecialchars($announcement['content'])); ?>', 
+                                            window.location.href
+                                        )">
+                                    Share <i class="bi bi-share"></i> <span id="share-count-<?php echo $announcement['announcement_id']; ?>"><?php echo $announcement['share_count']; ?></span>
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="text-center">No announcements found.</p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
+</div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>

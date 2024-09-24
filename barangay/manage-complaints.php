@@ -1,6 +1,5 @@
 <?php
 // Start session and include database connection
-
 include '../connection/dbconn.php'; 
 include '../barangay/notifications.php';
 
@@ -23,6 +22,15 @@ $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
 $barangay_name = isset($_SESSION['barangay_name']) ? $_SESSION['barangay_name'] : '';
 $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
+
+// Define pagination variables
+$results_per_page = 10; // Number of complaints per page
+
+// Get the current page number from the URL, default to 1 if not present
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? $_GET['page'] : 1;
+
+// Calculate the starting row number for the SQL query
+$start_from = ($page - 1) * $results_per_page;
 
 // Handle status update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && isset($_POST['action'])) {
@@ -51,21 +59,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && iss
     }
 }
 
-// Fetch complaints with status 'Unresolved' from the user's barangay
+// Fetch complaints with status 'Inprogress' from the user's barangay
 try {
-    $stmt = $pdo->prepare("
-    SELECT c.*, u.barangay_name, i.image_path, info.gender, info.place_of_birth, info.age, info.educational_background, info.civil_status,
-           e.evidence_id, e.evidence_path, cc.complaints_category
-    FROM tbl_complaints c
-    LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id
-    LEFT JOIN tbl_image i ON c.image_id = i.image_id
-    LEFT JOIN tbl_info info ON c.info_id = info.info_id
-    LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-    LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-    WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'
-");
+    // Get total complaints count for pagination
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'");
     $stmt->execute([$barangay_name]);
+    $total_complaints = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Fetch complaints for the current page with LIMIT and OFFSET
+    $stmt = $pdo->prepare("
+        SELECT c.*, u.barangay_name, i.image_path, info.gender, info.place_of_birth, info.age, info.educational_background, info.civil_status,
+               e.evidence_id, e.evidence_path, cc.complaints_category
+        FROM tbl_complaints c
+        LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id
+        LEFT JOIN tbl_image i ON c.image_id = i.image_id
+        LEFT JOIN tbl_info info ON c.info_id = info.info_id
+        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+        LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+        WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'
+        LIMIT ?, ?
+    ");
+    $stmt->bindValue(1, $barangay_name, PDO::PARAM_STR);
+    $stmt->bindValue(2, $start_from, PDO::PARAM_INT);
+    $stmt->bindValue(3, $results_per_page, PDO::PARAM_INT);
+    $stmt->execute();
     $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Calculate total number of pages
+    $total_pages = ceil($total_complaints / $results_per_page);
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error fetching complaints: " . $e->getMessage();
     $complaints = []; // Initialize complaints array if fetch fails
@@ -199,6 +220,31 @@ include '../includes/edit-profile.php';
         <?php endforeach; ?>
     </tbody>
 </table>
+<!-- Pagination Links -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    <!-- Previous Page Link -->
+    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+      <a class="page-link" href="<?= $_SERVER['PHP_SELF'] . '?page=' . ($page - 1) ?>" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <!-- Page Numbers -->
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+      <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+        <a class="page-link" href="<?= $_SERVER['PHP_SELF'] . '?page=' . $i ?>"><?= $i ?></a>
+      </li>
+    <?php endfor; ?>
+
+    <!-- Next Page Link -->
+    <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+      <a class="page-link" href="<?= $_SERVER['PHP_SELF'] . '?page=' . ($page + 1) ?>" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
 
 </div>
 </div>
