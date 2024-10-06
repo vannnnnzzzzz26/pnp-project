@@ -163,7 +163,7 @@ include '../includes/pnp-bar.php';
     <!-- Page Content -->
     <center><div class="content">
   
-        <h2 class="mt-3 mb-4">PNP Complaints Logs</h2>
+        <h2 class="mt-3 mb-4">Barangay Complaints History</h2>
 
         <!-- Search Form -->
 

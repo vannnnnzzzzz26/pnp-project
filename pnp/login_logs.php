@@ -121,7 +121,7 @@ include '../includes/pnp-nav.php';
 
    <div class="content">
     <div class="container mt-5">
-        <h1 class="text-center mb-4">My Login Logs</h1>
+        <h1 class="text-center mb-4"> Login Logs</h1>
         <div class="table">
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">

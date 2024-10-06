@@ -2,7 +2,6 @@
 include '../connection/dbconn.php'; 
 include '../resident/notifications.php';
 
-
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -12,29 +11,29 @@ $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
 $lastName = $_SESSION['last_name'];
 $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
-$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
 $barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
 $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
+        // Collect complaint form data
         $complaint_name = "$firstName $middleName $lastName $extensionName";
         $complaints = isset($_POST['complaints']) ? htmlspecialchars($_POST['complaints']) : '';
         $category = isset($_POST['category']) ? htmlspecialchars($_POST['category']) : '';
-        $cp_number = isset($_POST['cp_number']) ? htmlspecialchars($_POST['cp_number']) : '';
         $complaints_person = isset($_POST['complaints_person']) ? htmlspecialchars($_POST['complaints_person']) : '';
-        $age = isset($_POST['age']) ? htmlspecialchars($_POST['age']) : '';
-        $gender = isset($_POST['gender']) ? htmlspecialchars($_POST['gender']) : '';
-        $birth_date = isset($_POST['birth_date']) ? htmlspecialchars($_POST['birth_date']) : '';
-        $place_of_birth = isset($_POST['place_of_birth']) ? htmlspecialchars($_POST['place_of_birth']) : '';
-        $civil_status = isset($_POST['civil_status']) ? htmlspecialchars($_POST['civil_status']) : '';
-        $educational_background = isset($_POST['educational_background']) ? htmlspecialchars($_POST['educational_background']) : '';
         $date_filed = date('Y-m-d H:i:s');
 
-        
+        // Collect data for "ano, saan, kailan, paano, bakit"
+        $ano = isset($_POST['ano']) ? htmlspecialchars($_POST['ano']) : '';
+        $saan = isset($_POST['saan']) ? htmlspecialchars($_POST['saan']) : '';
+        $kailan = isset($_POST['kailan']) ? htmlspecialchars($_POST['kailan']) : '';
+        $paano = isset($_POST['paano']) ? htmlspecialchars($_POST['paano']) : '';
+        $bakit = isset($_POST['bakit']) ? htmlspecialchars($_POST['bakit']) : '';
 
         $pdo->beginTransaction();
 
+        // Check category and insert new category if necessary
         $stmt = $pdo->prepare("SELECT category_id FROM tbl_complaintcategories WHERE complaints_category = ?");
         $stmt->execute([$category]);
         $category_id = $stmt->fetchColumn();
@@ -45,23 +44,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $category_id = $pdo->lastInsertId();
         }
 
+        // Validate barangay
         $stmt = $pdo->prepare("SELECT barangays_id FROM tbl_users_barangay WHERE barangays_id = ?");
         $stmt->execute([$barangay]);
         $barangays_id = $stmt->fetchColumn();
 
         if (!$barangays_id) {
-            throw new Exception("Invalid Barangay ID."); 
+            throw new Exception("Invalid Barangay ID.");
         }
 
+        // Handle image upload
         $image_id = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-            $image_type = 'ID'; // Assuming you have a fixed image type for now
+            $image_type = 'ID'; 
             $image_filename = basename($_FILES['image']['name']);
             $image_path = '../uploads/' . $image_filename;
             $date_uploaded = date('Y-m-d H:i:s');
 
-            if (!file_exists('uploads')) {
-                mkdir('uploads', 0777, true); 
+            if (!file_exists('../uploads')) {
+                mkdir('../uploads', 0777, true); 
             }
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
@@ -73,40 +74,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        $stmt = $pdo->prepare("INSERT INTO tbl_info (age, gender, birth_date, place_of_birth, civil_status, educational_background) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$age, $gender, $birth_date, $place_of_birth, $civil_status, $educational_background]);
-        $info_id = $pdo->lastInsertId();
+        // Handle Selfie upload
+        $selfie_path = null;
+        if (isset($_FILES['selfie']) && $_FILES['selfie']['error'] == UPLOAD_ERR_OK) {
+            $selfie_filename = basename($_FILES['selfie']['name']);
+            $selfie_path = '../uploads/' . $selfie_filename;
+            $date_uploaded = date('Y-m-d H:i:s');
 
+            if (move_uploaded_file($_FILES['selfie']['tmp_name'], $selfie_path)) {
+                // Store selfie path in tbl_info
+            } else {
+                throw new Exception("Failed to upload selfie.");
+            }
+        }
 
+        // Insert into tbl_info
+        $educational_background = isset($_POST['educational_background']) ? htmlspecialchars($_POST['educational_background']) : '';
+        $stmt = $pdo->prepare("INSERT INTO tbl_info ( selfie_path) VALUES ( ?)");
+        $stmt->execute([ $selfie_path]);
+        $info_id = $pdo->lastInsertId(); 
 
-
-          $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
+        // Handle category
+        $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
         if ($category === 'Other' && !empty($other_category)) {
-            $category = $other_category; // Use the specified complaint text
+            $category = $other_category; 
         }
 
-        // Check if category is 'Other' to set status and responds
+        // Check status and responds based on category
         if ($category === 'Other') {
-            $status = 'pnp'; // Set status to 'pnp'
-            $responds = 'pnp'; // Set responds to 'pnp' as well
+            $status = 'pnp';
+            $responds = 'pnp';
         } else {
-            $status = 'inprogress'; // Default status for other categories
-            $responds = ''; // Default responds
+            $status = 'inprogress';
+            $responds = '';
         }
 
-        // Proceed with the rest of your database operations
-        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, cp_number, complaints_person, info_id, image_id, status, responds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, $status, $responds]);
+        // Insert into tbl_complaints with new fields
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: login.php");
+            exit();
+        }
+        
+        $user_id = $_SESSION['user_id']; // Retrieve user_id from session
+        
+        // Later in your complaint submission code
+        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, info_id, image_id, status, responds, ano, saan, kailan, paano, bakit, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $info_id, $image_id, $status, $responds, $ano, $saan, $kailan, $paano, $bakit, $user_id]);
+        
+        $complaint_id = $pdo->lastInsertId();
 
-
-// Insert into tbl_complaints with dynamic status and responds
-$stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, cp_number, complaints_person, info_id, image_id, status, responds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $cp_number, $complaints_person, $info_id, $image_id, $status, $responds]);
-$complaint_id = $pdo->lastInsertId(); // Get the inserted complaint ID
-
-        $complaint_id = $pdo->lastInsertId(); // Get the inserted complaint ID
-
-        // Handle evidence upload if provided
+        // Handle evidence upload
         if (isset($_FILES['evidence']) && $_FILES['evidence']['error'][0] == UPLOAD_ERR_OK) {
             foreach ($_FILES['evidence']['tmp_name'] as $key => $tmp_name) {
                 $evidence_filename = basename($_FILES['evidence']['name'][$key]);
@@ -125,7 +142,6 @@ $complaint_id = $pdo->lastInsertId(); // Get the inserted complaint ID
         $pdo->commit();
 
         $_SESSION['success'] = true;
-
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
 
@@ -253,6 +269,9 @@ include '../includes/edit-profile.php';
             </div>
           </div>
 
+
+     
+
           <!-- Complaint Information -->
           <div class="row">
             <div class="col-lg-6 col-md-12 form-group">
@@ -326,6 +345,9 @@ include '../includes/edit-profile.php';
             </div>
           </div>
 
+
+
+
           <!-- Script for Other Category Toggle -->
           <script>
             document.getElementById('category').addEventListener('change', function() {
@@ -339,6 +361,37 @@ include '../includes/edit-profile.php';
             });
           </script>
 
+
+
+<div class="row">
+    <div class="col-lg-6 col-md-12 form-group">
+        <label for="ano">Ano (What):</label>
+        <input type="text" name="ano" id="ano" class="form-control" required>
+    </div>
+
+    <div class="col-lg-6 col-md-12 form-group">
+        <label for="saan">Saan (Where):</label>
+        <input type="text" name="saan" id="saan" class="form-control" required>
+    </div>
+
+    <div class="col-lg-6 col-md-12 form-group">
+        <label for="kailan">Kailan (When):</label>
+        <input type="datetime-local" name="kailan" id="kailan" class="form-control" required>
+    </div>
+
+    <div class="col-lg-6 col-md-12 form-group">
+        <label for="paano">Paano (How):</label>
+        <textarea name="paano" id="paano" class="form-control" required></textarea>
+    </div>
+
+    <div class="col-lg-6 col-md-12 form-group">
+        <label for="bakit">Bakit (Why):</label>
+        <textarea name="bakit" id="bakit" class="form-control" required></textarea>
+    </div>
+</div>
+
+
+
           <!-- Evidence and Complained Person -->
           <div class="row">
             <div class="col-lg-6 col-md-12 form-group">
@@ -346,73 +399,33 @@ include '../includes/edit-profile.php';
               <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
             </div>
             <div class="col-lg-6 col-md-12 form-group">
-              <label for="complaints_person">Involved:</label>
+              <label for="complaints_person">Involved Person:</label>
               <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
             </div>
           </div>
 
           <!-- Contact and Birth Information -->
-          <div class="row">
-          <div class="col-lg-6 col-md-12 form-group">
-    <label for="cp_number">CP Number:</label>
-    <input type="tel" id="cp_number" name="cp_number" class="form-control" required 
-           pattern="\d{11}" maxlength="11" title="Please enter an 11-digit number">
-</div>
+ 
 
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="birth_date">Birth Date:</label>
-              <input type="date" id="birth_date" name="birth_date" class="form-control" required>
-            </div>
           </div>
 
-          <!-- Gender and Age Information -->
-          <div class="row">
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="gender">Gender:</label>
-              <select id="gender" name="gender" class="form-control" required>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="age">Age:</label>
-              <input type="number" id="age" name="age" class="form-control" readonly>
-            </div>
-          </div>
+          
 
-          <!-- Place of Birth and Civil Status -->
-          <div class="row">
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="place_of_birth">Place of Birth:</label>
-              <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
-            </div>
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="civil_status">Civil Status:</label>
-              <select id="civil_status" name="civil_status" class="form-control" required>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Widowed">Widowed</option>
-              </select>
-            </div>
-          </div>
+
+
+         
 
           <!-- Educational Background and ID -->
-          <div class="row">
+     
             <div class="col-lg-6 col-md-12 form-group">
-              <label for="educational_background">Educational Background:</label>
-              <select id="educational_background" name="educational_background" class="form-control" required>
-                <option value="Primary">Primary</option>
-                <option value="Secondary">Secondary</option>
-                <option value="Tertiary">Tertiary</option>
-              </select>
-            </div>
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="image">ID:</label>
+              <label for="image">ID presented (School ID, Driver's License, etc.):</label>
               <input type="file" id="image" name="image" class="form-control">
             </div>
           </div>
-
+          <div class="form-group">
+        <label for="selfie">Upload Selfie:</label>
+        <input type="file" name="selfie" accept="image/*" class="form-control" required>
+    </div>
           <!-- Submit Button -->
           <div class="row">
             <div class="col-12 text-center">
@@ -437,10 +450,8 @@ include '../includes/edit-profile.php';
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-
-
 
 $(document).ready(function() {
   // Open the modal when a button is clicked
@@ -448,27 +459,20 @@ $(document).ready(function() {
     $('#categoryModal').modal('show');
   });
 
-  // Close the modal
+  // Close the modal  
   $('#categoryModal').on('hidden.bs.modal', function () {
     // You can reset any content here if necessary
     console.log('Modal closed');
   });
 
   // Optional: Any additional logic when the modal is shown
-  $('#categoryModal').on('shown.bs.modal', function () {
+  $('#categoryModal').on('shown.bs.modal', function () { 
     console.log('Modal is open');
   });
 });
 
 
-document.getElementById('cp_number').addEventListener('input', function (e) {
-    // Remove non-numeric characters
-    this.value = this.value.replace(/\D/g, '');
-    // Limit to 11 digits
-    if (this.value.length > 11) {
-        this.value = this.value.slice(0, 11);
-    }
-});
+
 
 
         // Check if the session variable is set and show SweetAlert
@@ -532,25 +536,7 @@ document.getElementById('cp_number').addEventListener('input', function (e) {
                 }
             });
 
-            document.getElementById('birth_date').addEventListener('change', function() {
-    var birthDate = new Date(this.value);
-    var today = new Date();
-    var age = today.getFullYear() - birthDate.getFullYear();
-    var monthDifference = today.getMonth() - birthDate.getMonth();
-    
-    // Adjust the age if the birthday hasn't occurred yet this year
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
 
-    if (age < 18) {
-        alert("Age must be 18 or above.");
-        this.value = ''; // Clear the birth date field
-        document.getElementById('age').value = ''; // Clear the age field
-    } else {
-        document.getElementById('age').value = age; // Set the calculated age
-    }
-});
 
 
 
@@ -680,6 +666,10 @@ document.getElementById('cp_number').addEventListener('input', function (e) {
         });
     }
 });
+
+
+
+
 
 
 

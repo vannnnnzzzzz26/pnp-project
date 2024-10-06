@@ -24,8 +24,8 @@
                         <input type="text" class="form-control" id="editExtensionName" name="extension_name" value="<?php echo htmlspecialchars($extensionName); ?>">
                     </div>
                     <div class="mb-3">
-                        <label for="editEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editEmail" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+                        <label for="editCPNumber" class="form-label">CP Number</label>
+                        <input type="cp_number" class="form-control" id="editCPNumber" name="cp_number" value="<?php echo htmlspecialchars($cp_number); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="editProfilePic" class="form-label">Profile Picture</label>

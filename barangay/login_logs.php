@@ -1,4 +1,3 @@
-
 <?php
 include '../connection/dbconn.php';
 session_start();
@@ -18,14 +17,39 @@ if (!isset($_SESSION['user_id'])) {
 // Get the logged-in user's ID from the session
 $user_id = $_SESSION['user_id'];
 
-// Fetch only the login logs for the currently logged-in user
-$stmt = $pdo->prepare("SELECT tbl_login_logs.*, tbl_users.email FROM tbl_login_logs
+// Define the number of logs per page
+$logs_per_page = 10;
+
+// Get the current page from the URL, if not set default to page 1
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) {
+    $page = 1;
+}
+
+// Calculate the starting row for the query
+$offset = ($page - 1) * $logs_per_page;
+
+// Fetch the total number of login logs for pagination calculation
+$total_stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_login_logs WHERE user_id = :user_id");
+$total_stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$total_stmt->execute();
+$total_logs = $total_stmt->fetchColumn();
+
+// Fetch the login logs for the current page
+$stmt = $pdo->prepare("SELECT tbl_login_logs.*, tbl_users.email 
+                       FROM tbl_login_logs
                        JOIN tbl_users ON tbl_login_logs.user_id = tbl_users.user_id
                        WHERE tbl_login_logs.user_id = :user_id
-                       ORDER BY tbl_login_logs.login_time DESC");
+                       ORDER BY tbl_login_logs.login_time DESC
+                       LIMIT :limit OFFSET :offset");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->bindValue(':limit', $logs_per_page, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate the total number of pages
+$total_pages = ceil($total_logs / $logs_per_page);
 ?>
 
 <!DOCTYPE html>
@@ -88,15 +112,18 @@ color: whitesmoke;
             text-align: center;
         }
     </style>
-<?php 
+    
+    <?php 
 
 include '../includes/navbar.php';
 include '../includes/sidebar.php';
 include '../includes/edit-profile.php';
 ?>
+
+
    <div class="content">
     <div class="container mt-5">
-        <h1 class="text-center mb-4">My Login Logs</h1>
+        <h1 class="text-center mb-4"> Login Logs</h1>
         <div class="table">
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">
@@ -107,20 +134,67 @@ include '../includes/edit-profile.php';
                 <tbody>
                     <?php foreach ($logs as $log): ?>
                         <tr>
-            
                             <!-- Format login time to 12-hour format with AM/PM -->
                             <td class="text-center"><?= htmlspecialchars(date('F j, Y, g:i A', strtotime($log['login_time']))) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
+                </tr>
+          <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
+
+
+        <nav>
+            <ul class="pagination justify-content-center">
+                <!-- Previous button -->
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?page=<?= $page - 1 ?>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Next button -->
+                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?page=<?= $page + 1 ?>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
 
     <!-- Bootstrap JS (Optional) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
+
     <script src="../scripts/script.js"></script>
+
+    <script>  
+    function confirmLogout() {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#212529",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout URL
+                window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            }
+        });
+
+    }
+    </script>
 
 </body>
 </html>

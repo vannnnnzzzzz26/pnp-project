@@ -1,14 +1,12 @@
 <?php
 session_start();
-
-// Get session values
-$firstName = $_SESSION['first_name'] ?? '';
-$middleName = $_SESSION['middle_name'] ?? '';
-$lastName = $_SESSION['last_name'] ?? '';
-$extensionName = $_SESSION['extension_name'] ?? '';
-$email = $_SESSION['email'] ?? '';
-$barangay_name = $_SESSION['barangay_name'] ?? '';
-$pic_data = $_SESSION['pic_data'] ?? '';
+$firstName = $_SESSION['first_name'];
+$middleName = $_SESSION['middle_name'];
+$lastName = $_SESSION['last_name'];
+$extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
+$barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
+$pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 // Include database connection file
 include '../connection/dbconn.php';

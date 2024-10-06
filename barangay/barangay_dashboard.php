@@ -176,12 +176,12 @@ function fetchGenderData($pdo, $year, $month, $barangay_name, $month_from, $mont
         $whereSql = $whereClauses ? ' AND ' . implode(' AND ', $whereClauses) : '';
 
         $stmt = $pdo->prepare("
-            SELECT i.gender, COUNT(i.info_id) AS gender_count
+            SELECT u.gender, COUNT(u.user_id) AS gender_count
             FROM tbl_complaints c
-            JOIN tbl_info i ON c.info_id = i.info_id
+            JOIN tbl_users u ON c.user_id = u.user_id
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
             WHERE 1=1 $whereSql
-            GROUP BY i.gender
+            GROUP BY u.gender
         ");
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $middleName = htmlspecialchars($_POST['middle_name']);
     $lastName = htmlspecialchars($_POST['last_name']);
     $extensionName = htmlspecialchars($_POST['extension_name']);
-    $email = htmlspecialchars($_POST['email']);
+    $cp_number = htmlspecialchars($_POST['cp_number']);
     $redirectTo = isset($_POST['redirect_to']) ? $_POST['redirect_to'] : 'pnp'; // Default to 'pnp'
 
     try {
@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->beginTransaction();
 
         // Update user details
-        $stmt = $pdo->prepare("UPDATE tbl_users SET first_name = ?, middle_name = ?, last_name = ?, extension_name = ?, email = ? WHERE user_id = ?");
-        $stmt->execute([$firstName, $middleName, $lastName, $extensionName, $email, $userId]);
+        $stmt = $pdo->prepare("UPDATE tbl_users SET first_name = ?, middle_name = ?, last_name = ?, extension_name = ?, cp_number = ? WHERE user_id = ?");
+        $stmt->execute([$firstName, $middleName, $lastName, $extensionName, $cp_number, $userId]);
 
         // Handle profile picture update
         if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] == UPLOAD_ERR_OK) {
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['middle_name'] = $middleName;
         $_SESSION['last_name'] = $lastName;
         $_SESSION['extension_name'] = $extensionName;
-        $_SESSION['email'] = $email;
+        $_SESSION['cp_number'] = $cp_number;
 
         // Redirect based on hidden field value
         switch ($redirectTo) {

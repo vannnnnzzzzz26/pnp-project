@@ -25,11 +25,7 @@ $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 // Define pagination variables
 $results_per_page = 10; // Number of complaints per page
-
-// Get the current page number from the URL, default to 1 if not present
 $page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? $_GET['page'] : 1;
-
-// Calculate the starting row number for the SQL query
 $start_from = ($page - 1) * $results_per_page;
 
 // Handle status update
@@ -45,15 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && iss
 
         // Set success message using session
         $_SESSION['success'] = "Complaint status updated successfully.";
-
-        // Redirect to manage complaints page to prevent form resubmission
         header("Location: manage-complaints.php");
         exit();
     } catch (PDOException $e) {
-        // Set error message using session
         $_SESSION['error'] = "Error updating complaint status: " . $e->getMessage();
-
-        // Redirect to manage complaints page to prevent form resubmission
         header("Location: manage-complaints.php");
         exit();
     }
@@ -62,18 +53,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && iss
 // Fetch complaints with status 'Inprogress' from the user's barangay
 try {
     // Get total complaints count for pagination
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c 
+                           LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id 
+                           WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'");
     $stmt->execute([$barangay_name]);
     $total_complaints = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Fetch complaints for the current page with LIMIT and OFFSET
+    // Calculate total number of pages
+    $total_pages = ceil($total_complaints / $results_per_page);
+
+    // Fetch complaints for the current page
     $stmt = $pdo->prepare("
-        SELECT c.*, u.barangay_name, i.image_path, info.gender, info.place_of_birth, info.age, info.educational_background, info.civil_status,
+        SELECT c.*, u.barangay_name,
+
+           b.barangay_name, 
+               cc.complaints_category,
+               u.cp_number,          
+               u.gender,            
+               u.place_of_birth,    
+               u.age,               
+                u.nationality,
+               u.civil_status,
                e.evidence_id, e.evidence_path, cc.complaints_category
         FROM tbl_complaints c
         LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id
         LEFT JOIN tbl_image i ON c.image_id = i.image_id
         LEFT JOIN tbl_info info ON c.info_id = info.info_id
+          JOIN tbl_users u ON c.user_id = u.user_id  
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
         LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
         WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'
@@ -84,14 +90,13 @@ try {
     $stmt->bindValue(3, $results_per_page, PDO::PARAM_INT);
     $stmt->execute();
     $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Calculate total number of pages
-    $total_pages = ceil($total_complaints / $results_per_page);
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error fetching complaints: " . $e->getMessage();
-    $complaints = []; // Initialize complaints array if fetch fails
+    $complaints = []; // Default empty complaints array in case of error
+    $total_pages = 1; // Default to one page if error occurs
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -163,7 +168,7 @@ include '../includes/edit-profile.php';
 ?>
 <div class="content">
 <div class="container mt-5">
-    <h1>Manage Complaints</h1>
+    <h1>Resident Complaints</h1>
 
     <!-- Display success or error messages using SweetAlert -->
     <script>
@@ -192,6 +197,34 @@ include '../includes/edit-profile.php';
 
 <table class="table table-bordered table-hover">
     <thead>
+        
+    <form method="POST">
+    <label class="form-label">Sort by Status:</label>
+    <div>
+        <input type="radio" id="approved" name="status" value="Approved" 
+               <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'checked' : ''; ?>
+               onclick="handleStatusChange(this.value)">
+        <label for="approved">Approved</label>
+    </div>
+    <div>
+        <input type="radio" id="inProgress" name="status" value="In Progress" 
+               <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'checked' : ''; ?>
+               onclick="handleStatusChange(this.value)">
+        <label for="inProgress">In Progress</label>
+    </div>
+</form>
+
+<script>
+function handleStatusChange(status) {
+    if (status === 'Approved') {
+        window.location.href = 'barangay-responder.php';
+    } else if (status === 'In Progress') {
+        window.location.href = 'manage-complaints.php';
+    }
+}
+</script>
+
+ 
         <tr>
             <th style="text-align: center; vertical-align: middle;">#</th> <!-- Row number centered -->
             <th style="text-align: left; vertical-align: middle;">Complaint Name</th> <!-- Complaint name aligned to the left -->
@@ -271,6 +304,7 @@ include '../includes/edit-profile.php';
                 <p><strong>Age:</strong> <span id="age"></span></p>
                 <p><strong>Educational Background:</strong> <span id="educationalBackground"></span></p>
                 <p><strong>Civil Status:</strong> <span id="civilStatus"></span></p>
+                <p><strong>Nationality:</strong> <span id="nationality"></span></p>
                 <p><strong>Verification ID:</strong> 
                     <img id="image" src="" alt="Complaint Image" style="max-width: 100px; cursor: pointer;">
                 </p>
@@ -289,20 +323,24 @@ include '../includes/edit-profile.php';
     </div>
 </div>
 
+
+
+
 <!-- Image Modal -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">Image View</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <img id="modalImage" src="" alt="Complaint Image" class="img-fluid">
-            </div>
-        </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalLabel">Complaint Image</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <img id="modalImage" src="" alt="Complaint Image" class="img-fluid">
+      </div>
     </div>
+  </div>
 </div>
+
 
 <!-- Video Modal -->
 <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
@@ -334,7 +372,6 @@ const viewComplaintModal = new bootstrap.Modal(document.getElementById('viewComp
 const imageModal = new bootstrap.Modal(document.getElementById('imageModal'), { keyboard: false });
 const videoModal = new bootstrap.Modal(document.getElementById('videoModal'), { keyboard: false });
 
-// Fetch modal elements and buttons
 document.addEventListener('DOMContentLoaded', function () {
     const modalButtons = document.querySelectorAll('[data-bs-target="#viewComplaintModal"]');
     modalButtons.forEach(button => {
@@ -354,7 +391,9 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('age').textContent = complaint.age;
             document.getElementById('educationalBackground').textContent = complaint.educational_background;
             document.getElementById('civilStatus').textContent = complaint.civil_status;
+            document.getElementById('nationality').textContent = complaint.nationality;
             document.getElementById('image').setAttribute('src', complaint.image_path || '');
+            
             document.getElementById('complaintIdForForm').value = complaint.complaints_id;
 
             // Handle Evidence Display
@@ -393,138 +432,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
-});
 
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const notificationButton = document.getElementById('notificationButton');
-    const modalBody = document.getElementById('notificationModalBody');
-
-    function fetchNotifications() {
-        return fetch('notifications.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json().catch(() => ({ success: false }))) // Handle JSON parsing errors
-        .then(data => {
-            if (data.success) {
-                const notificationCount = data.notifications.length;
-                const notificationCountBadge = document.getElementById("notificationCount");
-
-                if (notificationCount > 0) {
-                    notificationCountBadge.textContent = notificationCount;
-                    notificationCountBadge.classList.remove("d-none");
-                } else {
-                    notificationCountBadge.textContent = "0";
-                    notificationCountBadge.classList.add("d-none");
-                }
-
-                let notificationListHtml = '';
-                if (notificationCount > 0) {
-                    data.notifications.forEach(notification => {
-                        notificationListHtml += `
-                            <div class="dropdown-item" 
-                                 data-id="${notification.complaints_id}" 
-                                 data-status="${notification.status}" 
-                                 data-complaint-name="${notification.complaint_name}" 
-                                 data-barangay-name="${notification.barangay_name}">
-                                Complaint: ${notification.complaint_name}<br>
-                                Barangay: ${notification.barangay_name}<br>
-                                Status: ${notification.status}
-                                 <hr>
-                            </div>
-                        `;
-                    });
-                } else {
-                    notificationListHtml = '<div class="dropdown-item text-center">No new notifications</div>';
-                }
-
-                const popoverInstance = bootstrap.Popover.getInstance(notificationButton);
-                if (popoverInstance) {
-                    popoverInstance.setContent({
-                        '.popover-body': notificationListHtml
-                    });
-                } else {
-                    new bootstrap.Popover(notificationButton, {
-                        html: true,
-                        content: function () {
-                            return `<div class="popover-content">${notificationListHtml}</div>`;
-                        },
-                        container: 'body'
-                    });
-                }
-
-                document.querySelectorAll('.popover-content .dropdown-item').forEach(item => {
-                    item.addEventListener('click', function () {
-                        const notificationId = this.getAttribute('data-id');
-                        markNotificationAsRead(notificationId);
-                    });
-                });
-            } else {
-                console.error("Failed to fetch notifications");
-            }
-        })
-        .catch(error => {
-            console.error("Error fetching notifications:", error);
-        });
-    }
-
-    function markNotificationAsRead(notificationId) {
-        fetch('notifications.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ notificationId: notificationId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Notification marked as read');
-                fetchNotifications(); // Refresh notifications
-            } else {
-                console.error("Failed to mark notification as read");
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
-    }
-
-    fetchNotifications();
-
-    notificationButton.addEventListener('shown.bs.popover', function () {
-        markNotificationsAsRead();
+    // Event listener for image click (to open in modal)
+    const complaintImage = document.getElementById('image');
+    complaintImage.addEventListener('click', function () {
+        const src = this.getAttribute('src');
+        if (src) {
+            document.getElementById('modalImage').setAttribute('src', src);
+            imageModal.show();
+        }
     });
-
-    function markNotificationsAsRead() {
-        fetch('notifications.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ markAsRead: true })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const badge = document.querySelector(".badge.bg-danger");
-                if (badge) {
-                    badge.classList.add("d-none");
-                }
-            } else {
-                console.error("Failed to mark notifications as read");
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
-    }
 });
+
+
+
+
 
 function confirmLogout() {
         Swal.fire({

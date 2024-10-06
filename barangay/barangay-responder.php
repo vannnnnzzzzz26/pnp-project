@@ -15,11 +15,10 @@ if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
 $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
 $lastName = $_SESSION['last_name'];
-$extensionName = $_SESSION['extension_name'] ?? '';
-$email = $_SESSION['email'] ?? '';
+$extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
-$pic_data = $_SESSION['pic_data'] ?? '';
-
+$pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 $results_per_page = 10; 
 
 // Determine current page
@@ -33,20 +32,31 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         $barangay_name = $_SESSION['barangay_name'] ?? '';
 
         $stmt = $pdo->prepare("
-            SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
-                   GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ',') AS evidence_paths,
-                   GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
-            FROM tbl_complaints c
-            JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-            JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-            JOIN tbl_info i ON c.info_id = i.info_id
-            LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-            LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
-            WHERE c.status = 'Approved' AND b.barangay_name = ?
-            GROUP BY c.complaints_id
-            ORDER BY c.date_filed ASC
-            LIMIT ?, ?
-        ");
+        SELECT c.*, 
+               b.barangay_name, 
+               cc.complaints_category,
+               u.cp_number,          
+               u.gender,            
+               u.place_of_birth,    
+               u.age,               
+                u.nationality,
+                u.educational_background,
+               u.civil_status,
+          
+               GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ',') AS evidence_paths,
+               GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
+        FROM tbl_complaints c
+        JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+        JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+        JOIN tbl_users u ON c.user_id = u.user_id  
+        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+        LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
+        WHERE c.status = 'Approved' AND b.barangay_name = ?
+        GROUP BY c.complaints_id
+        ORDER BY c.date_filed ASC
+        LIMIT ?, ?
+    ");
+    
 
         $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
         $stmt->bindParam(2, $start_from, PDO::PARAM_INT);
@@ -68,8 +78,9 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 $complaint_contact = htmlspecialchars($row['cp_number']);
                 $complaint_person = htmlspecialchars($row['complaints_person']);
                 $complaint_gender = htmlspecialchars($row['gender']);
-                $complaint_birth_place = htmlspecialchars($row['place_of_birth']);
+                $complaint_place_of_birth = htmlspecialchars($row['place_of_birth']);
                 $complaint_age = htmlspecialchars($row['age']);
+                $complaint_nationality = htmlspecialchars($row['nationality']);
                 $complaint_education = htmlspecialchars($row['educational_background']);
                 $complaint_civil_status = htmlspecialchars($row['civil_status']);
                 $complaint_evidence = htmlspecialchars($row['evidence_paths']);
@@ -90,8 +101,9 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                                 data-contact='{$complaint_contact}' 
                                 data-person='{$complaint_person}' 
                                 data-gender='{$complaint_gender}' 
-                                data-birth_place='{$complaint_birth_place}' 
+                                data-birth_place='{$complaint_place_of_birth}' 
                                 data-age='{$complaint_age}' 
+                                data-nationality ='{$complaint_nationality}'
                                 data-education='{$complaint_education}' 
                                 data-civil_status='{$complaint_civil_status}' 
                                 data-evidence_paths='{$complaint_evidence}' 
@@ -159,6 +171,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_hearing'])) {
         echo "Error updating hearing details: " . $e->getMessage();
     }
 }
+
+
 
 // Pagination
    // Calculate total pages
@@ -245,10 +259,48 @@ include '../includes/edit-profile.php';
     <!-- Page Content -->
     <div class="content">
     <div class="container">
-        <h2 class="mt-3 mb-4">Uploaded Complaints</h2>
+        <h2 class="mt-3 mb-4">Complaints Status</h2>
+
+
+
+        
+    <!-- Dropdown for sorting -->
+
+
+
         
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
+
+
+            
+  <form method="POST">
+    <label class="form-label">Sort by Status:</label>
+    <div>
+        <input type="radio" id="approved" name="status" value="Approved" 
+               <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'checked' : ''; ?>
+               onclick="handleStatusChange(this.value)">
+        <label for="approved">Approved</label>
+    </div>
+    <div>
+        <input type="radio" id="inProgress" name="status" value="In Progress" 
+               <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'checked' : ''; ?>
+               onclick="handleStatusChange(this.value)">
+        <label for="inProgress">In Progress</label>
+    </div>
+</form>
+
+<script>
+function handleStatusChange(status) {
+    if (status === 'Approved') {
+        window.location.href = 'barangay-responder.php';
+    } else if (status === 'In Progress') {
+        window.location.href = 'manage-complaints.php';
+    }
+}
+</script>
+
+
                 <tr>
                     <th>#</th> <!-- Added for row numbers -->
                 
@@ -428,6 +480,8 @@ function getCurrentDate() {
             document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
             document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
             document.getElementById('modal-status').textContent = this.dataset.status;
+            document.getElementById('modal-nationality').textContent = this.dataset.nationality;
+         
          
 
             // Handle hearing history display
@@ -517,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error:', error); 
             Swal.fire({
                 title: 'Error!',
                 text: 'There was an error updating the status.',

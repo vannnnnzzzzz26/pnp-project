@@ -14,10 +14,9 @@
                 echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
             }
             ?>
-            <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-            <h5 class='white-text'>User Information</h5>
-            <p class='white-text'><?php echo $email; ?></p>
-            <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+                       <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+            <p class='white-text'><?php echo $cp_number; ?></p>
+
         </div>
 
         <!-- Menu items -->

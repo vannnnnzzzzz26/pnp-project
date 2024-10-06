@@ -13,7 +13,7 @@ $search_query = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
         <img src="../assets/pnp.png" alt="Sample Image" width="4%" height="6%" class="ms-2 d-none d-lg-inline">
 
         <!-- Navbar Brand -->
-        <a class="navbar-brand mx-auto ms-lg-2" href="#">PNP Monitoring</a>
+        <a class="navbar-brand mx-auto ms-lg-2" href="#">PNP Monitoring Account</a>
 
         <!-- Navbar Toggler for Collapsible Menu (Visible on smaller screens) -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">

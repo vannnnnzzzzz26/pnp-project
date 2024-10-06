@@ -1,19 +1,14 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require '../vendor/autoload.php';
 include '../connection/dbconn.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
+    $cp_number = $_POST['cp_number']; // Get cp_number from the POST request
     $password = $_POST['password'];
 
-   
     // Prepare and execute query to check user
-    $stmt = $pdo->prepare("SELECT * FROM tbl_users WHERE email = ?");
-    $stmt->execute([$email]);
+    $stmt = $pdo->prepare("SELECT * FROM tbl_users WHERE cp_number = ?"); // Use cp_number for user lookup
+    $stmt->execute([$cp_number]);
     $user = $stmt->fetch();
 
     if ($user) {
@@ -29,34 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // If lockout period has passed, reset login attempts
         if ($lockoutInterval->i >= 2) {
-            $stmt = $pdo->prepare("UPDATE tbl_users SET login_attempts = 0, lockout_time = NULL WHERE email = ?");
-            $stmt->execute([$email]);
+            $stmt = $pdo->prepare("UPDATE tbl_users SET login_attempts = 0, lockout_time = NULL WHERE cp_number = ?"); // Reset login attempts
+            $stmt->execute([$cp_number]);
         }
 
         if (password_verify($password, $user['password'])) {
             // Reset login attempts upon successful login
-            $stmt = $pdo->prepare("UPDATE tbl_users SET login_attempts = 0, lockout_time = NULL WHERE email = ?");
-            $stmt->execute([$email]);
-
-            // Check if email is verified
-            if ($user['is_verified'] == 0) {
-                // Generate a random OTP
-                $otp = rand(100000, 999999);
-
-                // Store the OTP in the database
-                $stmt = $pdo->prepare("UPDATE tbl_users SET otp = ? WHERE email = ?");
-                $stmt->execute([$otp, $email]);
-
-                // Send OTP email
-                sendOtpEmail($email, $otp);
-
-                // Save email to session for OTP verification
-                $_SESSION['otp_email'] = $email;
-
-                // Redirect to OTP verification page
-                header("Location: otp_request.php");
-                exit();
-            }
+            $stmt = $pdo->prepare("UPDATE tbl_users SET login_attempts = 0, lockout_time = NULL WHERE cp_number = ?"); // Reset login attempts
+            $stmt->execute([$cp_number]);
 
             // Clear any previous session data
             session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
@@ -64,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Set session variables
             $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['email'] = $user['email'];
+            $_SESSION['cp_number'] = $user['cp_number']; // Store cp_number in session
             $_SESSION['first_name'] = $user['first_name'];
             $_SESSION['middle_name'] = $user['middle_name'];
             $_SESSION['last_name'] = $user['last_name'];
@@ -75,21 +50,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['age'] = $user['age'];
             $_SESSION['gender'] = $user['gender'];
 
+            $_SESSION['purok'] = $user['purok'];
+
+            $_SESSION['nationality'] = $user['nationality'];
+            $_SESSION['civil_status'] = $user['civil_status'];
+
+
             $_SESSION['login_success'] = "Welcome " . $user['first_name'] . "!";
 
-
-            $ip_address = $_SERVER['REMOTE_ADDR']; // Get the user's IP address
-            $user_agent = $_SERVER['HTTP_USER_AGENT']; // Get the user's browser info
-
-          // Prepare the SQL statement without ip_address and user_agent
-$stmt = $pdo->prepare("INSERT INTO tbl_login_logs (user_id, login_time) VALUES (?, NOW())");
-
-// Execute the statement with only the user_id parameter
-$stmt->execute([$user['user_id']]);
+            // Log login time
+            $stmt = $pdo->prepare("INSERT INTO tbl_login_logs (user_id, login_time) VALUES (?, NOW())");
+            $stmt->execute([$user['user_id']]);
 
             // Redirect based on account type
             if ($user['accountType'] == 'Barangay Official') {
-                $redirectUrl = "../barangay/barangay-responder.php";
+                $redirectUrl = "../barangay/barangay_dashboard.php";
             } elseif ($user['accountType'] == 'PNP Officer') {
                 $redirectUrl = "../pnp/pnp.php";
             } elseif ($user['accountType'] == 'Resident') {
@@ -105,59 +80,28 @@ $stmt->execute([$user['user_id']]);
             exit();
         } else {
             // Increment login attempts
-            $stmt = $pdo->prepare("UPDATE tbl_users SET login_attempts = login_attempts + 1 WHERE email = ?");
-            $stmt->execute([$email]);
+            $stmt = $pdo->prepare("UPDATE tbl_users SET login_attempts = login_attempts + 1 WHERE cp_number = ?"); // Increment login attempts
+            $stmt->execute([$cp_number]);
 
             // Check if the user has reached the limit of 3 failed attempts
             if ($user['login_attempts'] >= 2) {
                 // Lockout the user by setting lockout_time to current time
-                $stmt = $pdo->prepare("UPDATE tbl_users SET lockout_time = NOW() WHERE email = ?");
-                $stmt->execute([$email]);
+                $stmt = $pdo->prepare("UPDATE tbl_users SET lockout_time = NOW() WHERE cp_number = ?"); // Lockout user
+                $stmt->execute([$cp_number]);
                 $_SESSION['login_error'] = "Too many failed login attempts. Account locked for 2 minutes.";
             } else {
-                $_SESSION['login_error'] = "Invalid email or password!";
+                $_SESSION['login_error'] = "Invalid contact number or password!";
             }
             header("Location: login.php");
             exit();
         }
     } else {
-        $_SESSION['login_error'] = "Invalid email or password!";
+        $_SESSION['login_error'] = "Invalid contact number or password!";
         header("Location: login.php");
         exit();
     }
 }
-
-function sendOtpEmail($email, $otp) {
-    $mail = new PHPMailer(true);
-
-    try {
-        //Server settings
-        $mail->isSMTP();
-        $mail->Host = 'smtp.example.com'; // Replace with your SMTP server
-        $mail->SMTPAuth = true;
-        $mail->Username = 'mlgaming143@gmail.com'; // SMTP username
-        $mail->Password = 'qzhy sgfu kszi mtul
-
-'; // SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-
-        //Recipients
-        $mail->setFrom('no-reply@example.com', 'email Verification for new accountWWWWW');
-        $mail->addAddress($email);
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Your OTP for Login Verification';
-        $mail->Body    = "Your OTP for login verification is: <strong>$otp</strong>";
-
-        $mail->send();
-    } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-    } 
-}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -285,7 +229,7 @@ function sendOtpEmail($email, $otp) {
 
             <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
+                <input type="cp_number" id="cp_number" name="cp_number" class="form-control" placeholder="CP number" required>
                 
             </div>
 

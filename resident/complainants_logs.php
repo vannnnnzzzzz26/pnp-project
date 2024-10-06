@@ -9,11 +9,13 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Initialize variables from session data
-$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
-$firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
-$middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
-$lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
+$firstName = $_SESSION['first_name'];
+$middleName = $_SESSION['middle_name'];
+$lastName = $_SESSION['last_name'];
 $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
+$barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
+$pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 // Construct user's full name
 $userFullName = $firstName . ' ' . $middleName . ' ' . $lastName;
@@ -114,7 +116,6 @@ include '../includes/resident-nav.php';
 include '../includes/resident-bar.php';
 ?>
 
-<!-- Page Content -->
 <div class="content" id="content">
     <div class="container mt-4">
         <h1 class="text-center">Complaints Status</h1>
@@ -125,13 +126,18 @@ include '../includes/resident-bar.php';
                         You haven't submitted any complaints yet.
                     </div>
                 <?php else: ?>
-                    <div class="table"> <!-- Added to make the table responsive -->
+                    <div class="table-responsive"> <!-- Added to make the table responsive -->
                         <table class="table table-striped table-bordered text-center">
-                            <thead >
+                            <thead>
                                 <tr>
-                                    <th>#</th> <!-- Added for row numbers -->
+                                    <th>#</th> <!-- Row number -->
                                     <th scope="col">Complaint Name</th>
-                                    <th scope="col">Barangay</th>
+                                    <th scope="col">date filed</th>
+                                    <th scope="col">Ano (What)</th>
+                                    <th scope="col">Saan (Where)</th>
+                                    <th scope="col">Kailan (When)</th>
+                                    <th scope="col">Paano (How)</th>
+                                    <th scope="col">Bakit (Why)</th>
                                     <th scope="col">View Details</th>
                                 </tr>
                             </thead>
@@ -142,7 +148,12 @@ include '../includes/resident-bar.php';
                                     <tr>
                                         <td><?php echo $rowNumber++; ?></td> <!-- Display row number -->
                                         <td><?php echo htmlspecialchars($complaint['complaint_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($complaint['barangay_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['date_filed']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['ano']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['saan']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['kailan']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['paano']); ?></td>
+                                        <td><?php echo htmlspecialchars($complaint['bakit']); ?></td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" data-complaint='<?php echo htmlspecialchars(json_encode($complaint), ENT_QUOTES, 'UTF-8'); ?>'>View</button>
                                         </td>
@@ -159,6 +170,7 @@ include '../includes/resident-bar.php';
 
 
 
+
 <!-- Complaint Details Modal -->
 <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg"> <!-- Make modal larger -->
@@ -168,38 +180,56 @@ include '../includes/resident-bar.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Complaint details -->
-                <p><strong>Date Filed:</strong> <span id="modalDateFiled"></span></p>
-                <p><strong>Complaint Name:</strong> <span id="modalComplaintName"></span></p>
-                <p><strong>Complaint Description:</strong> <span id="modalComplaintDescription"></span></p>
-                <p><strong>Category:</strong> <span id="modalCategory"></span></p>
-                <p><strong>Barangay:</strong> <span id="modalBarangay"></span></p>
-                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
-                <p><strong>Complaints Person:</strong> <span id="modalComplaintsPerson"></span></p>
-                <p><strong>Gender:</strong> <span id="modalGender"></span></p>
-                <p><strong>Place Of Birth:</strong> <span id="modalPlaceOfBirth"></span></p>
-                <p><strong>Age:</strong> <span id="modalAge"></span></p>
-                <p><strong>Educational Background:</strong> <span id="modalEducation"></span></p>
-                <p><strong>Civil Status:</strong> <span id="modalCivilStatus"></span></p>
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- First Column -->
+                        <div class="col-md-6">
+                            <p><strong>Date Filed:</strong> <span id="modalDateFiled"></span></p>
+                            <p><strong>Complaint Name:</strong> <span id="modalComplaintName"></span></p>
+                            <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+                            <p><strong>Barangay:</strong> <span id="modalBarangay"></span></p>
+                            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                            <p><strong>Complaints Person:</strong> <span id="modalComplaintsPerson"></span></p>
+                        </div>
 
-                <!-- Hearing History Section -->
-                <div id="modalHearingHistorySection">
-                    <!-- Hearing history will be populated here -->
-                </div>
+                        <!-- Second Column -->
+                        <div class="col-md-6">
+                            <p><strong>Complaint Description:</strong> <span id="modalComplaintDescription"></span></p>
+                            <p><strong>Ano (What):</strong> <span id="modalAno"></span></p>
+                            <p><strong>Saan (Where):</strong> <span id="modalSaan"></span></p>
+                            <p><strong>Kailan (When):</strong> <span id="modalKailan"></span></p>
+                            <p><strong>Paano (how):</strong> <span id="modalPaano"></span></p>
+                            <p><strong>Bakit (why):</strong> <span id="modalBakit"></span></p>
 
-                <!-- Evidence Section -->
-                <div id="modalEvidenceSection" style="display: none;">
-                    <p><strong>Evidence:</strong></p>
-                    <ul id="modalEvidenceList">
-                        <!-- Evidence list will be populated here -->
-                    </ul>
+
+                            
+                        <div class="col-md-6">
+                            <h6><strong>Hearing History</strong></h6>
+                            <div id="modalHearingHistorySection">
+                                <!-- Hearing history will be populated here -->
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- Evidence Section -->
+                 
+                        <div class="col-md-12">
+                            <h6><strong>Evidence</strong></h6>
+                            <div id="modalEvidenceSection" style="display: none;">
+                                <ul id="modalEvidenceList">
+                                    <!-- Evidence list will be populated here -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
 
 
 
@@ -231,12 +261,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalBarangay').textContent = complaint.barangay_name || 'N/A';
         document.getElementById('modalStatus').textContent = complaint.status || 'N/A';
         document.getElementById('modalComplaintsPerson').textContent = complaint.complaints_person || 'N/A';
-        document.getElementById('modalGender').textContent = complaint.gender || 'N/A';
-        document.getElementById('modalPlaceOfBirth').textContent = complaint.place_of_birth || 'N/A';
-        document.getElementById('modalAge').textContent = complaint.age || 'N/A';
-        document.getElementById('modalEducation').textContent = complaint.educational_background || 'N/A';
-        document.getElementById('modalCivilStatus').textContent = complaint.civil_status || 'N/A';
-
+        document.getElementById('modalAno').textContent = complaint.ano || 'N/A';
+        document.getElementById('modalSaan').textContent = complaint.saan || 'N/A';
+        document.getElementById('modalKailan').textContent = complaint.kailan || 'N/A';
+        document.getElementById('modalPaano').textContent = complaint.paano || 'N/A';
+        document.getElementById('modalBakit').textContent = complaint.bakit || 'N/A';
+ 
         // Hearing Details
         var hearingHistoryHtml = '';
         if (complaint.hearing_history) {

@@ -86,7 +86,7 @@ include '../includes/pnp-bar.php';
 
   <center>  <div class="content">
         <div class="container">
-            <h2 class="mt-3 mb-4">PNP Complaints</h2>
+            <h2 class="mt-3 mb-4">Complaints</h2>
             <div class="table">
     <table class="table table-striped table-bordered table-center">
         <thead>
@@ -382,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <p><strong>Age:</strong> ${data.age}</p>
                             <p><strong>Educational Background:</strong> ${data.educational_background}</p>
                             <p><strong>Civil Status:</strong> ${data.civil_status}</p>
+                             <p><strong>Nationality:</strong> ${data.nationality}</p>
 
                             ${evidenceHtml}
                             ${hearingHistoryHtml}

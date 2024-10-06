@@ -17,13 +17,22 @@ if ($complaint_id <= 0) {
 try {
     // Prepare SQL statement to fetch complaint details and hearing history
     $stmt = $pdo->prepare("
-        SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, 
+        SELECT c.*, b.barangay_name, cc.complaints_category,   b.barangay_name, 
+               cc.complaints_category,
+               u.cp_number,          
+               u.gender,            
+               u.place_of_birth,    
+               u.age,               
+                u.nationality,
+                u.educational_background,
+               u.civil_status,
                GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ', ') AS evidence_paths,
                GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
         FROM tbl_complaints c
         JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
         JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
         JOIN tbl_info i ON c.info_id = i.info_id
+          JOIN tbl_users u ON c.user_id = u.user_id  
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
         LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
         WHERE c.complaints_id = ?
@@ -47,6 +56,7 @@ try {
         $age = htmlspecialchars($row['age']);
         $educational_background = htmlspecialchars($row['educational_background']);
         $civil_status = htmlspecialchars($row['civil_status']);
+        $nationality = htmlspecialchars($row['nationality']);
         $evidence_paths = htmlspecialchars($row['evidence_paths']); 
         $status = htmlspecialchars($row['status']);
         $hearing_history = htmlspecialchars($row['hearing_history']); // New
@@ -66,7 +76,7 @@ try {
             <strong>Educational Background:</strong> $educational_background<br>
             <strong>Civil Status:</strong> $civil_status<br>
             <strong>Status:</strong> $status<br>
-            
+              <strong>Nationality:</strong> $nationality<br>
             <strong>Hearing History:</strong><br>
             <ul>
         ";

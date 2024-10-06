@@ -18,18 +18,21 @@
             }
             ?>
             <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-            <h5 class='white-text'>User Information</h5>
-            <p class='white-text'><?php echo $email; ?></p>
             <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+           
+
         </div>
 
         <!-- Menu items -->
         <ul class="nav flex-column">
+
+
         <li class="nav-item">
-            <a class="nav-link" href="manage-complaints.php">
-                <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Resident's Complaint</span>
+            <a class="nav-link" href="barangay_dashboard.php">
+                <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>
             </a>
         </li>
+       
         <li class="nav-item">
             <a class="nav-link" href="barangay-responder.php">
                 <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Barangay Responder</span>

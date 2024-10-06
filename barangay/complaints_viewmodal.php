@@ -20,6 +20,7 @@
                 <p><strong>Civil Status:</strong> <span id="modal-civil_status"></span></p>
                 <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
                 <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                <p><strong>Nationality:</strong> <span id="modal-nationality"></span></p>
         
 
                 <div id="modalHearingHistorySection">
@@ -33,8 +34,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="moveToPnpBtn">Move to PNP</button>
-                <button type="button" class="btn btn-secondary" id="settleInBarangayBtn">Settle in Barangay</button>
+             <!-- Buttons -->
+<button type="button" class="btn btn-secondary" id="moveToPnpBtn">Move to PNP</button>
+<button type="button" class="btn btn-secondary" id="settleInBarangayBtn">Settle in Barangay</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewComplaintModal" id="setHearingBtn">
                     Set Hearing

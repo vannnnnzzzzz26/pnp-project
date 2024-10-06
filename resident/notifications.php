@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
             WHERE c.complaint_name = ?
             AND (
-                c.status IN ('Pending', 'Approved', 'Rejected', 'Settled in Barangay', 'pnp', 'barangay ', 'Filed in Court') 
+                c.status IN ('Pending', 'Approved', 'Rejected', 'settled_in_barangay', 'pnp', 'barangay', 'Filed in Court') 
                 OR h.hearing_type IS NOT NULL 
                 OR h.hearing_date IS NOT NULL 
                 OR h.hearing_time IS NOT NULL 
@@ -24,6 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
         $stmt->execute([$userFullName]);
         $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Replace null values with 'Not Set'
+        foreach ($notifications as &$notification) {
+            $notification['hearing_type'] = $notification['hearing_type'] ?? 'Not Set';
+            $notification['hearing_date'] = $notification['hearing_date'] ?? 'Not Set';
+            $notification['hearing_time'] = $notification['hearing_time'] ?? 'Not Set';
+            $notification['hearing_status'] = $notification['hearing_status'] ?? 'Not Set';
+        }
 
         // If there are notifications, send them in the response
         if (!empty($notifications)) {
@@ -36,4 +44,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['error' => "Error: " . $e->getMessage()]);
     }
 }
+
 ?>

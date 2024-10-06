@@ -136,14 +136,24 @@ try {
 
     // Fetch complaints data with pagination and search filter
     $stmt = $pdo->prepare("
-    SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status, e.evidence_path
+    SELECT c.*, b.barangay_name, 
+               cc.complaints_category,
+               u.cp_number,          
+               u.gender,            
+               u.place_of_birth,    
+               u.age,               
+                u.nationality,
+                u.educational_background,
+               u.civil_status, e.evidence_path
     FROM tbl_complaints c
     JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
     JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
     JOIN tbl_info i ON c.info_id = i.info_id
+              JOIN tbl_users u ON c.user_id = u.user_id  
+
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
     WHERE (c.status IN ('settled_in_barangay', 'rejected')) AND b.barangay_name = ?
-    AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR i.gender LIKE ? OR i.place_of_birth LIKE ? OR i.educational_background LIKE ? OR i.civil_status LIKE ?)
+    AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR u.gender LIKE ? OR u.place_of_birth LIKE ? OR u.educational_background LIKE ? OR u.civil_status LIKE ?)
     ORDER BY c.date_filed ASC
     LIMIT ?, ?
     ");
