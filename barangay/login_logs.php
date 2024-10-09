@@ -36,7 +36,7 @@ $total_stmt->execute();
 $total_logs = $total_stmt->fetchColumn();
 
 // Fetch the login logs for the current page
-$stmt = $pdo->prepare("SELECT tbl_login_logs.*, tbl_users.email 
+$stmt = $pdo->prepare("SELECT tbl_login_logs.*, tbl_users.cp_number
                        FROM tbl_login_logs
                        JOIN tbl_users ON tbl_login_logs.user_id = tbl_users.user_id
                        WHERE tbl_login_logs.user_id = :user_id

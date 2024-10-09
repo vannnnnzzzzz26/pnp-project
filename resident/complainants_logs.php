@@ -24,13 +24,12 @@ if (!empty($extensionName)) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT c.*, cc.complaints_category, b.barangay_name, i.*, 
+    SELECT c.*, cc.complaints_category, b.barangay_name, 
            GROUP_CONCAT(DISTINCT e.evidence_path) AS evidence_paths,
            GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status)) AS hearing_history
     FROM tbl_complaints c
     LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
     LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-    LEFT JOIN tbl_info i ON c.info_id = i.info_id
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
     LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
     WHERE c.complaint_name = ?
@@ -42,10 +41,12 @@ $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Debug: Check the evidence paths
 foreach ($complaints as $complaint) {
-   
+    // You can add debug output here if needed
+    // echo "Evidence Paths: " . $complaint['evidence_paths'];
 }
 
 ?>
+
 
 
 <!DOCTYPE html>
@@ -108,6 +109,7 @@ color: whitesmoke;
             color: #ffffff;
             text-align: center;
         }
+
     </style>
 <body>
 

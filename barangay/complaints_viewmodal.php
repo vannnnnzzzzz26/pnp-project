@@ -7,32 +7,83 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Name:</strong> <span id="modal-name"></span></p>
-                <p><strong>Description:</strong> <span id="modal-description"></span></p>
-                <p><strong>Category:</strong> <span id="modal-category"></span></p>
-                <p><strong>Barangay:</strong> <span id="modal-barangay"></span></p>
-                <p><strong>Contact:</strong> <span id="modal-contact"></span></p>
-                <p><strong>Person:</strong> <span id="modal-person"></span></p>
-                <p><strong>Gender:</strong> <span id="modal-gender"></span></p>
-                <p><strong>Birth Place:</strong> <span id="modal-birth_place"></span></p>
-                <p><strong>Age:</strong> <span id="modal-age"></span></p>
-                <p><strong>Education:</strong> <span id="modal-education"></span></p>
-                <p><strong>Civil Status:</strong> <span id="modal-civil_status"></span></p>
-                <p><strong>Date Filed:</strong> <span id="modal-date_filed"></span></p>
-                <p><strong>Status:</strong> <span id="modal-status"></span></p>
-                <p><strong>Nationality:</strong> <span id="modal-nationality"></span></p>
-        
+            <div style="display: flex; flex-wrap: wrap;">
+    <!-- First Column -->
+    <div style="flex: 1; min-width: 300px; padding-right: 20px;">
+        <label><strong>Name:</strong></label>
+        <input type="text" id="modal-name" style="display: block; margin-bottom: 10px; width: 100%;">
 
-                <div id="modalHearingHistorySection">
-                    <!-- Hearing history will be populated here -->
-                </div>
+        <label><strong>Ano (What):</strong></label>
+        <input type="text" id="modal-ano" style="display: block; margin-bottom: 10px; width: 100%;">
 
-                <!-- Evidence Section -->
-                <div id="modalEvidenceSection" style="display: none;">
-                    <p><strong>Evidence:</strong></p>
-                    <ul id="modalEvidenceList"></ul>
-                </div>
-            </div>
+        <label><strong>Saan (Where):</strong></label>
+        <input type="text" id="modal-saan" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Kailan (When):</strong></label>
+        <input type="text" id="modal-kailan" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Paano (How):</strong></label>
+        <input type="text" id="modal-paano" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Bakit (Why):</strong></label>
+        <input type="text" id="modal-bakit" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Description:</strong></label>
+        <input type="text" id="modal-description" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Category:</strong></label>
+        <input type="text" id="modal-category" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Barangay:</strong></label>
+        <input type="text" id="modal-barangay" style="display: block; margin-bottom: 10px; width: 100%;">
+    </div>
+
+    <!-- Second Column -->
+    <div style="flex: 1; min-width: 300px; padding-left: 20px;">
+        <label><strong>Contact:</strong></label>
+        <input type="text" id="modal-contact" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Person:</strong></label>
+        <input type="text" id="modal-person" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Gender:</strong></label>
+        <input type="text" id="modal-gender" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Birth Place:</strong></label>
+        <input type="text" id="modal-birth_place" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Age:</strong></label>
+        <input type="text" id="modal-age" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Education:</strong></label>
+        <input type="text" id="modal-education" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Civil Status:</strong></label>
+        <input type="text" id="modal-civil_status" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Date Filed:</strong></label>
+        <input type="text" id="modal-date_filed" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Status:</strong></label>
+        <input type="text" id="modal-status" style="display: block; margin-bottom: 10px; width: 100%;">
+
+        <label><strong>Nationality:</strong></label>
+        <input type="text" id="modal-nationality" style="display: block; margin-bottom: 10px; width: 100%;">
+    </div>
+</div>
+
+<!-- Hearing History Section -->
+<div id="modalHearingHistorySection">
+    <!-- Hearing history will be populated here -->
+</div>
+
+<!-- Evidence Section -->
+<div id="modalEvidenceSection" style="display: none;">
+    <p><strong>Evidence:</strong></p>
+    <ul id="modalEvidenceList"></ul>
+</div>
+
+
             <div class="modal-footer">
              <!-- Buttons -->
 <button type="button" class="btn btn-secondary" id="moveToPnpBtn">Move to PNP</button>

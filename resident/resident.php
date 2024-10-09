@@ -53,46 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Invalid Barangay ID.");
         }
 
-        // Handle image upload
-        $image_id = null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-            $image_type = 'ID'; 
-            $image_filename = basename($_FILES['image']['name']);
-            $image_path = '../uploads/' . $image_filename;
-            $date_uploaded = date('Y-m-d H:i:s');
-
-            if (!file_exists('../uploads')) {
-                mkdir('../uploads', 0777, true); 
-            }
-
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-                $stmt = $pdo->prepare("INSERT INTO tbl_image (image_type, image_path, date_uploaded) VALUES (?, ?, ?)");
-                $stmt->execute([$image_type, $image_path, $date_uploaded]);
-                $image_id = $pdo->lastInsertId();
-            } else {
-                throw new Exception("Failed to upload image.");
-            }
-        }
-
-        // Handle Selfie upload
-        $selfie_path = null;
-        if (isset($_FILES['selfie']) && $_FILES['selfie']['error'] == UPLOAD_ERR_OK) {
-            $selfie_filename = basename($_FILES['selfie']['name']);
-            $selfie_path = '../uploads/' . $selfie_filename;
-            $date_uploaded = date('Y-m-d H:i:s');
-
-            if (move_uploaded_file($_FILES['selfie']['tmp_name'], $selfie_path)) {
-                // Store selfie path in tbl_info
-            } else {
-                throw new Exception("Failed to upload selfie.");
-            }
-        }
-
-        // Insert into tbl_info
-        $educational_background = isset($_POST['educational_background']) ? htmlspecialchars($_POST['educational_background']) : '';
-        $stmt = $pdo->prepare("INSERT INTO tbl_info ( selfie_path) VALUES ( ?)");
-        $stmt->execute([ $selfie_path]);
-        $info_id = $pdo->lastInsertId(); 
+        // Set default values for image_id
+        $image_id = null; // Removed image upload logic
 
         // Handle category
         $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
@@ -109,17 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $responds = '';
         }
 
-        // Insert into tbl_complaints with new fields
+        // Insert into tbl_complaints without image_id and info_id
         if (!isset($_SESSION['user_id'])) {
             header("Location: login.php");
             exit();
         }
-        
+
         $user_id = $_SESSION['user_id']; // Retrieve user_id from session
-        
-        // Later in your complaint submission code
-        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, info_id, image_id, status, responds, ano, saan, kailan, paano, bakit, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $info_id, $image_id, $status, $responds, $ano, $saan, $kailan, $paano, $bakit, $user_id]);
+
+        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, status, responds, ano, saan, kailan, paano, bakit, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $status, $responds, $ano, $saan, $kailan, $paano, $bakit, $user_id]);
         
         $complaint_id = $pdo->lastInsertId();
 
@@ -153,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 
 
 
@@ -246,7 +208,7 @@ include '../includes/edit-profile.php';
           <!-- User Information -->
           <div class="row">
             <div class="col-lg-6 col-md-12 form-group">
-              <label for="complaint_name">Complaint Name:</label>
+              <label for="complaint_name">Complainant:</label>
               <p><?php echo htmlspecialchars("$firstName $middleName $lastName $extensionName"); ?></p>
             </div>
             <div class="col-lg-6 col-md-12 form-group">
@@ -399,7 +361,7 @@ include '../includes/edit-profile.php';
               <input type="file" id="evidence" name="evidence[]" class="form-control" multiple required>
             </div>
             <div class="col-lg-6 col-md-12 form-group">
-              <label for="complaints_person">Involved Person:</label>
+              <label for="complaints_person">Person Involved :</label>
               <input type="text" id="complaints_person" name="complaints_person" class="form-control" required>
             </div>
           </div>
@@ -417,15 +379,6 @@ include '../includes/edit-profile.php';
 
           <!-- Educational Background and ID -->
      
-            <div class="col-lg-6 col-md-12 form-group">
-              <label for="image">ID presented (School ID, Driver's License, etc.):</label>
-              <input type="file" id="image" name="image" class="form-control">
-            </div>
-          </div>
-          <div class="form-group">
-        <label for="selfie">Upload Selfie:</label>
-        <input type="file" name="selfie" accept="image/*" class="form-control" required>
-    </div>
           <!-- Submit Button -->
           <div class="row">
             <div class="col-12 text-center">
@@ -671,7 +624,12 @@ $(document).ready(function() {
 
 
 
-
+<?php if (isset($_SESSION['alert_message'])): ?>
+        Swal.fire({
+            icon: '<?= $_SESSION['alert_type'] ?>',
+            title: '<?= $_SESSION['alert_message'] ?>'
+        });
+        <?php unset($_SESSION['alert_message'], $_SESSION['alert_type']); endif; ?>
 
             
         </script>

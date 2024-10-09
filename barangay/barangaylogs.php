@@ -121,9 +121,16 @@ include '../includes/edit-profile.php';
                         <tr>
                             <th>#</th>
                             <th>Name</th>
+                            <th>Date FIled</th>
+                            <th>Ano (What)</th>
+                            <th>Saan ( where)</th>
+                            <th>Kailan (When)</th>
+                            <th>Paano (How)</th>
+                            <th>BAkit (why)</th>
+
                           
                             <th>Barangay</th>
-                            
+                            <th>Purok</th>
                             <th>Status</th>
                            
                         </tr>
@@ -144,11 +151,12 @@ try {
                u.age,               
                 u.nationality,
                 u.educational_background,
-               u.civil_status, e.evidence_path
+               u.civil_status, e.evidence_path,
+               u.purok
     FROM tbl_complaints c
     JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
     JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-    JOIN tbl_info i ON c.info_id = i.info_id
+
               JOIN tbl_users u ON c.user_id = u.user_id  
 
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
@@ -177,13 +185,32 @@ try {
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $complaint_name = htmlspecialchars($row['complaint_name']);
+            $date_filed = htmlspecialchars($row['date_filed']);
+
+            $ano = htmlspecialchars($row['ano']);
+            $saan = htmlspecialchars($row['saan']);
+            $kailan = htmlspecialchars($row['kailan']);
+            $paano = htmlspecialchars($row['paano']);
+            $bakit = htmlspecialchars($row['bakit']);
+
+
             $barangay_name = htmlspecialchars($row['barangay_name']);
+            $purok = htmlspecialchars($row['purok']);
+            
             // ... other variables you might need
 
             echo "<tr>
             <td style='text-align: center; vertical-align: middle;'>{$rowNumber}</td>
             <td style='text-align: left; vertical-align: middle;'>{$complaint_name}</td>
+               <td style='text-align: left; vertical-align: middle;'>{$date_filed}</td>
+                <td style='text-align: left; vertical-align: middle;'>{$ano}</td>
+                 <td style='text-align: left; vertical-align: middle;'>{$saan}</td>
+                  <td style='text-align: left; vertical-align: middle;'>{$kailan}</td>
+                   <td style='text-align: left; vertical-align: middle;'>{$paano}</td>
+                    <td style='text-align: left; vertical-align: middle;'>{$bakit}</td>
+
             <td style='text-align: left; vertical-align: middle;'>{$barangay_name}</td>
+               <td style='text-align: left; vertical-align: middle;'>{$purok}</td>
             <td style='text-align: center; vertical-align: middle;'>
                 <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$row['complaints_id']})'>View Details</button>
             </td>

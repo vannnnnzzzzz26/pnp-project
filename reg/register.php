@@ -1,6 +1,11 @@
 <?php
 include '../connection/dbconn.php';
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Function to safely retrieve POST data
 function getPostData($key) {
     return isset($_POST[$key]) ? trim($_POST[$key]) : null;
@@ -35,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $place_of_birth = getPostData('place_of_birth'); // Added field for place of birth
     $purok = getPostData('purok'); // Added field for purok
     $educational_background = getPostData('educational_background'); // Added field for educational background
+    $selfie_path = getPostData('selfie_path'); // Added field for educational background
 
     // Validate form data
     if ($first_name && $middle_name && $last_name && $cp_number && $password && $confirm_password && $accountType && $barangay_name && $security_question && $security_answer && $civil_status && $nationality && $age && $birth_date && $gender && $place_of_birth && $purok && $educational_background) {
@@ -60,22 +66,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
 
-        // Handle file upload
-        $pic_data = null; // Initialize pic_data
-
+        // Handle file upload for profile picture
+        $pic_data = null;
         if ($_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
             $temp_name = $_FILES['profile_picture']['tmp_name'];
             $file_name = $_FILES['profile_picture']['name'];
             $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif']; // Allowed file types
-            $upload_directory = '../uploads/'; // Directory where uploads will be stored
-            $new_file_name = uniqid('profile_') . '.' . $file_extension; // Generate a unique filename
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            $upload_directory = '../uploads/';
+            $new_file_name = uniqid('profile_') . '.' . $file_extension;
             $destination = $upload_directory . $new_file_name;
 
-            // Validate file type
+            // Validate file type and move file
             if (in_array(strtolower($file_extension), $allowed_extensions)) {
                 if (move_uploaded_file($temp_name, $destination)) {
-                    // File uploaded successfully, store the file path in $pic_data
                     $pic_data = $destination;
                 } else {
                     echo 'error_file_upload';
@@ -87,21 +91,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
+        // Handle Selfie upload
+        $selfie_path = null;
+        if (isset($_FILES['selfie']) && $_FILES['selfie']['error'] == UPLOAD_ERR_OK) {
+            $selfie_filename = basename($_FILES['selfie']['name']);
+            $selfie_path = '../uploads/' . uniqid('selfie_') . '_' . $selfie_filename;
+
+            if (!file_exists('../uploads')) {
+                mkdir('../uploads', 0777, true); 
+            }
+
+            if (move_uploaded_file($_FILES['selfie']['tmp_name'], $selfie_path)) {
+                // Selfie uploaded successfully
+            } else {
+                echo 'error_selfie_upload';
+                exit;
+            }
+        }
+
         // Insert into tbl_users_barangay
         $stmt_barangay = $pdo->prepare("INSERT INTO tbl_users_barangay (barangay_name) VALUES (?)");
         $stmt_barangay->execute([$barangay_name]);
         $barangays_id = $pdo->lastInsertId(); // Retrieve the last inserted ID
 
-        // Hash the password
+        // Hash the password and security answer
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        // Hash the security answer
         $hashed_answer = password_hash($security_answer, PASSWORD_DEFAULT);
 
-        // Now insert into tbl_users
-        $stmt_users = $pdo->prepare("INSERT INTO tbl_users (first_name, middle_name, last_name, extension_name, cp_number, password, accountType, barangays_id, pic_data, security_question, security_answer, civil_status, nationality, age, birth_date, gender, place_of_birth, purok, educational_background) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt_users->execute([$first_name, $middle_name, $last_name, $extension_name, $cp_number, $hashedPassword, $accountType, $barangays_id, $pic_data, $security_question, $hashed_answer, $civil_status, $nationality, $age, $birth_date, $gender, $place_of_birth, $purok, $educational_background]);
+        // Insert into tbl_users (Fixed fields count and removed invalid variables)
+        $stmt_users = $pdo->prepare("
+            INSERT INTO tbl_users 
+            (first_name, middle_name, last_name, extension_name, cp_number, password, accountType, barangays_id, pic_data, selfie_path, security_question, security_answer, civil_status, nationality, age, birth_date, gender, place_of_birth, purok, educational_background) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt_users->execute([
+            $first_name, $middle_name, $last_name, $extension_name, $cp_number, $hashedPassword, $accountType, 
+            $barangays_id, $pic_data, $selfie_path, $security_question, $hashed_answer, 
+            $civil_status, $nationality, $age, $birth_date, $gender, 
+            $place_of_birth, $purok, $educational_background
+        ]);
 
+        // Check if the user was successfully inserted
         if ($stmt_users->rowCount() > 0) {
             echo 'success';
             exit;
@@ -354,6 +384,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
 
+            
+          </div>
+          <div class="form-group">
+        <label for="selfie">Upload Selfie:</label>
+        <input type="file" name="selfie" accept="image/*" class="form-control" required>
+    </div>
             <div class="col-12 mb-3">
                 <label for="security_question" class="form-label">Security Question 1:</label>
                 <select id="security_question" name="security_question" class="form-select" required>

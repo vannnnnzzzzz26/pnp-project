@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['complaint_id']) && iss
 try {
     // Get total complaints count for pagination
     $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c 
-                           LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id 
-                           WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'");
+                           LEFT JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id 
+                           WHERE c.status = 'inprogress' AND ub.barangay_name = ? AND c.status != 'Rejected'");
     $stmt->execute([$barangay_name]);
     $total_complaints = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
@@ -64,25 +64,26 @@ try {
 
     // Fetch complaints for the current page
     $stmt = $pdo->prepare("
-        SELECT c.*, u.barangay_name,
-
-           b.barangay_name, 
+        SELECT c.*, ub.barangay_name, 
                cc.complaints_category,
                u.cp_number,          
                u.gender,            
                u.place_of_birth,    
                u.age,               
-                u.nationality,
+               u.nationality,
                u.civil_status,
-               e.evidence_id, e.evidence_path, cc.complaints_category
+               u.purok,
+               u.selfie_path,
+            u.educational_background,
+               u.pic_data,
+               e.evidence_id, 
+               e.evidence_path
         FROM tbl_complaints c
-        LEFT JOIN tbl_users_barangay u ON c.barangays_id = u.barangays_id
-        LEFT JOIN tbl_image i ON c.image_id = i.image_id
-        LEFT JOIN tbl_info info ON c.info_id = info.info_id
-          JOIN tbl_users u ON c.user_id = u.user_id  
+        LEFT JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
+        JOIN tbl_users u ON c.user_id = u.user_id  
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
         LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-        WHERE c.status = 'Inprogress' AND u.barangay_name = ? AND c.status != 'Rejected'
+        WHERE c.status = 'inprogress' AND ub.barangay_name = ? AND c.status != 'Rejected'
         LIMIT ?, ?
     ");
     $stmt->bindValue(1, $barangay_name, PDO::PARAM_STR);
@@ -95,6 +96,7 @@ try {
     $complaints = []; // Default empty complaints array in case of error
     $total_pages = 1; // Default to one page if error occurs
 }
+
 ?>
 
 
@@ -198,37 +200,40 @@ include '../includes/edit-profile.php';
 <table class="table table-bordered table-hover">
     <thead>
         
-    <form method="POST">
+     <form method="POST">
     <label class="form-label">Sort by Status:</label>
-    <div>
-        <input type="radio" id="approved" name="status" value="Approved" 
-               <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'checked' : ''; ?>
-               onclick="handleStatusChange(this.value)">
-        <label for="approved">Approved</label>
-    </div>
-    <div>
-        <input type="radio" id="inProgress" name="status" value="In Progress" 
-               <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'checked' : ''; ?>
-               onclick="handleStatusChange(this.value)">
-        <label for="inProgress">In Progress</label>
-    </div>
+    <select id="statusDropdown" name="status" onchange="handleStatusChange(this.value)">
+        <option value="Approved" 
+            <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'selected' : ''; ?>>
+            Approved
+        </option>
+        <option value="In Progress" 
+            <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'selected' : ''; ?>>
+            In Progress
+        </option>
+    </select>
 </form>
 
 <script>
 function handleStatusChange(status) {
     if (status === 'Approved') {
-        window.location.href = 'barangay-responder.php';
+        window.location.href = 'barangay-responder.php?status=' + status;
     } else if (status === 'In Progress') {
-        window.location.href = 'manage-complaints.php';
+        window.location.href = 'manage-complaints.php?status=' + status;
     }
 }
 </script>
-
- 
-        <tr>
+<tr>
             <th style="text-align: center; vertical-align: middle;">#</th> <!-- Row number centered -->
             <th style="text-align: left; vertical-align: middle;">Complaint Name</th> <!-- Complaint name aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Date Filed</th> <!-- Date filed aligned to the left -->
             <th style="text-align: left; vertical-align: middle;">Barangay</th> <!-- Barangay aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Purok</th> <!-- Purok aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Ano</th> <!-- Ano aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Saan</th> <!-- Saan aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Kailan</th> <!-- Kailan aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Paano</th> <!-- Paano aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Bakit</th> <!-- Bakit aligned to the left -->
             <th style="text-align: center; vertical-align: middle;">Action</th> <!-- Action button aligned to the center -->
         </tr>
     </thead>
@@ -240,7 +245,14 @@ function handleStatusChange(status) {
             <tr>
                 <td style="text-align: center; vertical-align: middle;"><?php echo $rowNumber++; ?></td> <!-- Display row number centered -->
                 <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['complaint_name']); ?></td> <!-- Left-align complaint name -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['date_filed']); ?></td> <!-- Left-align date filed -->
                 <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['barangay_name']); ?></td> <!-- Left-align barangay name -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['purok']); ?></td> <!-- Left-align purok -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['ano']); ?></td> <!-- Left-align ano -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['saan']); ?></td> <!-- Left-align saan -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['kailan']); ?></td> <!-- Left-align kailan -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['paano']); ?></td> <!-- Left-align paano -->
+                <td style="text-align: left; vertical-align: middle;"><?php echo htmlspecialchars($complaint['bakit']); ?></td> <!-- Left-align bakit -->
                 <td style="text-align: center; vertical-align: middle;">
                     <button type="button" class="btn btn-primary btn-sm" 
                             data-bs-toggle="modal" 
@@ -282,6 +294,9 @@ function handleStatusChange(status) {
 </div>
 </div>
 
+
+
+<!-- Complaint Details Modal -->
 <!-- Complaint Details Modal -->
 <div class="modal fade" id="viewComplaintModal" tabindex="-1" aria-labelledby="viewComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -291,25 +306,66 @@ function handleStatusChange(status) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Complaint details will be populated here using JavaScript -->
-                <p><strong>Complaint Name:</strong> <span id="complaintName"></span></p>
-                <p><strong>Complaint:</strong> <span id="Complaints"></span></p>
-                <p><strong>Date Filed:</strong> <span id="dateFiled"></span></p>
-                <p><strong>Category:</strong> <span id="category"></span></p>
-                <p><strong>Barangay:</strong> <span id="barangay"></span></p>
-                <p><strong>Contact Number:</strong> <span id="contactNumber"></span></p>
-                <p><strong>Complaints Person:</strong> <span id="complaintsPerson"></span></p>
-                <p><strong>Gender:</strong> <span id="gender"></span></p>
-                <p><strong>Place of Birth:</strong> <span id="placeOfBirth"></span></p>
-                <p><strong>Age:</strong> <span id="age"></span></p>
-                <p><strong>Educational Background:</strong> <span id="educationalBackground"></span></p>
-                <p><strong>Civil Status:</strong> <span id="civilStatus"></span></p>
-                <p><strong>Nationality:</strong> <span id="nationality"></span></p>
-                <p><strong>Verification ID:</strong> 
-                    <img id="image" src="" alt="Complaint Image" style="max-width: 100px; cursor: pointer;">
-                </p>
-                <p><strong>Documents:</strong> <span id="documents"></span></p>
-                <p><strong>Evidence:</strong> <span id="evidence"></span></p> <!-- Evidence field -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Complainant:</strong></p>
+                        <p id="complaintName" class="border p-2"></p>
+
+                        <p><strong>Complaint:</strong></p>
+                        <p id="Complaints" class="border p-2"></p>
+
+                        <p><strong>Date Filed:</strong></p>
+                        <p id="dateFiled" class="border p-2"></p>
+
+                        <p><strong>Category:</strong></p>
+                        <p id="category" class="border p-2"></p>
+
+                        <p><strong>Barangay:</strong></p>
+                        <p id="barangay" class="border p-2"></p>
+
+                        <p><strong>Purok:</strong></p>
+                        <p id="purok" class="border p-2"></p>
+
+                        <p><strong>Contact Number:</strong></p>
+                        <p id="contactNumber" class="border p-2"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Complaints Person:</strong></p>
+                        <p id="complaintsPerson" class="border p-2"></p>
+
+                        <p><strong>Gender:</strong></p>
+                        <p id="gender" class="border p-2"></p>
+
+                        <p><strong>Place of Birth:</strong></p>
+                        <p id="placeOfBirth" class="border p-2"></p>
+
+                        <p><strong>Age:</strong></p>
+                        <p id="age" class="border p-2"></p>
+
+                        <p><strong>Educational Background:</strong></p>
+                        <p id="educationalBackground" class="border p-2"></p>
+
+                        <p><strong>Civil Status:</strong></p>
+                        <p id="civilStatus" class="border p-2"></p>
+
+                        <p><strong>Nationality:</strong></p>
+                        <p id="nationality" class="border p-2"></p>
+
+                        <p><strong>Evidence:</strong></p>
+                        <p id="evidence" class="border p-2"></p>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6 text-center">
+                        <p><strong>Verification ID:</strong></p>
+                        <img id="image" src="" alt="Complaint Image" style="max-width: 100px; cursor: pointer;">
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <p><strong>Selfie:</strong></p>
+                        <img id="pic" src="" alt="Selfie" style="max-width: 100px; cursor: pointer;">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <form action="manage-complaints.php" method="post" class="d-inline-block">
@@ -325,20 +381,22 @@ function handleStatusChange(status) {
 
 
 
-
-<!-- Image Modal -->
+<!-- Image Viewing Modal -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="imageModalLabel">Complaint Image</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <img id="modalImage" src="" alt="Complaint Image" class="img-fluid">
-      </div>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">View Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="View Image" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
@@ -390,9 +448,13 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('placeOfBirth').textContent = complaint.place_of_birth;
             document.getElementById('age').textContent = complaint.age;
             document.getElementById('educationalBackground').textContent = complaint.educational_background;
+            document.getElementById('purok').textContent = complaint.purok;
+
             document.getElementById('civilStatus').textContent = complaint.civil_status;
             document.getElementById('nationality').textContent = complaint.nationality;
-            document.getElementById('image').setAttribute('src', complaint.image_path || '');
+            document.getElementById('image').setAttribute('src', complaint.selfie_path || '');
+            document.getElementById('pic').setAttribute('src', complaint.pic_data || '');
+
             
             document.getElementById('complaintIdForForm').value = complaint.complaints_id;
 

@@ -42,7 +42,7 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 u.nationality,
                 u.educational_background,
                u.civil_status,
-          
+               u.purok,
                GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ',') AS evidence_paths,
                GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
         FROM tbl_complaints c
@@ -72,9 +72,16 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $complaint_id = htmlspecialchars($row['complaints_id']);
                 $complaint_name = htmlspecialchars($row['complaint_name']);
+                $complaint_ano = htmlspecialchars($row['ano']);
+                $complaint_saan = htmlspecialchars($row['saan']);
+                $complaint_kailan = htmlspecialchars($row['kailan']);
+                $complaint_paano = htmlspecialchars($row['paano']);
+                $complaint_bakit= htmlspecialchars($row['bakit']);
                 $complaint_description = htmlspecialchars($row['complaints']);
                 $complaint_category = htmlspecialchars($row['complaints_category']);
                 $complaint_barangay = htmlspecialchars($row['barangay_name']);
+                $complaint_purok = htmlspecialchars($row['purok']);
+
                 $complaint_contact = htmlspecialchars($row['cp_number']);
                 $complaint_person = htmlspecialchars($row['complaints_person']);
                 $complaint_gender = htmlspecialchars($row['gender']);
@@ -91,10 +98,31 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 echo "<tr>";
                 echo "<td style='text-align: center; vertical-align: middle;'>{$rowNumber}</td>"; // Display row number centered
                 echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_name}</td>"; // Align name to the left
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_date_filed }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_barangay }</td>";
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_purok }</td>";
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_ano }</td>"; 
+                     
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_saan }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_kailan }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_paano }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_bakit }</td>";
+                               
+
+                                // Align name to the left
+
+                
                 echo "<td style='text-align: center; vertical-align: middle;'>
                         <button type='button' class='btn btn-primary view-details-btn' 
                                 data-id='{$complaint_id}' 
                                 data-name='{$complaint_name}' 
+                                 data-ano='{$complaint_ano}' 
+                                      data-saan='{$complaint_saan}' 
+                                        data-kailan='{$complaint_kailan}' 
+                                        data-paano='{$complaint_paano}'
+                                        data-bakit='{$complaint_bakit}' 
+
+
                                 data-description='{$complaint_description}' 
                                 data-category='{$complaint_category}' 
                                 data-barangay='{$complaint_barangay}' 
@@ -245,6 +273,17 @@ margin-left: 5rem;
             text-align: center;
         }
 
+        label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+span {
+    display: block;
+    margin-bottom: 10px;
+}
+
+
       
 </style>
 <body>
@@ -274,21 +313,30 @@ include '../includes/edit-profile.php';
 
 
             
-  <form method="POST">
+            <form method="POST">
     <label class="form-label">Sort by Status:</label>
-    <div>
-        <input type="radio" id="approved" name="status" value="Approved" 
-               <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'checked' : ''; ?>
-               onclick="handleStatusChange(this.value)">
-        <label for="approved">Approved</label>
-    </div>
-    <div>
-        <input type="radio" id="inProgress" name="status" value="In Progress" 
-               <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'checked' : ''; ?>
-               onclick="handleStatusChange(this.value)">
-        <label for="inProgress">In Progress</label>
-    </div>
+    <select id="statusDropdown" name="status" onchange="handleStatusChange(this.value)">
+        <option value="Approved" 
+            <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'selected' : ''; ?>>
+            Approved
+        </option>
+        <option value="In Progress" 
+            <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'selected' : ''; ?>>
+            In Progress
+        </option>
+    </select>
 </form>
+
+<script>
+function handleStatusChange(status) {
+    if (status === 'Approved') {
+        window.location.href = 'barangay-responder.php?status=' + status;
+    } else if (status === 'In Progress') {
+        window.location.href = 'manage-complaints.php?status=' + status;
+    }
+}
+</script>
+
 
 <script>
 function handleStatusChange(status) {
@@ -302,10 +350,17 @@ function handleStatusChange(status) {
 
 
                 <tr>
-                    <th>#</th> <!-- Added for row numbers -->
-                
-                    <th>Name</th>
-                    <th>Action</th>
+                <th style="text-align: center; vertical-align: middle;">#</th> <!-- Row number centered -->
+            <th style="text-align: left; vertical-align: middle;">Complaint Name</th> <!-- Complaint name aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Date Filed</th> <!-- Date filed aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Barangay</th> <!-- Barangay aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Purok</th> <!-- Purok aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Ano</th> <!-- Ano aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Saan</th> <!-- Saan aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Kailan</th> <!-- Kailan aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Paano</th> <!-- Paano aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Bakit</th> <!-- Bakit aligned to the left -->
+            <th style="text-align: center; vertical-align: middle;">Action</th> <!-- Action button aligned to the center -->
                 </tr>
             </thead>
             <tbody>
@@ -466,22 +521,28 @@ function getCurrentDate() {
     const viewButtons = document.querySelectorAll('.view-details-btn');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Populate modal with data
-            document.getElementById('modal-name').textContent = this.dataset.name;
-            document.getElementById('modal-description').textContent = this.dataset.description;
-            document.getElementById('modal-category').textContent = this.dataset.category;
-            document.getElementById('modal-barangay').textContent = this.dataset.barangay;
-            document.getElementById('modal-contact').textContent = this.dataset.contact;
-            document.getElementById('modal-person').textContent = this.dataset.person;
-            document.getElementById('modal-gender').textContent = this.dataset.gender;
-            document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
-            document.getElementById('modal-age').textContent = this.dataset.age;
-            document.getElementById('modal-education').textContent = this.dataset.education;
-            document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
-            document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
-            document.getElementById('modal-status').textContent = this.dataset.status;
-            document.getElementById('modal-nationality').textContent = this.dataset.nationality;
-         
+         // Populate modal with data
+document.getElementById('modal-name').value = this.dataset.name;
+document.getElementById('modal-ano').value = this.dataset.ano;
+document.getElementById('modal-saan').value = this.dataset.saan;
+document.getElementById('modal-kailan').value = this.dataset.kailan;
+document.getElementById('modal-paano').value = this.dataset.paano;
+document.getElementById('modal-bakit').value = this.dataset.bakit;
+
+document.getElementById('modal-description').value = this.dataset.description;
+document.getElementById('modal-category').value = this.dataset.category;
+document.getElementById('modal-barangay').value = this.dataset.barangay;
+document.getElementById('modal-contact').value = this.dataset.contact;
+document.getElementById('modal-person').value = this.dataset.person;
+document.getElementById('modal-gender').value = this.dataset.gender;
+document.getElementById('modal-birth_place').value = this.dataset.birth_place;
+document.getElementById('modal-age').value = this.dataset.age;
+document.getElementById('modal-education').value = this.dataset.education;
+document.getElementById('modal-civil_status').value = this.dataset.civil_status;
+document.getElementById('modal-date_filed').value = this.dataset.date_filed;
+document.getElementById('modal-status').value = this.dataset.status;
+document.getElementById('modal-nationality').value = this.dataset.nationality;
+
          
 
             // Handle hearing history display
