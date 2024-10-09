@@ -11,7 +11,7 @@ if ($id > 0) {
                    cc.complaints_category AS category, 
                    b.barangay_name, c.cp_number, c.complaints_person, 
                    i.gender, i.place_of_birth, i.age, 
-                   i.educational_background, i.civil_status,
+                   i.educational_background, i.civil_status,  i.nationality,
                    GROUP_CONCAT(DISTINCT e.evidence_path ORDER BY e.evidence_path SEPARATOR ',') AS evidence_paths,
                    GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) ORDER BY h.hearing_date, h.hearing_time SEPARATOR ',') AS hearing_history
             FROM tbl_complaints c
@@ -60,6 +60,8 @@ if ($id > 0) {
                 'age' => $result['age'],
                 'educational_background' => $result['educational_background'],
                 'civil_status' => $result['civil_status'],
+
+                'nationality' => $result['nationality'],
                 'evidence' => $evidence,
                 'hearing_history' => $hearing_history
             ]);

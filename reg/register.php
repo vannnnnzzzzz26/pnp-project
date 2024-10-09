@@ -1,6 +1,11 @@
 <?php
 include '../connection/dbconn.php';
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Function to safely retrieve POST data
 function getPostData($key) {
     return isset($_POST[$key]) ? trim($_POST[$key]) : null;
@@ -17,21 +22,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $first_name = getPostData('first_name');
     $middle_name = getPostData('middle_name');
     $last_name = getPostData('last_name');
-    $extension_name = getPostData('extension_name');  // Optional field
-    $email = getPostData('email');
+    $extension_name = getPostData('extension_name'); // Optional field
+    $cp_number = getPostData('cp_number'); // CP Number instead of email
     $password = getPostData('password');
     $confirm_password = getPostData('confirm_password');
     $accountType = getPostData('accountType');
     $barangay_name = getPostData('barangay');
-    $security_question_1 = getPostData('security_question_1');
-    $security_answer_1 = getPostData('security_answer_1');
-    $security_question_2 = getPostData('security_question_2');
-    $security_answer_2 = getPostData('security_answer_2');
-    $security_question_3 = getPostData('security_question_3');
-    $security_answer_3 = getPostData('security_answer_3');
+    $security_question = getPostData('security_question');
+    $security_answer = getPostData('security_answer');
+
+    // New fields
+    $civil_status = getPostData('civil_status');
+    $nationality = getPostData('nationality');
+    $age = getPostData('age');
+    $birth_date = getPostData('birth_date');
+    $gender = getPostData('gender');
+    $place_of_birth = getPostData('place_of_birth'); // Added field for place of birth
+    $purok = getPostData('purok'); // Added field for purok
+    $educational_background = getPostData('educational_background'); // Added field for educational background
+    $selfie_path = getPostData('selfie_path'); // Added field for educational background
 
     // Validate form data
-    if ($first_name && $middle_name && $last_name && $email && $password && $confirm_password && $accountType && $barangay_name && $security_question_1 && $security_answer_1 && $security_question_2 && $security_answer_2 && $security_question_3 && $security_answer_3) {
+    if ($first_name && $middle_name && $last_name && $cp_number && $password && $confirm_password && $accountType && $barangay_name && $security_question && $security_answer && $civil_status && $nationality && $age && $birth_date && $gender && $place_of_birth && $purok && $educational_background) {
         // Check if passwords match
         if ($password !== $confirm_password) {
             echo 'error_password';
@@ -44,32 +56,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
 
-        // Check if the email already exists in the database
-        $stmt_check_email = $pdo->prepare("SELECT COUNT(*) FROM tbl_users WHERE email = ?");
-        $stmt_check_email->execute([$email]);
-        $count = $stmt_check_email->fetchColumn();
+        // Check if the CP Number already exists in the database
+        $stmt_check_cp_number = $pdo->prepare("SELECT COUNT(*) FROM tbl_users WHERE cp_number = ?");
+        $stmt_check_cp_number->execute([$cp_number]);
+        $count = $stmt_check_cp_number->fetchColumn();
 
         if ($count > 0) {
-            echo 'error_email_exists';
+            echo 'error_cp_number_exists';
             exit;
         }
 
-        // Handle file upload
-        $pic_data = null; // Initialize pic_data
-
+        // Handle file upload for profile picture
+        $pic_data = null;
         if ($_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
             $temp_name = $_FILES['profile_picture']['tmp_name'];
             $file_name = $_FILES['profile_picture']['name'];
             $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-            $upload_directory = '../uploads/'; // Directory where uploads will be stored
-            $new_file_name = uniqid('profile_') . '.' . $file_extension; // Generate a unique filename
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            $upload_directory = '../uploads/';
+            $new_file_name = uniqid('profile_') . '.' . $file_extension;
             $destination = $upload_directory . $new_file_name;
 
-            if (move_uploaded_file($temp_name, $destination)) {
-                // File uploaded successfully, store the file path in $pic_data
-                $pic_data = $destination;
+            // Validate file type and move file
+            if (in_array(strtolower($file_extension), $allowed_extensions)) {
+                if (move_uploaded_file($temp_name, $destination)) {
+                    $pic_data = $destination;
+                } else {
+                    echo 'error_file_upload';
+                    exit;
+                }
             } else {
-                echo 'error_file_upload';
+                echo 'error_invalid_file_type';
+                exit;
+            }
+        }
+
+        // Handle Selfie upload
+        $selfie_path = null;
+        if (isset($_FILES['selfie']) && $_FILES['selfie']['error'] == UPLOAD_ERR_OK) {
+            $selfie_filename = basename($_FILES['selfie']['name']);
+            $selfie_path = '../uploads/' . uniqid('selfie_') . '_' . $selfie_filename;
+
+            if (!file_exists('../uploads')) {
+                mkdir('../uploads', 0777, true); 
+            }
+
+            if (move_uploaded_file($_FILES['selfie']['tmp_name'], $selfie_path)) {
+                // Selfie uploaded successfully
+            } else {
+                echo 'error_selfie_upload';
                 exit;
             }
         }
@@ -79,18 +114,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt_barangay->execute([$barangay_name]);
         $barangays_id = $pdo->lastInsertId(); // Retrieve the last inserted ID
 
-        // Hash the password
+        // Hash the password and security answer
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashed_answer = password_hash($security_answer, PASSWORD_DEFAULT);
 
-        // Hash the security answers
-        $hashed_answer_1 = password_hash($security_answer_1, PASSWORD_DEFAULT);
-        $hashed_answer_2 = password_hash($security_answer_2, PASSWORD_DEFAULT);
-        $hashed_answer_3 = password_hash($security_answer_3, PASSWORD_DEFAULT);
+        // Insert into tbl_users (Fixed fields count and removed invalid variables)
+        $stmt_users = $pdo->prepare("
+            INSERT INTO tbl_users 
+            (first_name, middle_name, last_name, extension_name, cp_number, password, accountType, barangays_id, pic_data, selfie_path, security_question, security_answer, civil_status, nationality, age, birth_date, gender, place_of_birth, purok, educational_background) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt_users->execute([
+            $first_name, $middle_name, $last_name, $extension_name, $cp_number, $hashedPassword, $accountType, 
+            $barangays_id, $pic_data, $selfie_path, $security_question, $hashed_answer, 
+            $civil_status, $nationality, $age, $birth_date, $gender, 
+            $place_of_birth, $purok, $educational_background
+        ]);
 
-        // Now insert into tbl_users
-        $stmt_users = $pdo->prepare("INSERT INTO tbl_users (first_name, middle_name, last_name, extension_name, email, password, accountType, barangays_id, pic_data, security_question_1, security_answer_1, security_question_2, security_answer_2, security_question_3, security_answer_3) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt_users->execute([$first_name, $middle_name, $last_name, $extension_name, $email, $hashedPassword, $accountType, $barangays_id, $pic_data, $security_question_1, $hashed_answer_1, $security_question_2, $hashed_answer_2, $security_question_3, $hashed_answer_3]);
-
+        // Check if the user was successfully inserted
         if ($stmt_users->rowCount() > 0) {
             echo 'success';
             exit;
@@ -104,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -154,6 +194,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 100%;
         }
 
+
+        .progress {
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    transition: width 0.4s;
+}
+
+.weak {
+    background-color: red;
+}
+
+.medium {
+    background-color: orange;
+}
+
+.strong {
+    background-color: green;
+}
+
+
     </style>
 </head>
 <body>
@@ -183,19 +245,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <!-- Email -->
                 <div class="col-12 mb-3">
-                    <label for="email" class="form-label">Email:</label>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                    <label for="cp_number" class="form-label">CP Number:</label>
+                    <input type="cp_number" id="cp_number" name="cp_number" class="form-control" placeholder="Enter your number" required>
                 </div>
 
                 <!-- Password and Confirm Password -->
                 <div class="col-md-6 mb-3">
-                    <label for="password" class="form-label">Password:</label>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="confirm_password" class="form-label">Re-enter Password:</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter your password" required>
-                </div>
+    <label for="password" class="form-label">Password:</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+    <div id="password-strength" class="progress mt-2" style="height: 10px;">
+        <div id="strength-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <small id="strength-text" class="form-text"></small>
+</div>
+<div class="col-md-6 mb-3">
+    <label for="confirm_password" class="form-label">Re-enter Password:</label>
+    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter your password" required>
+
+
+</div>
+
 
                 <!-- Account Type -->
                 <div class="col-md-6 mb-3">
@@ -233,6 +302,81 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </select>
                 </div>
 
+
+                <label for="purok">Purok:</label>
+<select name="purok" required>
+    <option value="">Select Purok</option>
+    <option value="Purok 1">Purok 1</option>
+    <option value="Purok 2">Purok 2</option>
+    <option value="Purok 3">Purok 3</option>
+    <option value="Purok 4">Purok 4</option>
+    <option value="Purok 5">Purok 5</option>
+    <option value="Purok 6">Purok 6</option>
+    <option value="Purok 7">Purok 7</option>
+</select>
+
+
+                <div class="form-group">
+    <label for="nationality">Nationality/Citizenship:</label>
+    <input type="text" id="nationality" name="nationality" class="form-control" required>
+</div>
+
+
+
+
+<div class="col-lg-6 col-md-12 form-group">
+              <label for="birth_date">Birth Date:</label>
+              <input type="date" id="birth_date" name="birth_date" class="form-control" required>
+            </div>
+          </div>
+
+          <!-- Gender and Age Information -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="gender">Gender:</label>
+              <select id="gender" name="gender" class="form-control" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="age">Age:</label>
+              <input type="number" id="age" name="age" class="form-control" readonly>
+            </div>
+          </div>
+
+          <!-- Place of Birth and Civil Status -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="place_of_birth">Place of Birth:</label>
+              <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" required>
+            </div>
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="civil_status">Civil Status:</label>
+              <select id="civil_status" name="civil_status" class="form-control" required>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Live-in">Live-in</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Separated">Separated</option>
+              </select>
+            </div>
+
+
+            <div class="row">
+            <div class="col-lg-6 col-md-12 form-group">
+              <label for="educational_background">Educational Attainment:</label>
+              <select id="educational_background" name="educational_background" class="form-control" required>
+                <option value="No Formal Education">No Formal Education</option>
+                <option value="Elementary">Elementary</option>
+                <option value="Highschool">Highschool</option>
+                <option value="College">College</option>
+                <option value="Post Graduate<">Post Graduate</option>
+              </select>
+            </div>
+
+
                 <!-- Profile Picture Upload -->
                 <div class="col-md-6 mb-3">
                     <label for="profile_picture" class="form-label">Profile Picture:</label>
@@ -240,38 +384,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
 
+            
+          </div>
+          <div class="form-group">
+        <label for="selfie">Upload Selfie:</label>
+        <input type="file" name="selfie" accept="image/*" class="form-control" required>
+    </div>
             <div class="col-12 mb-3">
-                <label for="security_question_1" class="form-label">Security Question 1:</label>
-                <select id="security_question_1" name="security_question_1" class="form-select" required>
+                <label for="security_question" class="form-label">Security Question 1:</label>
+                <select id="security_question" name="security_question" class="form-select" required>
                     <option value="">Select a question...</option>
                     <option value="What was your childhood nickname?">What was your childhood nickname?</option>
                     <option value="What is the name of your first pet?">What is the name of your first pet?</option>
                     <option value="What was the make and model of your first car?">What was the make and model of your first car?</option>
                 </select>
-                <input type="text" id="security_answer_1" name="security_answer_1" class="form-control mt-2" placeholder="Your answer" required>
+                <input type="text" id="security_answer" name="security_answer" class="form-control mt-2" placeholder="Your answer" required>
             </div>
 
-            <div class="col-12 mb-3">
-                <label for="security_question_2" class="form-label">Security Question 2:</label>
-                <select id="security_question_2" name="security_question_2" class="form-select" required>
-                    <option value="">Select a question...</option>
-                    <option value="In what city were you born?">In what city were you born?</option>
-                    <option value="What is your favorite book?">What is your favorite book?</option>
-                    <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
-                </select>
-                <input type="text" id="security_answer_2" name="security_answer_2" class="form-control mt-2" placeholder="Your answer" required>
-            </div>
-
-            <div class="col-12 mb-3">
-                <label for="security_question_3" class="form-label">Security Question 3:</label>
-                <select id="security_question_3" name="security_question_3" class="form-select" required>
-                    <option value="">Select a question...</option>
-                    <option value="What is your mother’s maiden name?">What is your mother’s maiden name?</option>
-                    <option value="What was your high school mascot?">What was your high school mascot?</option>
-                    <option value="What street did you grow up on?">What street did you grow up on?</option>
-                </select>
-                <input type="text" id="security_answer_3" name="security_answer_3" class="form-control mt-2" placeholder="Your answer" required>
-            </div>
 
             <!-- Submit Button -->
             <div class="text-center">
@@ -286,6 +415,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Include SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.4/dist/sweetalert2.min.js"></script>
     <script>
+
+
+
+document.getElementById('cp_number').addEventListener('input', function (e) {
+    // Remove non-numeric characters
+    this.value = this.value.replace(/\D/g, '');
+    // Limit to 11 digits
+    if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+    }
+});
+
+            document.getElementById('birth_date').addEventListener('change', function() {
+    var birthDate = new Date(this.value);
+    var today = new Date();
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var monthDifference = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust the age if the birthday hasn't occurred yet this year
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    if (age < 18) {
+        alert("Age must be 18 or above.");
+        this.value = ''; // Clear the birth date field
+        document.getElementById('age').value = ''; // Clear the age field
+    } else {
+        document.getElementById('age').value = age; // Set the calculated age
+    }
+});
+
+
+
+
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('registerForm');
 
@@ -361,6 +525,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 });
             });
         });
+
+
+
+
+
+        function assessPasswordStrength(password) {
+        let strength = 0;
+
+        // Check for various password strength criteria
+        if (password.length >= 8) strength++; // Length
+        if (/[A-Z]/.test(password)) strength++; // Uppercase letters
+        if (/[a-z]/.test(password)) strength++; // Lowercase letters
+        if (/\d/.test(password)) strength++; // Numbers
+        
+        // Check for special characters
+        if (/[@$!%*?&]/.test(password)) {
+            strength = 4; // Directly assign maximum strength if a special character is found
+        }
+
+        return strength;
+    }
+
+    document.getElementById('password').addEventListener('input', function() {
+        const password = this.value;
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        const strength = assessPasswordStrength(password);
+        
+        // Determine strength level and update the progress bar
+        switch (strength) {
+            case 0:
+            case 1:
+                strengthBar.style.width = '20%';
+                strengthBar.className = 'progress-bar weak';
+                strengthText.innerText = 'Weak';
+                break;
+            case 2:
+                strengthBar.style.width = '50%';
+                strengthBar.className = 'progress-bar medium';
+                strengthText.innerText = 'Medium';
+                break;
+            case 3:
+            case 4:
+                strengthBar.style.width = '100%';
+                strengthBar.className = 'progress-bar strong';
+                strengthText.innerText = 'Strong';
+                break;
+            default:
+                strengthBar.style.width = '0%';
+                strengthText.innerText = '';
+        }
+    });
     </script>
 </body>
 </html>

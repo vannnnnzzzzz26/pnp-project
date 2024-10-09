@@ -15,14 +15,20 @@
             }
             ?>
             <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-            <h5 class='white-text'>User Information</h5>
-            <p class='white-text'><?php echo $email; ?></p>
             <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+            <p class='white-text'><?php echo $email; ?></p>
+          
         </div>
 
 
         <!-- Menu items -->
         <ul class="nav flex-column">
+
+        <li class="nav-item">
+                <a class="nav-link" href="dashboard.php">
+                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="pnp.php">
                     <i class="bi bi-file-earmark-text large-icon"></i><span class="nav-text">Barangay Complaints</span>
@@ -41,6 +47,9 @@
                     <i class="bi bi-card-text large-icon"></i><span class="nav-text">Announcements</span>
                 </a>
             </li>
+            <li class="nav-item">
+        <a class="nav-link" href="login_logs.php"><i class="bi bi-people-fill"></i><span class="nav-text">Login Logs</span></a>
+        </li>
             <li class="nav-item">
                 <a class="nav-link" href="dashboard.php">
                     <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>

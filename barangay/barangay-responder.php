@@ -15,11 +15,10 @@ if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
 $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
 $lastName = $_SESSION['last_name'];
-$extensionName = $_SESSION['extension_name'] ?? '';
-$email = $_SESSION['email'] ?? '';
+$extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
+$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
 $barangay_name = $_SESSION['barangay_name'] ?? '';
-$pic_data = $_SESSION['pic_data'] ?? '';
-
+$pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 $results_per_page = 10; 
 
 // Determine current page
@@ -33,20 +32,31 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         $barangay_name = $_SESSION['barangay_name'] ?? '';
 
         $stmt = $pdo->prepare("
-            SELECT c.*, b.barangay_name, cc.complaints_category, i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
-                   GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ',') AS evidence_paths,
-                   GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
-            FROM tbl_complaints c
-            JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
-            JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-            JOIN tbl_info i ON c.info_id = i.info_id
-            LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-            LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
-            WHERE c.status = 'Approved' AND b.barangay_name = ?
-            GROUP BY c.complaints_id
-            ORDER BY c.date_filed ASC
-            LIMIT ?, ?
-        ");
+        SELECT c.*, 
+               b.barangay_name, 
+               cc.complaints_category,
+               u.cp_number,          
+               u.gender,            
+               u.place_of_birth,    
+               u.age,               
+                u.nationality,
+                u.educational_background,
+               u.civil_status,
+               u.purok,
+               GROUP_CONCAT(DISTINCT e.evidence_path SEPARATOR ',') AS evidence_paths,
+               GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status) SEPARATOR ',') AS hearing_history
+        FROM tbl_complaints c
+        JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
+        JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
+        JOIN tbl_users u ON c.user_id = u.user_id  
+        LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
+        LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
+        WHERE c.status = 'Approved' AND b.barangay_name = ?
+        GROUP BY c.complaints_id
+        ORDER BY c.date_filed ASC
+        LIMIT ?, ?
+    ");
+    
 
         $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
         $stmt->bindParam(2, $start_from, PDO::PARAM_INT);
@@ -62,14 +72,22 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $complaint_id = htmlspecialchars($row['complaints_id']);
                 $complaint_name = htmlspecialchars($row['complaint_name']);
+                $complaint_ano = htmlspecialchars($row['ano']);
+                $complaint_saan = htmlspecialchars($row['saan']);
+                $complaint_kailan = htmlspecialchars($row['kailan']);
+                $complaint_paano = htmlspecialchars($row['paano']);
+                $complaint_bakit= htmlspecialchars($row['bakit']);
                 $complaint_description = htmlspecialchars($row['complaints']);
                 $complaint_category = htmlspecialchars($row['complaints_category']);
                 $complaint_barangay = htmlspecialchars($row['barangay_name']);
+                $complaint_purok = htmlspecialchars($row['purok']);
+
                 $complaint_contact = htmlspecialchars($row['cp_number']);
                 $complaint_person = htmlspecialchars($row['complaints_person']);
                 $complaint_gender = htmlspecialchars($row['gender']);
-                $complaint_birth_place = htmlspecialchars($row['place_of_birth']);
+                $complaint_place_of_birth = htmlspecialchars($row['place_of_birth']);
                 $complaint_age = htmlspecialchars($row['age']);
+                $complaint_nationality = htmlspecialchars($row['nationality']);
                 $complaint_education = htmlspecialchars($row['educational_background']);
                 $complaint_civil_status = htmlspecialchars($row['civil_status']);
                 $complaint_evidence = htmlspecialchars($row['evidence_paths']);
@@ -80,18 +98,40 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
                 echo "<tr>";
                 echo "<td style='text-align: center; vertical-align: middle;'>{$rowNumber}</td>"; // Display row number centered
                 echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_name}</td>"; // Align name to the left
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_date_filed }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_barangay }</td>";
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_purok }</td>";
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_ano }</td>"; 
+                     
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_saan }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_kailan }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_paano }</td>"; 
+                                echo "<td style='text-align: left; vertical-align: middle;'>{$complaint_bakit }</td>";
+                               
+
+                                // Align name to the left
+
+                
                 echo "<td style='text-align: center; vertical-align: middle;'>
                         <button type='button' class='btn btn-primary view-details-btn' 
                                 data-id='{$complaint_id}' 
                                 data-name='{$complaint_name}' 
+                                 data-ano='{$complaint_ano}' 
+                                      data-saan='{$complaint_saan}' 
+                                        data-kailan='{$complaint_kailan}' 
+                                        data-paano='{$complaint_paano}'
+                                        data-bakit='{$complaint_bakit}' 
+
+
                                 data-description='{$complaint_description}' 
                                 data-category='{$complaint_category}' 
                                 data-barangay='{$complaint_barangay}' 
                                 data-contact='{$complaint_contact}' 
                                 data-person='{$complaint_person}' 
                                 data-gender='{$complaint_gender}' 
-                                data-birth_place='{$complaint_birth_place}' 
+                                data-birth_place='{$complaint_place_of_birth}' 
                                 data-age='{$complaint_age}' 
+                                data-nationality ='{$complaint_nationality}'
                                 data-education='{$complaint_education}' 
                                 data-civil_status='{$complaint_civil_status}' 
                                 data-evidence_paths='{$complaint_evidence}' 
@@ -160,11 +200,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_hearing'])) {
     }
 }
 
+
+
 // Pagination
-$stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE (c.status = 'Approved' OR c.status = 'unresolved') AND b.barangay_name = ?");
-$stmt->execute([$barangay_name]);
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-$total_pages = ceil($row['total'] / $results_per_page);
+   // Calculate total pages
+   $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE c.status = 'settled_in_barangay' AND b.barangay_name = ?");
+   $stmt->execute([$barangay_name]);
+   $total_results = $stmt->fetchColumn();
+   $total_pages = ceil($total_results / $results_per_page);
+
 ?>
 
 
@@ -229,6 +273,17 @@ margin-left: 5rem;
             text-align: center;
         }
 
+        label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+span {
+    display: block;
+    margin-bottom: 10px;
+}
+
+
       
 </style>
 <body>
@@ -243,23 +298,112 @@ include '../includes/edit-profile.php';
     <!-- Page Content -->
     <div class="content">
     <div class="container">
-        <h2 class="mt-3 mb-4">Uploaded Complaints</h2>
+        <h2 class="mt-3 mb-4">Complaints Status</h2>
+
+
+
+        
+    <!-- Dropdown for sorting -->
+
+
+
         
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
+
+
+            
+            <form method="POST">
+    <label class="form-label">Sort by Status:</label>
+    <select id="statusDropdown" name="status" onchange="handleStatusChange(this.value)">
+        <option value="Approved" 
+            <?php echo (isset($_GET['status']) && $_GET['status'] == 'Approved') ? 'selected' : ''; ?>>
+            Approved
+        </option>
+        <option value="In Progress" 
+            <?php echo (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'selected' : ''; ?>>
+            In Progress
+        </option>
+    </select>
+</form>
+
+<script>
+function handleStatusChange(status) {
+    if (status === 'Approved') {
+        window.location.href = 'barangay-responder.php?status=' + status;
+    } else if (status === 'In Progress') {
+        window.location.href = 'manage-complaints.php?status=' + status;
+    }
+}
+</script>
+
+
+<script>
+function handleStatusChange(status) {
+    if (status === 'Approved') {
+        window.location.href = 'barangay-responder.php';
+    } else if (status === 'In Progress') {
+        window.location.href = 'manage-complaints.php';
+    }
+}
+</script>
+
+
                 <tr>
-                    <th>#</th> <!-- Added for row numbers -->
-                
-                    <th>Name</th>
-                    <th>Action</th>
+                <th style="text-align: center; vertical-align: middle;">#</th> <!-- Row number centered -->
+            <th style="text-align: left; vertical-align: middle;">Complaint Name</th> <!-- Complaint name aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Date Filed</th> <!-- Date filed aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Barangay</th> <!-- Barangay aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Purok</th> <!-- Purok aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Ano</th> <!-- Ano aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Saan</th> <!-- Saan aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Kailan</th> <!-- Kailan aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Paano</th> <!-- Paano aligned to the left -->
+            <th style="text-align: left; vertical-align: middle;">Bakit</th> <!-- Bakit aligned to the left -->
+            <th style="text-align: center; vertical-align: middle;">Action</th> <!-- Action button aligned to the center -->
                 </tr>
             </thead>
             <tbody>
                 <?php displayComplaints($pdo, $start_from, $results_per_page); ?>
             </tbody>
         </table>
+
+
+        
+
+
+        <nav>
+        <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&search=<?= htmlspecialchars($search_query); ?>">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page - 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Previous</a>
+                </li>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?= $i; ?>&search=<?= htmlspecialchars($search_query); ?>"><?= $i; ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page + 1; ?>&search=<?= htmlspecialchars($search_query); ?>">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $total_pages; ?>&search=<?= htmlspecialchars($search_query); ?>">Last</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+
     </div>
 </div>
+
+
 
 
 
@@ -322,20 +466,7 @@ include '../includes/edit-profile.php';
 
 
 
-            <nav>
-                <ul class="pagination justify-content-center">
-                    <?php
-                    $pagination_range = 2; // Range of pages to display before and after the current page
-                    for ($i = max(1, $page - $pagination_range); $i <= min($page + $pagination_range, $total_pages); $i++) {
-                        $active = $i == $page ? 'active' : '';
-                        echo "<li class='page-item {$active}'><a class='page-link' href='barangay-responder.php?page={$i}'>{$i}</a></li>";
-                    }
-                    ?>
-                </ul>
-            </nav>
-        </div>
-    </div>
-
+           
 
     <?php
 
@@ -390,20 +521,28 @@ function getCurrentDate() {
     const viewButtons = document.querySelectorAll('.view-details-btn');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Populate modal with data
-            document.getElementById('modal-name').textContent = this.dataset.name;
-            document.getElementById('modal-description').textContent = this.dataset.description;
-            document.getElementById('modal-category').textContent = this.dataset.category;
-            document.getElementById('modal-barangay').textContent = this.dataset.barangay;
-            document.getElementById('modal-contact').textContent = this.dataset.contact;
-            document.getElementById('modal-person').textContent = this.dataset.person;
-            document.getElementById('modal-gender').textContent = this.dataset.gender;
-            document.getElementById('modal-birth_place').textContent = this.dataset.birth_place;
-            document.getElementById('modal-age').textContent = this.dataset.age;
-            document.getElementById('modal-education').textContent = this.dataset.education;
-            document.getElementById('modal-civil_status').textContent = this.dataset.civil_status;
-            document.getElementById('modal-date_filed').textContent = this.dataset.date_filed;
-            document.getElementById('modal-status').textContent = this.dataset.status;
+         // Populate modal with data
+document.getElementById('modal-name').value = this.dataset.name;
+document.getElementById('modal-ano').value = this.dataset.ano;
+document.getElementById('modal-saan').value = this.dataset.saan;
+document.getElementById('modal-kailan').value = this.dataset.kailan;
+document.getElementById('modal-paano').value = this.dataset.paano;
+document.getElementById('modal-bakit').value = this.dataset.bakit;
+
+document.getElementById('modal-description').value = this.dataset.description;
+document.getElementById('modal-category').value = this.dataset.category;
+document.getElementById('modal-barangay').value = this.dataset.barangay;
+document.getElementById('modal-contact').value = this.dataset.contact;
+document.getElementById('modal-person').value = this.dataset.person;
+document.getElementById('modal-gender').value = this.dataset.gender;
+document.getElementById('modal-birth_place').value = this.dataset.birth_place;
+document.getElementById('modal-age').value = this.dataset.age;
+document.getElementById('modal-education').value = this.dataset.education;
+document.getElementById('modal-civil_status').value = this.dataset.civil_status;
+document.getElementById('modal-date_filed').value = this.dataset.date_filed;
+document.getElementById('modal-status').value = this.dataset.status;
+document.getElementById('modal-nationality').value = this.dataset.nationality;
+
          
 
             // Handle hearing history display
@@ -493,7 +632,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error:', error); 
             Swal.fire({
                 title: 'Error!',
                 text: 'There was an error updating the status.',

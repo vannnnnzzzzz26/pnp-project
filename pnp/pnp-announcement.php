@@ -51,6 +51,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
     }
 }
 
+
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['upload_logo'])) {
+    $pnp_officer_logo_path = '';
+
+    if (!empty($_FILES['pnp_officer_logo']['name'])) {
+        $target_dir = "../uploads";
+        $target_file = $target_dir . basename($_FILES["pnp_officer_logo"]["name"]);
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // Check if file is an actual image
+        $check = getimagesize($_FILES["pnp_officer_logo"]["tmp_name"]);
+        if ($check !== false) {
+            if (move_uploaded_file($_FILES["pnp_officer_logo"]["tmp_name"], $target_file)) {
+                $pnp_officer_logo_path = $target_file;
+
+                // Store the logo path in the session (optional)
+                $_SESSION['pnp_officer_logo_path'] = $pnp_officer_logo_path;
+
+                // Optionally store the logo path in the database, if needed
+                // For example:
+                // $sql = "UPDATE tbl_pnp_logo SET logo_path = ? WHERE id = 1";
+                // $stmt = $pdo->prepare($sql);
+                // $stmt->execute([$pnp_officer_logo_path]);
+
+                $_SESSION['successMessage'] = 'PNP Officer logo uploaded successfully!';
+                header('Location: pnp-announcement.php');
+                exit;
+            } else {
+                $_SESSION['errorMessage'] = "Sorry, there was an error uploading the PNP officer logo.";
+                header('Location: pnp-announcement.php');
+                exit;
+            }
+        } else {
+            $_SESSION['errorMessage'] = "File is not an image.";
+            header('Location: pnp-announcement.php');
+            exit;
+        }
+    }
+}
+
+
 // Fetch announcements from the database, excluding deleted ones
 $sql = "SELECT announcement_id, title, content, date_posted, image_path FROM tbl_announcement WHERE deleted = 0 ORDER BY date_posted DESC";
 $stmt = $pdo->prepare($sql);
@@ -141,30 +184,50 @@ margin-left: 5rem;
 include '../includes/pnp-nav.php';
 include '../includes/pnp-bar.php';
 ?>
+<center>
+    <div class="content"> 
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Add Announcement</h2>
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="add">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <textarea class="form-control" id="title" name="title" rows="1" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">Image (optional)</label>
+                        <input type="file" class="form-control-file" id="image" name="image">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
 
- <center> <div class="content"> 
-    <div class="row">
-        <div class="col-md-4">
-            <h2>Add Announcement</h2>
-            <form action="" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="action" value="add">
-                <div class="form-group">
-                    <label for="title">Title</label>
-                    <textarea class="form-control" id="title" name="title" rows="1" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="content">Content</label>
-                    <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="image">Image (optional)</label>
-                    <input type="file" class="form-control-file" id="image" name="image">
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
-        </div>
-        <div class="col-md-8">
-            <div class="container mt-4">
+                <h2>Upload PNP Officer Logo</h2>
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="pnp_officer_logo">PNP Officer Logo</label>
+                        <input type="file" class="form-control-file" id="pnp_officer_logo" name="pnp_officer_logo" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="upload_logo">Upload Logo</button>
+                </form>
+
+                <!-- PNP Officer Logo Display Section -->
+                <?php if (isset($_SESSION['pnp_officer_logo_path']) && !empty($_SESSION['pnp_officer_logo_path'])): ?>
+                    <div class="mt-3">
+                        <h3 class="card-title">PNP Officer Logo</h3>
+                        <div class="image-container mb-2">
+                            <img src="<?php echo htmlspecialchars($_SESSION['pnp_officer_logo_path']); ?>" class="img-fluid" alt="PNP Officer Logo">
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Announcements Section -->
+            <div class="col-md-8">
                 <h2>Announcements</h2>
                 <div class="row">
                     <?php if ($announcements): ?>
@@ -182,7 +245,7 @@ include '../includes/pnp-bar.php';
                                         <?php endif; ?>
                                         <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $announcement['announcement_id']; ?>">Edit</a>
                                         <a href="#" class="btn btn-danger" onclick="confirmDelete(<?php echo $announcement['announcement_id']; ?>)">Delete</a>
-                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -229,8 +292,24 @@ include '../includes/pnp-bar.php';
             </div>
         </div>
     </div>
-</div> 
- </center>
+</center>
+
+
+
+
+
+
+
+
+
+ 
+ 
+   
+
+        
+
+
+
  
 
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -318,7 +397,7 @@ include '../includes/pnp-bar.php';
                 let notificationListHtml = '';
                 if (notificationCount > 0) {
                     data.notifications.forEach(notification => {
-                        notificationListHtml += `
+                        notificationListHtml += `            
                             <div class="dropdown-item" 
                                  data-id="${notification.complaints_id}" 
                                  data-status="${notification.status}" 
@@ -327,6 +406,7 @@ include '../includes/pnp-bar.php';
                                 Complaint: ${notification.complaint_name}<br>
                                 Barangay: ${notification.barangay_name}<br>
                                 Status: ${notification.status}
+                                <hr>
                             </div>
                         `;
                     });

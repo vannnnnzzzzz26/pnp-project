@@ -14,10 +14,9 @@
                 echo "<img class='profile' src='$pic_data' alt='Profile Picture'>";
             }
             ?>
-            <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
-            <h5 class='white-text'>User Information</h5>
-            <p class='white-text'><?php echo $email; ?></p>
-            <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+                       <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+            <p class='white-text'><?php echo $cp_number; ?></p>
+
         </div>
 
         <!-- Menu items -->
@@ -34,6 +33,9 @@
         </li>
         <li class="nav-item">
         <a class="nav-link" href="barangay-official.php"><i class="bi bi-person-check-fill"></i><span class="nav-text">Barangay Official</span></a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link" href="login_logs.php"><i class="bi bi-people-fill"></i><span class="nav-text">Login Logs</span></a>
         </li>
 
        

@@ -12,7 +12,7 @@ if (isset($_GET['id'])) {
             SELECT DISTINCT c.complaint_name, c.complaints AS description, c.date_filed, c.status, 
                    c.category_id, c.barangays_id, c.cp_number, c.complaints_person, 
                    b.barangay_name, cat.complaints_category,
-                   i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,
+                   i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,i.nationality,
                    e.evidence_path,
                    h.hearing_date, h.hearing_time, h.hearing_type, h.hearing_status
             FROM tbl_complaints c
@@ -65,6 +65,7 @@ if (isset($_GET['id'])) {
                 $age = htmlspecialchars($row['age']);
                 $educational_background = htmlspecialchars($row['educational_background']);
                 $civil_status = htmlspecialchars($row['civil_status']);
+                $nationality = htmlspecialchars($row['nationality']);
 
                 // Construct HTML to display in modal (only once)
                 echo "<p><strong>Name:</strong> {$complaint_name}</p>";
@@ -80,6 +81,7 @@ if (isset($_GET['id'])) {
                 echo "<p><strong>Age:</strong> {$age}</p>";
                 echo "<p><strong>Educational Background:</strong> {$educational_background}</p>";
                 echo "<p><strong>Civil Status:</strong> {$civil_status}</p>";
+                echo "<p><strong>Nationality:</strong> {$nationality}</p>";
 
                 // Break after displaying the details once
                 break;

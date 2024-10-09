@@ -273,9 +273,43 @@ include '../includes/edit-profile.php';
 
             <!-- Officials Table -->
             <div class="col-md-8">
-            <label for="barangay">Barangay:</label>
-                    
-                <h4>Officials List</h4>
+            <style>
+    .large-text {
+        font-size: 1.5rem; /* Adjust the size as needed */
+    }
+</style>
+
+<div class="form-group row">
+    <label for="barangay" class="col-md-2 col-form-label large-text">Barangay:</label>
+    <div class="col-md-10">
+        <?php 
+        include '../connection/dbconn.php'; 
+
+        try {
+            // Prepare the statement
+            $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+            // Execute the statement with the barangay ID
+            $stmt->execute([$barangays_id]); // Use an appropriate variable name for the barangay ID
+            // Fetch the barangay name
+            $barangay_name = $stmt->fetchColumn(); // Change to a different variable
+
+            // Check if a barangay name was found
+            if ($barangay_name) {
+                echo "<p class='form-control-plaintext large-text'>" . htmlspecialchars($barangay_name) . "</p>";
+            } else {
+                echo "<p class='form-control-plaintext large-text'>No barangay found.</p>";
+            }
+        } catch (PDOException $e) {
+            echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
+        }
+        ?>
+    </div>
+</div>
+
+
+
+<h4>Officials List</h4>
+              
                 <table class="table table-bordered">
                     <thead>
                         <tr>

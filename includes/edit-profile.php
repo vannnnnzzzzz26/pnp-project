@@ -24,9 +24,29 @@
                         <input type="text" class="form-control" id="editExtensionName" name="extension_name" value="<?php echo htmlspecialchars($extensionName); ?>">
                     </div>
                     <div class="mb-3">
-                        <label for="editEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editEmail" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+                        <label for="editCPNumber" class="form-label">CP Number</label>
+                        <input type="cp_number" class="form-control" id="editCPNumber" name="cp_number" value="<?php echo htmlspecialchars($cp_number); ?>" required>
                     </div>
+
+                    
+                    <!-- Current Password -->
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password">
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password">
+                    </div>
+
                     <div class="mb-3">
                         <label for="editProfilePic" class="form-label">Profile Picture</label>
                         <input type="file" class="form-control" id="editProfilePic" name="profile_pic">
