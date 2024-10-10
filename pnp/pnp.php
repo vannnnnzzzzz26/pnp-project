@@ -1,7 +1,9 @@
 
 <?php 
-session_start(); 
 
+
+session_start(); 
+include '../includes/bypass.php';
 
 
 $firstName = $_SESSION['first_name'] ?? '';
@@ -107,7 +109,7 @@ include '../includes/pnp-bar.php';
             try {
                 $stmt = $pdo->prepare("
                     SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
-                           c.barangays_id, c.cp_number, c.complaints_person
+                           c.barangays_id, c.complaints_person
                     FROM tbl_complaints c
                     WHERE c.status = 'pnp'
                     ORDER BY c.date_filed ASC

@@ -1,4 +1,6 @@
 <?php
+
+
 session_start();
 $firstName = $_SESSION['first_name'];
 $middleName = $_SESSION['middle_name'];
@@ -10,6 +12,7 @@ $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 // Include database connection file
 include '../connection/dbconn.php';
+include '../includes/bypass.php';
 
 // Check if barangay_name is not set, attempt to fetch using barangays_id
 if (empty($barangay_name) && isset($_SESSION['barangays_id'])) {

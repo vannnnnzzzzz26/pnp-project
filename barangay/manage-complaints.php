@@ -3,11 +3,7 @@
 include '../connection/dbconn.php'; 
 include '../barangay/notifications.php';
 
-// Redirect to login if user is not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+include '../includes/bypass.php';
 
 if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
     $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");

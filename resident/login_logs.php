@@ -1,18 +1,15 @@
 <?php
 include '../connection/dbconn.php';
-session_start();
 
+
+session_start();
+include '../includes/bypass.php';
 $cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
 $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
 $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
 $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
 $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
 
-// Check if the user is logged in and has the correct permissions (optional)
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
 
 // Get the logged-in user's ID from the session
 $user_id = $_SESSION['user_id'];
@@ -116,6 +113,7 @@ color: whitesmoke;
     <?php 
 include '../includes/resident-nav.php';
 include '../includes/resident-bar.php';
+
 ?>
 
 

@@ -10,6 +10,8 @@ $barangay_name = $_SESSION['barangay_name'] ?? '';
 $pic_data = $_SESSION['pic_data'] ?? '';
 
 include '../connection/dbconn.php'; 
+include '../includes/bypass.php';
+
 
 $results_per_page = 10; // Number of complaints per page
 

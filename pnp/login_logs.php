@@ -1,8 +1,10 @@
 <?php
 include '../connection/dbconn.php';
+
+
 session_start();
 
-$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
 $firstName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : '';
 $middleName = isset($_SESSION['middle_name']) ? $_SESSION['middle_name'] : '';
 $lastName = isset($_SESSION['last_name']) ? $_SESSION['last_name'] : '';
@@ -10,7 +12,7 @@ $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'
 
 // Check if the user is logged in and has the correct permissions (optional)
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../reg/login.php");
     exit();
 }
 
@@ -36,7 +38,7 @@ $total_stmt->execute();
 $total_logs = $total_stmt->fetchColumn();
 
 // Fetch the login logs for the current page
-$stmt = $pdo->prepare("SELECT tbl_login_logs.*, tbl_users.email 
+$stmt = $pdo->prepare("SELECT tbl_login_logs.*, tbl_users.cp_number 
                        FROM tbl_login_logs
                        JOIN tbl_users ON tbl_login_logs.user_id = tbl_users.user_id
                        WHERE tbl_login_logs.user_id = :user_id

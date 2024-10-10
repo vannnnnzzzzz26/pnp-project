@@ -1,6 +1,8 @@
 <?php
 session_start();
 include '../connection/dbconn.php';
+include '../includes/bypass.php';
+
 
 // Fetch user information from session
 $firstName = $_SESSION['first_name'] ?? '';

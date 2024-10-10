@@ -3,10 +3,7 @@
 include '../connection/dbconn.php';
 include '../resident/notifications.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+include '../includes/bypass.php';
 
 // Initialize variables from session data
 $firstName = $_SESSION['first_name'];
@@ -186,52 +183,74 @@ include '../includes/resident-bar.php';
                     <div class="row">
                         <!-- First Column -->
                         <div class="col-md-6">
-                            <p><strong>Date Filed:</strong> <span id="modalDateFiled"></span></p>
-                            <p><strong>Complaint Name:</strong> <span id="modalComplaintName"></span></p>
-                            <p><strong>Category:</strong> <span id="modalCategory"></span></p>
-                            <p><strong>Barangay:</strong> <span id="modalBarangay"></span></p>
-                            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
-                            <p><strong>Complaints Person:</strong> <span id="modalComplaintsPerson"></span></p>
+                            <label for="modalDateFiled"><strong>Date Filed:</strong></label>
+                            <input type="text" id="modalDateFiled" style="display: block; width: 100%;" readonly>
+
+                            <label for="modalComplaintName"><strong>Complaint Name:</strong></label>
+                            <input type="text" id="modalComplaintName" style="display: block; width: 100%;" readonly>
+
+                            <label for="modalCategory"><strong>Category:</strong></label>
+                            <input type="text" id="modalCategory" style="display: block; width: 100%;" readonly>
+
+                            <label for="modalBarangay"><strong>Barangay:</strong></label>
+                            <input type="text" id="modalBarangay" style="display: block; width: 100%;" readonly>
+
+                            <label for="modalStatus"><strong>Status:</strong></label>
+                            <input type="text" id="modalStatus" style="display: block; width: 100%;" readonly>
+
+                            <label for="modalComplaintsPerson"><strong>Complaints Person:</strong></label>
+                            <input type="text" id="modalComplaintsPerson" style="display: block; width: 100%;" readonly>
                         </div>
 
                         <!-- Second Column -->
                         <div class="col-md-6">
-                            <p><strong>Complaint Description:</strong> <span id="modalComplaintDescription"></span></p>
-                            <p><strong>Ano (What):</strong> <span id="modalAno"></span></p>
-                            <p><strong>Saan (Where):</strong> <span id="modalSaan"></span></p>
-                            <p><strong>Kailan (When):</strong> <span id="modalKailan"></span></p>
-                            <p><strong>Paano (how):</strong> <span id="modalPaano"></span></p>
-                            <p><strong>Bakit (why):</strong> <span id="modalBakit"></span></p>
+                            <label for="modalComplaintDescription"><strong>Complaint Description:</strong></label>
+                            <input type="text" id="modalComplaintDescription" style="display: block; width: 100%;" readonly>
 
+                            <label for="modalAno"><strong>Ano (What):</strong></label>
+                            <input type="text" id="modalAno" style="display: block; width: 100%;" readonly>
 
-                            
-                        <div class="col-md-6">
-                            <h6><strong>Hearing History</strong></h6>
-                            <div id="modalHearingHistorySection">
-                                <!-- Hearing history will be populated here -->
-                            </div>
-                        </div>
-                        </div>
-                    </div>
+                            <label for="modalSaan"><strong>Saan (Where):</strong></label>
+                            <input type="text" id="modalSaan" style="display: block; width: 100%;" readonly>
 
-                    
+                            <label for="modalKailan"><strong>Kailan (When):</strong></label>
+                            <input type="text" id="modalKailan" style="display: block; width: 100%;" readonly>
 
-                    <!-- Evidence Section -->
-                 
-                        <div class="col-md-12">
-                            <h6><strong>Evidence</strong></h6>
-                            <div id="modalEvidenceSection" style="display: none;">
-                                <ul id="modalEvidenceList">
-                                    <!-- Evidence list will be populated here -->
-                                </ul>
-                            </div>
+                            <label for="modalPaano"><strong>Paano (How):</strong></label>
+                            <input type="text" id="modalPaano" style="display: block; width: 100%;" readonly>
+
+                            <label for="modalBakit"><strong>Bakit (Why):</strong></label>
+                            <input type="text" id="modalBakit" style="display: block; width: 100%;" readonly>
                         </div>
                     </div>
+
+                    <!-- Hearing History Section -->
+                    <div class="row mt-4">
+    <!-- First Column: Hearing History -->
+    <div class="col-md-6">
+        <h6><strong>Hearing History</strong></h6>
+        <div id="modalHearingHistorySection">
+            <!-- Hearing history will be populated here -->
+        </div>
+    </div>
+
+    <!-- Second Column: Evidence Section -->
+    <div class="col-md-6">
+        <h6><strong>Evidence</strong></h6>
+        <div id="modalEvidenceSection" style="display: none;">
+            <ul id="modalEvidenceList">
+                <!-- Evidence list will be populated here -->
+            </ul>
+        </div>
+    </div>
+</div>
+ 
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 
 
@@ -255,20 +274,20 @@ document.addEventListener('DOMContentLoaded', function () {
         var button = event.relatedTarget;
         var complaint = JSON.parse(button.getAttribute('data-complaint'));
 
-        // Populate modal with complaint details
-        document.getElementById('modalDateFiled').textContent = complaint.date_filed || 'N/A';
-        document.getElementById('modalComplaintName').textContent = complaint.complaint_name || 'N/A';
-        document.getElementById('modalComplaintDescription').textContent = complaint.complaints || 'N/A';
-        document.getElementById('modalCategory').textContent = complaint.complaints_category || 'N/A';
-        document.getElementById('modalBarangay').textContent = complaint.barangay_name || 'N/A';
-        document.getElementById('modalStatus').textContent = complaint.status || 'N/A';
-        document.getElementById('modalComplaintsPerson').textContent = complaint.complaints_person || 'N/A';
-        document.getElementById('modalAno').textContent = complaint.ano || 'N/A';
-        document.getElementById('modalSaan').textContent = complaint.saan || 'N/A';
-        document.getElementById('modalKailan').textContent = complaint.kailan || 'N/A';
-        document.getElementById('modalPaano').textContent = complaint.paano || 'N/A';
-        document.getElementById('modalBakit').textContent = complaint.bakit || 'N/A';
- 
+        // Populate modal with complaint details by setting values of inputs
+        document.getElementById('modalDateFiled').value = complaint.date_filed;
+        document.getElementById('modalComplaintName').value = complaint.complaint_name;
+        document.getElementById('modalComplaintDescription').value = complaint.complaints;
+        document.getElementById('modalCategory').value = complaint.complaints_category;
+        document.getElementById('modalBarangay').value = complaint.barangay_name;
+        document.getElementById('modalStatus').value = complaint.status;
+        document.getElementById('modalComplaintsPerson').value = complaint.complaints_person;
+        document.getElementById('modalAno').value = complaint.ano;
+        document.getElementById('modalSaan').value = complaint.saan;
+        document.getElementById('modalKailan').value = complaint.kailan;
+        document.getElementById('modalPaano').value = complaint.paano;
+        document.getElementById('modalBakit').value = complaint.bakit;
+        
         // Hearing Details
         var hearingHistoryHtml = '';
         if (complaint.hearing_history) {
@@ -293,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Evidence
         var evidenceHtml = '<h5>Evidence:</h5>';
-        if (complaint.evidence_paths) {
+        if (complaint.evidence_paths && complaint.evidence_paths.trim() !== "") {
             var evidencePaths = complaint.evidence_paths.split(',').map(path => path.trim());
             if (evidencePaths.length > 0) {
                 evidenceHtml += '<ul>';
@@ -307,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('modalEvidenceSection').style.display = 'block';
         } else {
             evidenceHtml += '<p>No evidence available.</p>';
-            document.getElementById('modalEvidenceSection').style.display = 'block';
+            document.getElementById('modalEvidenceSection').style.display = 'none';
         }
         document.getElementById('modalEvidenceSection').innerHTML = evidenceHtml;
     });
