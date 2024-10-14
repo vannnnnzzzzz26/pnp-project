@@ -140,7 +140,7 @@ function fetchComplaintsByBarangay($pdo, $year, $month,$month_from, $month_to) {
             SELECT ub.barangay_name, COUNT(c.complaints_id) AS complaint_count
             FROM tbl_complaints c
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
-            $whereSql
+              $whereSql
             GROUP BY ub.barangay_name
         ");
         $stmt->execute($params);
@@ -184,11 +184,12 @@ function fetchGenderData($pdo, $year, $month ,$month_from, $month_to) {
         $whereSql = $whereClauses ? 'AND ' . implode(' AND ', $whereClauses) : '';
 
         $stmt = $pdo->prepare("
-            SELECT i.gender, COUNT(i.info_id) AS gender_count
+            SELECT u.gender, COUNT(u.user_id) AS gender_count
             FROM tbl_complaints c
-            JOIN tbl_info i ON c.info_id = i.info_id
-            WHERE 1=1 $whereSql
-            GROUP BY i.gender
+            JOIN tbl_users u ON c.user_id = u.user_id
+                       WHERE 1=1 $whereSql
+
+            GROUP BY u.gender 
         ");
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -679,44 +680,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Most Complaints Report (Category Chart)
     var ctxCategory = document.getElementById('categoryChart').getContext('2d');
-    var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
-    var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
-    var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0); // Total count of complaints in categories
+var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
+var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
+var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0); // Total count of complaints in categories
 
-    var categoryChart = new Chart(ctxCategory, {
-        type: 'pie', // Changed to pie chart
-        data: {
-            labels: categoryDataLabels.map((label, index) => `${label} (${((categoryDataValues[index] / totalCategoryCount) * 100).toFixed(1)}%)`), // Add percentages to labels
-            datasets: [{
-                label: '', // Removed the dataset label
-                data: categoryDataValues,
-                backgroundColor: [
-                    '#4e73df', // Blue
-                    '#1cc88a', // Green
-                    '#36b9cc', // Light Blue
-                    '#f6c23e', // Yellow
-                    '#e74a3b', // Red
-                    '#5a5c69'  // Gray
-                ],
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false, // Display the legend
-                    position: 'top' // Position the legend at the top
-                }
+// Combine labels and values into an array of objects for sorting
+var combinedData = categoryDataLabels.map((label, index) => ({
+    label: label,
+    value: categoryDataValues[index],
+}));
+
+// Sort the combined data by value in descending order
+combinedData.sort((a, b) => b.value - a.value);
+
+// Take the top 5 categories
+var top5Data = combinedData.slice(0, 5);
+var top5Labels = top5Data.map(item => item.label);
+var top5Values = top5Data.map(item => item.value);
+
+// Create pie chart with top 5 categories
+var categoryChart = new Chart(ctxCategory, {
+    type: 'pie', // Changed to pie chart
+    data: {
+        labels: top5Labels.map((label, index) => `${label} (${((top5Values[index] / totalCategoryCount) * 100).toFixed(1)}%)`), // Add percentages to labels
+        datasets: [{
+            label: '', // Removed the dataset label
+            data: top5Values,
+            backgroundColor: [
+                '#4e73df', // Blue
+                '#1cc88a', // Green
+                '#36b9cc', // Light Blue
+                '#f6c23e', // Yellow
+                '#e74a3b'  // Red
+            ],
+            borderColor: '#fff',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true, // Display the legend
+                position: 'top' // Position the legend at the top
             }
         }
-    });
+    }
+});
 
-    // Find the highest value in category data
-    var maxCategoryValue = Math.max(...categoryDataValues);
-    var maxCategoryIndex = categoryDataValues.indexOf(maxCategoryValue);
-    document.getElementById('categoryMaxInfo').textContent = `${categoryDataLabels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
+// Find the highest value in top 5 category data
+var maxCategoryValue = Math.max(...top5Values);
+var maxCategoryIndex = top5Values.indexOf(maxCategoryValue);
+document.getElementById('categoryMaxInfo').textContent = `${top5Labels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
+
+    
 });
 
 

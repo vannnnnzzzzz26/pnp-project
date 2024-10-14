@@ -460,6 +460,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+        // Check if the session variable is set and show SweetAlert
+        <?php 
+        
+        if (isset($_SESSION['success'])): ?>
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Your complaint has been submitted',
+                showConfirmButton: false,
+                timer: 1500
+            });
+          
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+
+
+
 function confirmLogout() {
         Swal.fire({
             title: "Are you sure?",

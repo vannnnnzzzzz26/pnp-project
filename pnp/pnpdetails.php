@@ -10,15 +10,15 @@ if (isset($_GET['id'])) {
         // Prepare statement to fetch complaint details including additional information, evidence, and hearing history
         $stmt = $pdo->prepare("
             SELECT DISTINCT c.complaint_name, c.complaints AS description, c.date_filed, c.status, 
-                   c.category_id, c.barangays_id, c.cp_number, c.complaints_person, 
+                   c.category_id, c.barangays_id,  c.complaints_person, 
                    b.barangay_name, cat.complaints_category,
-                   i.gender, i.place_of_birth, i.age, i.educational_background, i.civil_status,i.nationality,
+                   u.gender, u.place_of_birth, u.age, u.educational_background, u.civil_status,u.nationality, u.cp_number,
                    e.evidence_path,
                    h.hearing_date, h.hearing_time, h.hearing_type, h.hearing_status
             FROM tbl_complaints c
             LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
             LEFT JOIN tbl_complaintcategories cat ON c.category_id = cat.category_id
-            LEFT JOIN tbl_info i ON c.info_id = i.info_id
+            LEFT JOIN tbl_users u ON c.user_id = u.user_id
             LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
             LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
             WHERE c.complaints_id = :complaintId

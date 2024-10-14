@@ -16,7 +16,7 @@
             ?>
             <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
             <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
-            <p class='white-text'><?php echo $email; ?></p>
+         
           
         </div>
 
@@ -51,8 +51,8 @@
         <a class="nav-link" href="login_logs.php"><i class="bi bi-people-fill"></i><span class="nav-text">Login Logs</span></a>
         </li>
             <li class="nav-item">
-                <a class="nav-link" href="dashboard.php">
-                    <i class="bi bi-graph-up"></i><span class="nav-text">Dashboard </span>
+                <a class="nav-link" href="summary.php">
+                    <i class="bi bi-graph-up"></i><span class="nav-text">Summary Report </span>
                 </a>
             </li>
         </ul>

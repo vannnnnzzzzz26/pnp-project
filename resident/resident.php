@@ -96,8 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->commit();
 
         $_SESSION['success'] = true;
-        header("Location: " . $_SERVER['PHP_SELF']);
+        header("Location: complainants_logs.php ");
         exit();
+
 
     } catch (PDOException $e) {
         $pdo->rollBack();
@@ -199,6 +200,11 @@ color: whitesmoke;
 }
 
 
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
 
     </style>
 
@@ -347,7 +353,29 @@ include '../includes/edit-profile.php';
 
     <div class="col-lg-6 col-md-12 form-group">
         <label for="saan">Saan (Where):</label>
-        <input type="text" name="saan" id="saan" class="form-control" required>
+    
+
+        <select id="saan" name="saan" class="form-select" required>
+                        <?php
+                        // Array of barangays of echague
+                        $barangays = [
+                            "Angoluan", "Annafunan", "Arabiat", "Aromin", "Babaran", "Bacradal", "Benguet", "Buneg", "Busilelao", "Cabugao (Poblacion)",
+                            "Caniguing", "Carulay", "Castillo", "Dammang East", "Dammang West", "Diasan", "Dicaraoyan", "Dugayong", "Fugu", "Garit Norte",
+                            "Garit Sur", "Gucab", "Gumbauan", "Ipil", "Libertad", "Mabbayad", "Mabuhay", "Madadamian", "Magleticia", "Malibago", "Maligaya",
+                            "Malitao", "Narra", "Nilumisu", "Pag-asa", "Pangal Norte", "Pangal Sur", "Rumang-ay", "Salay", "Salvacion", "San Antonio Ugad",
+                            "San Antonio Minit", "San Carlos", "San Fabian", "San Felipe", "San Juan", "San Manuel (formerly Atelan)", "San Miguel", "San Salvador",
+                            "Santa Ana", "Santa Cruz", "Santa Maria", "Santa Monica", "Santo Domingo", "Silauan Sur (Poblacion)", "Silauan Norte (Poblacion)",
+                            "Sinabbaran", "Soyung (Poblacion)", "Taggappan (Poblacion)", "Villa Agullana", "Villa Concepcion", "Villa Cruz", "Villa Fabia",
+                            "Villa Gomez", "Villa Nuesa", "Villa Padian", "Villa Pereda", "Villa Quirino", "Villa Remedios", "Villa Serafica", "Villa Tanza",
+                            "Villa Verde", "Villa Vicenta", "Villa Ysmael (formerly T. Belen)"
+                        ];
+
+                        // Display barangays as options
+                        foreach ($barangays as $barangay) {
+                            echo "<option value=\"$barangay\">$barangay</option>";
+                        }
+                        ?>
+                    </select>
     </div>
 
     <div class="col-lg-6 col-md-12 form-group">
@@ -443,7 +471,9 @@ $(document).ready(function() {
 
 
         // Check if the session variable is set and show SweetAlert
-        <?php if (isset($_SESSION['success'])): ?>
+        <?php 
+        
+        if (isset($_SESSION['success'])): ?>
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -451,7 +481,7 @@ $(document).ready(function() {
                 showConfirmButton: false,
                 timer: 1500
             });
-            // Unset the session variable
+          
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 
