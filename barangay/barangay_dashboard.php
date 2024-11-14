@@ -148,7 +148,7 @@ $barangayData = fetchComplaintsByBarangay($pdo, $year, $month,  $month_from, $mo
 
 // Fetch gender data
 // Fetch gender data
-function fetchGenderData($pdo, $year, $month, $barangay_name, $month_from, $month_to) {
+function fetchPurokData($pdo, $year, $month, $barangay_name, $month_from, $month_to) {
     try {
         $whereClauses = ["ub.barangay_name = ?"];
         $params = [$barangay_name];
@@ -178,12 +178,12 @@ function fetchGenderData($pdo, $year, $month, $barangay_name, $month_from, $mont
         $whereSql = $whereClauses ? ' AND ' . implode(' AND ', $whereClauses) : '';
 
         $stmt = $pdo->prepare("
-            SELECT u.gender, COUNT(u.user_id) AS gender_count
+            SELECT u.purok, COUNT(u.user_id) AS purok_count
             FROM tbl_complaints c
             JOIN tbl_users u ON c.user_id = u.user_id
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
             WHERE 1=1 $whereSql
-            GROUP BY u.gender
+            GROUP BY u.purok
         ");
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -193,8 +193,9 @@ function fetchGenderData($pdo, $year, $month, $barangay_name, $month_from, $mont
     }
 }
 
+// Usage
+$purokData = fetchPurokData($pdo, $year, $month, $barangay_name, $month_from, $month_to);
 
-$genderData = fetchGenderData($pdo, $year, $month, $barangay_name ,  $month_from, $month_to);
 
 /// Fetch complaint categories data
 function fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name, $month_from, $month_to) {
@@ -245,7 +246,6 @@ function fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name, $mont
 
 $categoryData = fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name ,  $month_from, $month_to);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -452,14 +452,14 @@ include '../includes/edit-profile.php';
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h2>Gender</h2>
+                    <h2>Purok</h2>
                     <div class="chart-container d-flex justify-content-center align-items-center" style="height: 300px;">
                         
-                        <canvas id="genderChart"></canvas>
+                        <canvas id="purokChart"></canvas>
                     </div>
                     <div class="analytics-info mt-3">
-                        <h4>Highest Gender Count:</h4>
-                        <p class="" id="genderMaxInfo"></p>
+                        <h4>Highest Purok Count:</h4>
+                        <p class="" id="purokMaxInfo"></p>
                     </div>
                 </div>
             </div>
@@ -501,38 +501,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
 document.addEventListener('DOMContentLoaded', function() {
  
-    // Gender Chart
-    var ctxGender = document.getElementById('genderChart').getContext('2d');
-    var genderDataValues = <?php echo json_encode(array_column($genderData, 'gender_count')); ?>;
-    var genderDataLabels = <?php echo json_encode(array_column($genderData, 'gender')); ?>;
-    var totalGenderCount = genderDataValues.reduce((a, b) => a + b, 0); // Total count of genders
+   // Purok Chart
+var ctxPurok = document.getElementById('purokChart').getContext('2d');
+var purokDataValues = <?php echo json_encode(array_column($purokData, 'purok_count')); ?>;
+var purokDataLabels = <?php echo json_encode(array_column($purokData, 'purok')); ?>;
+var totalPurokCount = purokDataValues.reduce((a, b) => a + b, 0); // Total count of puroks
 
-    var genderChart = new Chart(ctxGender, {
-        type: 'doughnut',
-        data: {
-            labels: genderDataLabels.map((label, index) => `${label} (${((genderDataValues[index] / totalGenderCount) * 100).toFixed(1)}%)`), // Add percentages to labels
-            datasets: [{
-                data: genderDataValues,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '50%',
-            plugins: {
-                legend: {
-                    display: false // Hide the legend if needed
-                }
+var purokChart = new Chart(ctxPurok, {
+    type: 'doughnut',
+    data: {
+        labels: purokDataLabels.map((label, index) => `${label} (${((purokDataValues[index] / totalPurokCount) * 100).toFixed(1)}%)`), // Add percentages to labels
+        datasets: [{
+            data: purokDataValues,
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            borderColor: '#fff',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '50%',
+        plugins: {
+            legend: {
+                display: false // Hide the legend if needed
             }
         }
-    });
+    }
+});
 
-    // Find the highest value in gender data
-    var maxGenderValue = Math.max(...genderDataValues);
-    var maxGenderIndex = genderDataValues.indexOf(maxGenderValue);
-    document.getElementById('genderMaxInfo').textContent = `${genderDataLabels[maxGenderIndex]}: ${((maxGenderValue / totalGenderCount) * 100).toFixed(1)}%`;
+// Find the highest value in purok data
+var maxPurokValue = Math.max(...purokDataValues);
+var maxPurokIndex = purokDataValues.indexOf(maxPurokValue);
+document.getElementById('purokMaxInfo').textContent = `${purokDataLabels[maxPurokIndex]}: ${((maxPurokValue / totalPurokCount) * 100).toFixed(1)}%`;
 
     // Most Complaints Report (Category Chart)
     var ctxCategory = document.getElementById('categoryChart').getContext('2d');

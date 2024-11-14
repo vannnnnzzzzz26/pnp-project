@@ -154,7 +154,7 @@ function fetchComplaintsByBarangay($pdo, $year, $month,$month_from, $month_to) {
 $barangayData = fetchComplaintsByBarangay($pdo, $year, $month,$month_from, $month_to);
 
 // Fetch gender data
-function fetchGenderData($pdo, $year, $month ,$month_from, $month_to) {
+function fetchPurokData($pdo, $year, $month, $month_from, $month_to) {
     try {
         $whereClauses = [];
         $params = [];
@@ -184,12 +184,11 @@ function fetchGenderData($pdo, $year, $month ,$month_from, $month_to) {
         $whereSql = $whereClauses ? 'AND ' . implode(' AND ', $whereClauses) : '';
 
         $stmt = $pdo->prepare("
-            SELECT u.gender, COUNT(u.user_id) AS gender_count
+            SELECT u.purok, COUNT(u.user_id) AS purok_count
             FROM tbl_complaints c
             JOIN tbl_users u ON c.user_id = u.user_id
-                       WHERE 1=1 $whereSql
-
-            GROUP BY u.gender 
+            WHERE 1=1 $whereSql
+            GROUP BY u.purok
         ");
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -199,7 +198,9 @@ function fetchGenderData($pdo, $year, $month ,$month_from, $month_to) {
     }
 }
 
-$genderData = fetchGenderData($pdo, $year, $month,$month_from, $month_to);
+// Usage
+$purokData = fetchPurokData($pdo, $year, $month, $month_from, $month_to);
+
 
 // Fetch complaint categories data
 function fetchComplaintCategoriesData($pdo, $year, $month,$month_from, $month_to) {
@@ -486,11 +487,11 @@ include '../includes/pnp-bar.php';
                     <h2>Gender</h2>
                     <div class="chart-container d-flex justify-content-center align-items-center" style="height: 300px;">
                         
-                        <canvas id="genderChart"></canvas>
+                        <canvas id="purokChart"></canvas>
                     </div>
                     <div class="analytics-info mt-3">
-                        <h4>Highest Gender Count:</h4>
-                        <p class="" id="genderMaxInfo"></p>
+                        <h4>Highest Purok Count:</h4>
+                        <p class="" id="purokMaxInfo"></p>
                     </div>
                 </div>
             </div>
@@ -580,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Chart data
     var barangayChart = new Chart(ctxBarangay, {
-        type: 'line', // Line chart
+        type: 'bar', // Line chart
         data: {
             labels: barangayNames,
             datasets: [{
@@ -628,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         display: false // Hide the title
                     },
                     ticks: {
-                        display: false // Hide the barangay names on the x-axis
+                        display: true // Hide the barangay names on the x-axis
                     }
                 },
                 y: {
@@ -646,40 +647,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Gender Chart
-    var ctxGender = document.getElementById('genderChart').getContext('2d');
-    var genderDataValues = <?php echo json_encode(array_column($genderData, 'gender_count')); ?>;
-    var genderDataLabels = <?php echo json_encode(array_column($genderData, 'gender')); ?>;
-    var totalGenderCount = genderDataValues.reduce((a, b) => a + b, 0); // Total count of genders
+    var ctxPurok = document.getElementById('purokChart').getContext('2d');
+var purokDataValues = <?php echo json_encode(array_column($purokData, 'purok_count')); ?>;
+var purokDataLabels = <?php echo json_encode(array_column($purokData, 'purok')); ?>;
+var totalPurokCount = purokDataValues.reduce((a, b) => a + b, 0); // Total count of purok data
 
-    var genderChart = new Chart(ctxGender, {
-        type: 'doughnut',
-        data: {
-            labels: genderDataLabels.map((label, index) => `${label} (${((genderDataValues[index] / totalGenderCount) * 100).toFixed(1)}%)`), // Add percentages to labels
-            datasets: [{
-                data: genderDataValues,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '50%',
-            plugins: {
-                legend: {
-                    display: false // Hide the legend if needed
-                }
+var purokChart = new Chart(ctxPurok, {
+    type: 'doughnut',
+    data: {
+        labels: purokDataLabels.map((label, index) => `${label} (${((purokDataValues[index] / totalPurokCount) * 100).toFixed(1)}%)`), // Add percentages to labels
+        datasets: [{
+            data: purokDataValues,
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            borderColor: '#fff',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '50%',
+        plugins: {
+            legend: {
+                display: false // Hide the legend if needed
             }
         }
-    });
+    }
+});
 
-    // Find the highest value in gender data
-    var maxGenderValue = Math.max(...genderDataValues);
-    var maxGenderIndex = genderDataValues.indexOf(maxGenderValue);
-    document.getElementById('genderMaxInfo').textContent = `${genderDataLabels[maxGenderIndex]}: ${((maxGenderValue / totalGenderCount) * 100).toFixed(1)}%`;
+// Find the highest value in purok data
+var maxPurokValue = Math.max(...purokDataValues);
+var maxPurokIndex = purokDataValues.indexOf(maxPurokValue);
+document.getElementById('purokMaxInfo').textContent = `${purokDataLabels[maxPurokIndex]}: ${((maxPurokValue / totalPurokCount) * 100).toFixed(1)}%`;
 
-    // Most Complaints Report (Category Chart)
-    var ctxCategory = document.getElementById('categoryChart').getContext('2d');
+   // Most Complaints Report (Category Chart)
+var ctxCategory = document.getElementById('categoryChart').getContext('2d');
 var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
 var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
 var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0); // Total count of complaints in categories
@@ -698,9 +699,9 @@ var top5Data = combinedData.slice(0, 5);
 var top5Labels = top5Data.map(item => item.label);
 var top5Values = top5Data.map(item => item.value);
 
-// Create pie chart with top 5 categories
+// Create polar area chart with top 5 categories
 var categoryChart = new Chart(ctxCategory, {
-    type: 'pie', // Changed to pie chart
+    type: 'polarArea', // Changed to polar area chart
     data: {
         labels: top5Labels.map((label, index) => `${label} (${((top5Values[index] / totalCategoryCount) * 100).toFixed(1)}%)`), // Add percentages to labels
         datasets: [{
@@ -721,8 +722,13 @@ var categoryChart = new Chart(ctxCategory, {
         responsive: true,
         plugins: {
             legend: {
-                display: true, // Display the legend
+                display: false, // Display the legend
                 position: 'top' // Position the legend at the top
+            }
+        },
+        scales: {
+            r: {
+                beginAtZero: true
             }
         }
     }
@@ -733,7 +739,6 @@ var maxCategoryValue = Math.max(...top5Values);
 var maxCategoryIndex = top5Values.indexOf(maxCategoryValue);
 document.getElementById('categoryMaxInfo').textContent = `${top5Labels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
 
-    
 });
 
 

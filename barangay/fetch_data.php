@@ -10,7 +10,7 @@ try {
     $month_to = isset($_GET['month_to']) ? intval($_GET['month_to']) : '';
     // Fetch data
     $data = fetchDashboardData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
-    $genderData = fetchGenderData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
+    $purokData = fetchPurokData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
     $categoryData = fetchComplaintCategoriesData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
 
     // Check and access data
@@ -19,7 +19,7 @@ try {
 
     // Send JSON response
     echo json_encode([
-        'genderData' => $genderData,
+        'purokData' => $purokData,
         'categoryData' => $categoryData,
         'settledInBarangay' => $settledInBarangay,
         'rejectedInBarangay' => $rejectedInBarangay
