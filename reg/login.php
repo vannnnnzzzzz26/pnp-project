@@ -1,6 +1,16 @@
 <?php
 include '../connection/dbconn.php';
 session_start();
+// In your auth.php or at the top of each protected page
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 1800)) {
+    // Last request was more than 30 minutes ago
+    session_unset();     // Unset session variables
+    session_destroy();   // Destroy the session
+    header("Location: login.php");
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time(); // Update last activity timestamp
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $cp_number = $_POST['cp_number']; // Get cp_number from the POST request
@@ -66,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($user['accountType'] == 'Barangay Official') {
                 $redirectUrl = "../barangay/barangay_dashboard.php";
             } elseif ($user['accountType'] == 'PNP Officer') {
-                $redirectUrl = "../pnp/pnp.php";
+                $redirectUrl = "../pnp/dashboard.php";
             } elseif ($user['accountType'] == 'Resident') {
                 $redirectUrl = "../resident/resident.php";
             } else {
@@ -254,6 +264,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script>
+
+
+document.getElementById('cp_number').addEventListener('input', function (e) {
+    // Remove non-numeric characters
+    this.value = this.value.replace(/\D/g, '');
+    // Limit to 11 digits
+    if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+    }
+});
+
       const togglePassword = document.querySelector('#togglePassword');
     const passwordField = document.querySelector('#password');
 

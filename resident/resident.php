@@ -2,8 +2,9 @@
 include '../connection/dbconn.php'; 
 include '../resident/notifications.php';
 
+
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../reg/login.php");
     exit();
 }
 
@@ -27,7 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Collect data for "ano, saan, kailan, paano, bakit"
         $ano = isset($_POST['ano']) ? htmlspecialchars($_POST['ano']) : '';
         $saan = isset($_POST['saan']) ? htmlspecialchars($_POST['saan']) : '';
+        
+        // Get 'kailan' input and convert it to database-friendly datetime format
         $kailan = isset($_POST['kailan']) ? htmlspecialchars($_POST['kailan']) : '';
+        $kailan_db_format = date('Y-m-d H:i:s', strtotime($kailan)); // Store as 'Y-m-d H:i:s'
+
         $paano = isset($_POST['paano']) ? htmlspecialchars($_POST['paano']) : '';
         $bakit = isset($_POST['bakit']) ? htmlspecialchars($_POST['bakit']) : '';
 
@@ -53,35 +58,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Invalid Barangay ID.");
         }
 
-        // Set default values for image_id
-        $image_id = null; // Removed image upload logic
-
         // Handle category
         $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
         if ($category === 'Other' && !empty($other_category)) {
             $category = $other_category; 
         }
 
-        // Check status and responds based on category
-        if ($category === 'Other') {
-            $status = 'pnp';
-            $responds = 'pnp';
-        } else {
-            $status = 'inprogress';
-            $responds = '';
-        }
+        // Set status and response values based on category
+        $status = ($category === 'Other') ? 'pnp' : 'inprogress';
+        $responds = ($category === 'Other') ? 'pnp' : '';
 
-        // Insert into tbl_complaints without image_id and info_id
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: login.php");
-            exit();
-        }
-
+        // Insert into tbl_complaints
         $user_id = $_SESSION['user_id']; // Retrieve user_id from session
 
-        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, status, responds, ano, saan, kailan, paano, bakit, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $status, $responds, $ano, $saan, $kailan, $paano, $bakit, $user_id]);
-        
+        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, status, responds, ano, saan, kailan, paano, bakit, user_id) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $status, $responds, $ano, $saan, $kailan_db_format, $paano, $bakit, $user_id]);
+
         $complaint_id = $pdo->lastInsertId();
 
         // Handle evidence upload
@@ -103,8 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->commit();
 
         $_SESSION['success'] = true;
-        header("Location: " . $_SERVER['PHP_SELF']);
+        header("Location: complainants_logs.php ");
         exit();
+
 
     } catch (PDOException $e) {
         $pdo->rollBack();
@@ -113,8 +107,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "<div class='alert alert-danger' role='alert'>Error: " . $e->getMessage() . "</div>";
     }
 }
-?>
 
+// Example retrieval of the 'kailan' field for displaying with AM/PM format
+if (isset($complaint_id)) {
+    $stmt = $pdo->prepare("SELECT kailan FROM tbl_complaints WHERE complaints_id = ?");
+    $stmt->execute([$complaint_id]);
+    $kailan_from_db = $stmt->fetchColumn();
+    
+    // Convert stored 'kailan' to AM/PM format for display
+
+    $kailan = isset($_POST['kailan']) ? htmlspecialchars($_POST['kailan']) : '';
+
+    // Convert the datetime-local format to MySQL datetime format
+    $kailan_db_format = date('Y-m-d H:i:s', strtotime($kailan));
+
+    // If you want to display AM/PM later, you can format it
+    $kailan_am_pm = date('F j, Y, g:i A', strtotime($kailan));
+
+    // Validate the conversion
+    if (!$kailan_db_format) {
+        throw new Exception("Invalid date format for 'kailan'.");
+    }
+}
+?>
 
 
 
@@ -185,6 +200,11 @@ color: whitesmoke;
 }
 
 
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
 
     </style>
 
@@ -333,7 +353,29 @@ include '../includes/edit-profile.php';
 
     <div class="col-lg-6 col-md-12 form-group">
         <label for="saan">Saan (Where):</label>
-        <input type="text" name="saan" id="saan" class="form-control" required>
+    
+
+        <select id="saan" name="saan" class="form-select" required>
+                        <?php
+                        // Array of barangays of echague
+                        $barangays = [
+                            "Angoluan", "Annafunan", "Arabiat", "Aromin", "Babaran", "Bacradal", "Benguet", "Buneg", "Busilelao", "Cabugao (Poblacion)",
+                            "Caniguing", "Carulay", "Castillo", "Dammang East", "Dammang West", "Diasan", "Dicaraoyan", "Dugayong", "Fugu", "Garit Norte",
+                            "Garit Sur", "Gucab", "Gumbauan", "Ipil", "Libertad", "Mabbayad", "Mabuhay", "Madadamian", "Magleticia", "Malibago", "Maligaya",
+                            "Malitao", "Narra", "Nilumisu", "Pag-asa", "Pangal Norte", "Pangal Sur", "Rumang-ay", "Salay", "Salvacion", "San Antonio Ugad",
+                            "San Antonio Minit", "San Carlos", "San Fabian", "San Felipe", "San Juan", "San Manuel (formerly Atelan)", "San Miguel", "San Salvador",
+                            "Santa Ana", "Santa Cruz", "Santa Maria", "Santa Monica", "Santo Domingo", "Silauan Sur (Poblacion)", "Silauan Norte (Poblacion)",
+                            "Sinabbaran", "Soyung (Poblacion)", "Taggappan (Poblacion)", "Villa Agullana", "Villa Concepcion", "Villa Cruz", "Villa Fabia",
+                            "Villa Gomez", "Villa Nuesa", "Villa Padian", "Villa Pereda", "Villa Quirino", "Villa Remedios", "Villa Serafica", "Villa Tanza",
+                            "Villa Verde", "Villa Vicenta", "Villa Ysmael (formerly T. Belen)"
+                        ];
+
+                        // Display barangays as options
+                        foreach ($barangays as $barangay) {
+                            echo "<option value=\"$barangay\">$barangay</option>";
+                        }
+                        ?>
+                    </select>
     </div>
 
     <div class="col-lg-6 col-md-12 form-group">
@@ -429,7 +471,9 @@ $(document).ready(function() {
 
 
         // Check if the session variable is set and show SweetAlert
-        <?php if (isset($_SESSION['success'])): ?>
+        <?php 
+        
+        if (isset($_SESSION['success'])): ?>
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -437,7 +481,7 @@ $(document).ready(function() {
                 showConfirmButton: false,
                 timer: 1500
             });
-            // Unset the session variable
+          
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 

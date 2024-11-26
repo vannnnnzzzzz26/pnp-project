@@ -4,6 +4,7 @@ session_start();
 
 // Include your database connection file
 include '../connection/dbconn.php'; 
+include '../includes/bypass.php';
 
 // Fetch barangay name if not already set in session
 if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {

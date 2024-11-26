@@ -10,7 +10,7 @@ $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'
 
 // Check if the user is logged in and has the correct permissions (optional)
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../reg/login.php");
     exit();
 }
 

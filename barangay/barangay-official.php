@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../connection/dbconn.php';
+include '../includes/bypass.php';
 
 // Check if user is logged in and set barangay information in session
 $firstName = $_SESSION['first_name'] ?? '';

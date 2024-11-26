@@ -10,6 +10,8 @@ $barangay_name = $_SESSION['barangay_name'] ?? '';
 $pic_data = $_SESSION['pic_data'] ?? '';
 
 include '../connection/dbconn.php'; 
+include '../includes/bypass.php';
+
 
 $results_per_page = 10; // Number of complaints per page
 
@@ -25,49 +27,64 @@ $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 // Function to display complaints with pagination
 function displayComplaintDetails($pdo, $search_query, $start_from, $results_per_page) {
     try {
+        $barangay_filter = isset($_GET['barangay_filter']) ? $_GET['barangay_filter'] : '';
+
         // Prepare the search query for LIKE
         $search_query = '%' . $search_query . '%';
 
-        // Fetch complaints with search filter, limited by pagination
-        $stmt = $pdo->prepare("
+        // Modify the SQL query to filter by barangay if selected
+        $sql = "
             SELECT c.complaints_id, c.complaint_name, b.barangay_name
             FROM tbl_complaints c
             LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
             WHERE c.responds = 'pnp'
             AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
-            ORDER BY c.date_filed ASC
-            LIMIT ?, ?
-        ");
+        ";
+
+        if (!empty($barangay_filter)) {
+            $sql .= " AND b.barangay_name = ? ";
+        }
+
+        $sql .= " ORDER BY c.date_filed ASC LIMIT ?, ?";
+
+        $stmt = $pdo->prepare($sql);
 
         // Bind the parameters
-        $stmt->bindParam(1, $search_query, PDO::PARAM_STR);
-        $stmt->bindParam(2, $search_query, PDO::PARAM_STR);
-        $stmt->bindParam(3, $start_from, PDO::PARAM_INT);
-        $stmt->bindParam(4, $results_per_page, PDO::PARAM_INT);
+        if (!empty($barangay_filter)) {
+            $stmt->bindParam(1, $search_query, PDO::PARAM_STR);
+            $stmt->bindParam(2, $search_query, PDO::PARAM_STR);
+            $stmt->bindParam(3, $barangay_filter, PDO::PARAM_STR);
+            $stmt->bindParam(4, $start_from, PDO::PARAM_INT);
+            $stmt->bindParam(5, $results_per_page, PDO::PARAM_INT);
+        } else {
+            $stmt->bindParam(1, $search_query, PDO::PARAM_STR);
+            $stmt->bindParam(2, $search_query, PDO::PARAM_STR);
+            $stmt->bindParam(3, $start_from, PDO::PARAM_INT);
+            $stmt->bindParam(4, $results_per_page, PDO::PARAM_INT);
+        }
 
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) {
             echo "<tr><td colspan='4'>No complaints found.</td></tr>";
         } else {
-            $row_number = $start_from + 1; // Start numbering from the current page
+            $row_number = $start_from + 1;
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                // Display complaint details
                 $complaint_id = htmlspecialchars($row['complaints_id']);
                 $complaint_name = htmlspecialchars($row['complaint_name']);
                 $barangay_name = htmlspecialchars($row['barangay_name']);
 
                 echo "<tr>";
-                echo "<td class='align-middle'>{$row_number}</td>"; // Row number aligned vertically
-                echo "<td class='align-middle'>{$complaint_name}</td>"; // Complaint Name aligned
-                echo "<td class='align-middle'>{$barangay_name}</td>"; // Barangay Name aligned
+                echo "<td class='align-middle'>{$row_number}</td>";
+                echo "<td class='align-middle'>{$complaint_name}</td>";
+                echo "<td class='align-middle'>{$barangay_name}</td>";
                 echo "<td '>
                         <button type='button' class='btn btn-sm btn-info' onclick='loadComplaintDetails({$complaint_id})'>View Details</button>
-                      </td>"; // Button aligned in the center
+                      </td>";
                 echo "</tr>";
 
-                $row_number++; // Increment row number
+                $row_number++;
             }
         }
     } catch (PDOException $e) {
@@ -166,6 +183,32 @@ include '../includes/pnp-bar.php';
         <h2 class="mt-3 mb-4">Barangay Complaints History</h2>
 
         <!-- Search Form -->
+
+
+        <form method="GET" id="barangayFilterForm">
+    <div class="form-group">
+        <label for="barangay_filter">Filter by Barangay:</label>
+        <select name="barangay_filter" id="barangay_filter" class="form-control" style="width: 200px; display: inline;">
+            <option value="">All Barangays</option>
+            <?php
+            // Fetch distinct barangay names for the dropdown
+            $barangay_stmt = $pdo->query("SELECT DISTINCT barangay_name FROM tbl_users_barangay ORDER BY barangay_name ASC");
+            while ($barangay_row = $barangay_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $barangay_name = htmlspecialchars($barangay_row['barangay_name']);
+                $selected = (isset($_GET['barangay_filter']) && $_GET['barangay_filter'] === $barangay_name) ? 'selected' : '';
+                echo "<option value=\"$barangay_name\" $selected>$barangay_name</option>";
+            }
+            ?>
+        </select>
+    </div>
+</form>
+
+<script>
+    // Automatically submit the form when the barangay dropdown value changes
+    document.getElementById('barangay_filter').addEventListener('change', function () {
+        document.getElementById('barangayFilterForm').submit();
+    });
+</script>
 
         <div class="table">
             <table class="table table-striped table-bordered">

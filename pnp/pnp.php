@@ -1,7 +1,9 @@
 
 <?php 
-session_start(); 
 
+
+session_start(); 
+include '../includes/bypass.php';
 
 
 $firstName = $_SESSION['first_name'] ?? '';
@@ -83,43 +85,103 @@ margin-left: 5rem;
 include '../includes/pnp-nav.php';
 include '../includes/pnp-bar.php';
 ?>
+<center>
+<div class="content">
+    <div class="container">
+        <h2 class="mt-3 mb-4">Complaints</h2>
 
-  <center>  <div class="content">
-        <div class="container">
-            <h2 class="mt-3 mb-4">Complaints</h2>
-            <div class="table">
-    <table class="table table-striped table-bordered table-center">
-        <thead>
-            <tr>
-                <th>#</th> <!-- Added # column -->
-                <th>Name</th>
-                <th>Address</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php
+       <!-- Filter Row for Barangay and Category -->
+<div class="row mb-3">
+   <!-- Filter Row for Barangay, Category, and Date Range -->
+<div class="row mb-3">
+    <!-- Dropdown Filter for Barangay -->
+    <div class="col-md-6">
+        <label for="barangayFilter" class="form-label">Filter by Barangay</label>
+        <select id="barangayFilter" class="form-select">
+            <option value="">All Barangays</option>
+            <!-- Add all barangay options -->
+            <option value="Angoluan">Angoluan</option>
+            <option value="Annafunan">Annafunan</option>
+            <option value="Arabiat">Arabiat</option>
+            <!-- Add all the other barangays here -->
+            <option value="Villa Ysmael (formerly T. Belen)">Villa Ysmael (formerly T. Belen)</option>
+        </select>
+    </div>
 
-        include '../connection/dbconn.php'; 
+    <!-- Dropdown Filter for Category -->
+    <div class="col-md-6">
+        <label for="categoryFilter" class="form-label">Filter by Category</label>
+        <select id="categoryFilter" class="form-select">
+            <option value="">All Categories</option>
+            <?php
+            // Fetch categories from tbl_complaintcategories
+            $stmtCat = $pdo->prepare("SELECT complaints_category FROM tbl_complaintcategories");
+            $stmtCat->execute();
+            while ($category = $stmtCat->fetch(PDO::FETCH_ASSOC)) {
+                $categoryName = htmlspecialchars($category['complaints_category']);
+                echo "<option value=\"{$categoryName}\">{$categoryName}</option>";
+            }
+            ?>
+        </select>
+    </div>
+</div>
 
-        // Function to display PNP complaints
-        function displayPNPComplaints($pdo) {
-            try {
-                $stmt = $pdo->prepare("
-                    SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
-                           c.barangays_id, c.cp_number, c.complaints_person
-                    FROM tbl_complaints c
-                    WHERE c.status = 'pnp'
-                    ORDER BY c.date_filed ASC
-                ");
-                $stmt->execute();
+<!-- Filter Row for Date Range (From and To) -->
+<div class="row mb-3">
+    <!-- Date From -->
+    <div class="col-md-6">
+        <label for="dateFrom" class="form-label">From Date</label>
+        <input type="date" id="dateFrom" class="form-control">
+    </div>
 
+    <!-- Date To -->
+    <div class="col-md-6">
+        <label for="dateTo" class="form-label">To Date</label>
+        <input type="date" id="dateTo" class="form-control">
+    </div>
+</div>
+
+
+        <div class="table">
+            <table class="table table-striped table-bordered table-center" id="complaintsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Date Filed</th>
+                        <th>Address</th>
+                        <th>Category</th> <!-- Add Category Column -->
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+    // Function to display PNP complaints
+    function displayPNPComplaints($pdo) {
+        try {
+            // Prepare the SQL query
+            $stmt = $pdo->prepare("
+                SELECT c.complaints_id, c.complaint_name, c.date_filed, c.status, 
+                       c.barangays_id, c.complaints_person, cat.complaints_category
+                FROM tbl_complaints c
+                JOIN tbl_complaintcategories cat ON c.category_id = cat.category_id
+                WHERE c.responds = 'pnp'
+                ORDER BY c.date_filed ASC
+            ");
+            $stmt->execute();
+    
+            // Check if there are any rows returned
+            if ($stmt->rowCount() > 0) {
                 $row_number = 1; // Initialize the row number
-
+    
+                // Loop through the results and display each complaint
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $complaint_id = $row['complaints_id'];
                     $complaint_name = htmlspecialchars($row['complaint_name']);
-
+                    $category = htmlspecialchars($row['complaints_category']);
+                    $date_filed = htmlspecialchars($row['date_filed']);
+    
+                    // Fetch barangay name based on barangays_id
                     if (!empty($row['barangays_id'])) {
                         $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
                         $stmtBar->execute([$row['barangays_id']]);
@@ -127,27 +189,34 @@ include '../includes/pnp-bar.php';
                     } else {
                         $barangay_name = 'Unknown';
                     }
-                    
+    
                     $address = $barangay_name;
-
+    
+                    // Display the table row
                     echo "<tr>";
-                    echo "<td>{$row_number}</td>"; // Display row number
+                    echo "<td>{$row_number}</td>";
                     echo "<td>{$complaint_name}</td>";
-                    echo "<td>{$address}</td>";
+                    echo "<td>{$date_filed}</td>";
+                    echo "<td class='barangay'>{$address}</td>";
+                    echo "<td class='category'>{$category}</td>"; // Display category
                     echo "<td><button class='btn btn-info btn-sm' data-bs-toggle='modal' data-bs-target='#viewDetailsModal' data-id='{$complaint_id}'>View Details</button></td>";
                     echo "</tr>";
-
-                    $row_number++; // Increment row number for each row
+    
+                    $row_number++;
                 }
-            } catch (PDOException $e) {
-                echo "<tr><td colspan='4'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
+            } else {
+                echo "<tr><td colspan='6' class='text-center'>No record found</td></tr>";
             }
+        } catch (PDOException $e) {
+            echo "<tr><td colspan='6' class='text-center'>Error fetching PNP complaints: " . $e->getMessage() . "</td></tr>";
         }
+    }
 
-        displayPNPComplaints($pdo);
-        ?>
-        </tbody>
-    </table>
+    displayPNPComplaints($pdo);
+?>
+
+                </tbody>
+            </table>
 
             </div>
         </div>
@@ -219,6 +288,10 @@ include '../includes/pnp-bar.php';
 </div>
 
 
+
+
+
+
     <!-- Bootstrap JS -->
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -229,6 +302,64 @@ include '../includes/pnp-bar.php';
 
     <script src="../scripts/script.js"></script>
     <script>
+
+
+document.getElementById('barangayFilter').addEventListener('change', filterTable);
+document.getElementById('categoryFilter').addEventListener('change', filterTable);
+document.getElementById('dateFrom').addEventListener('change', filterTable);
+document.getElementById('dateTo').addEventListener('change', filterTable);
+
+function filterTable() {
+    const barangayFilter = document.getElementById('barangayFilter').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+
+    const rows = document.querySelectorAll('#complaintsTable tbody tr');
+    let visibleRowCount = 0; // Track the number of visible rows
+
+    // Remove "No record found" row if it exists before filtering
+    let noRecordRow = document.querySelector('#noRecordRow');
+    if (noRecordRow) {
+        noRecordRow.remove();
+    }
+
+    rows.forEach(row => {
+        const barangay = row.querySelector('.barangay').textContent.toLowerCase();
+        const category = row.querySelector('.category').textContent.toLowerCase();
+        const dateFiled = row.querySelector('td:nth-child(3)').textContent;
+
+        // Check if the row matches the date range, barangay, and category filters
+        let dateMatch = true;
+        if (dateFrom && dateTo) {
+            const filedDate = new Date(dateFiled);
+            const fromDate = new Date(dateFrom);
+            const toDate = new Date(dateTo);
+            dateMatch = filedDate >= fromDate && filedDate <= toDate;
+        }
+
+        // Apply filters
+        if ((barangayFilter === "" || barangay.includes(barangayFilter)) &&
+            (categoryFilter === "" || category.includes(categoryFilter)) &&
+            dateMatch) {
+            row.style.display = '';
+            visibleRowCount++; // Increment the visible row count
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Check if any row is visible, otherwise display the "No record found" message
+    const tableBody = document.querySelector('#complaintsTable tbody');
+    if (visibleRowCount === 0) {
+        noRecordRow = document.createElement('tr');
+        noRecordRow.id = 'noRecordRow';
+        noRecordRow.innerHTML = '<td colspan="6" class="text-center">No record found</td>';
+        tableBody.appendChild(noRecordRow);
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const notificationButton = document.getElementById('notificationButton');
     const notificationCountBadge = document.getElementById("notificationCount");
