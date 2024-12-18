@@ -19,6 +19,7 @@
             ?>
             <p class='white-text'> <?php echo $_SESSION['accountType']; ?></p>
             <p class='white-text'><?php echo "$firstName $middleName $lastName $extensionName"; ?></p>
+            
            
 
         </div>

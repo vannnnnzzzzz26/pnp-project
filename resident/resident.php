@@ -13,7 +13,7 @@ $middleName = $_SESSION['middle_name'];
 $lastName = $_SESSION['last_name'];
 $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
 $cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
-$barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
+$barangay = isset($_SESSION['barangay_name']) ? $_SESSION['barangay_name'] : '';
 $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -49,14 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $category_id = $pdo->lastInsertId();
         }
 
-        // Validate barangay
-        $stmt = $pdo->prepare("SELECT barangays_id FROM tbl_users_barangay WHERE barangays_id = ?");
-        $stmt->execute([$barangay]);
-        $barangays_id = $stmt->fetchColumn();
+     // Validate barangay
+$stmt = $pdo->prepare("SELECT user_id FROM tbl_users WHERE barangay_name = ?");
+$stmt->execute([$barangay]);
+$user_id = $stmt->fetchColumn();
 
-        if (!$barangays_id) {
-            throw new Exception("Invalid Barangay ID.");
-        }
+if (!$user_id) {
+    throw new Exception("Invalid Barangay Name: " . $barangay);
+}
 
         // Handle category
         $other_category = isset($_POST['other-category']) ? htmlspecialchars($_POST['other-category']) : '';
@@ -71,9 +71,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insert into tbl_complaints
         $user_id = $_SESSION['user_id']; // Retrieve user_id from session
 
-        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, status, responds, ano, saan, kailan, paano, bakit, user_id) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $status, $responds, $ano, $saan, $kailan_db_format, $paano, $bakit, $user_id]);
+        try {
+            $stmt = $pdo->prepare("INSERT INTO tbl_users_barangay (saan) VALUES (?)");
+            $stmt->execute([$saan]);
+            $barangays_id = $pdo->lastInsertId();
+            echo "Inserted record with ID: " . $barangays_id;
+        } catch (PDOException $e) {
+            die("Error inserting record: " . $e->getMessage());
+        }
+      
+
+        $stmt = $pdo->prepare("INSERT INTO tbl_complaints (complaint_name, complaints, date_filed, category_id, barangays_id, complaints_person, status, responds, ano,  kailan, paano, bakit, user_id) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$complaint_name, $complaints, $date_filed, $category_id, $barangays_id, $complaints_person, $status, $responds, $ano, $kailan_db_format, $paano, $bakit, $user_id]);
 
         $complaint_id = $pdo->lastInsertId();
 
@@ -234,20 +244,31 @@ include '../includes/edit-profile.php';
             <div class="col-lg-6 col-md-12 form-group">
               <label for="barangay">Barangay:</label>
               <?php 
-                include '../connection/dbconn.php'; 
-                try {
-                    $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-                    $stmt->execute([$barangay]);
-                    $barangay = $stmt->fetchColumn();
-                    if ($barangay) {
-                        echo "<p>" . htmlspecialchars($barangay) . "</p>";
-                    } else {
-                        echo "<p>No barangay found.</p>";
-                    }
-                } catch (PDOException $e) {
-                    echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
-                }
-              ?>
+include '../connection/dbconn.php'; 
+
+try {
+    // Example: Make sure $userId or similar variable is initialized correctly
+    $userId = $_SESSION['user_id'] ?? null; // Replace with your actual logic
+
+    if ($userId) {
+        $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        $barangayName = $stmt->fetchColumn();
+
+        if ($barangayName) {
+            echo "<p>" . htmlspecialchars(trim($barangayName)) . "</p>";
+        } else {
+            echo "<p>No barangay found.</p>";
+        }
+    } else {
+        echo "<p>User ID is not set.</p>";
+    }
+} catch (PDOException $e) {
+    error_log("Error fetching barangay name: " . $e->getMessage()); // Log the error for debugging
+    echo "<p>An error occurred. Please try again later.</p>";
+}
+?>
+
             </div>
           </div>
 
@@ -444,7 +465,6 @@ include '../includes/edit-profile.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
 
@@ -486,18 +506,18 @@ $(document).ready(function() {
         <?php endif; ?>
 
         function onSubmitForm() {
-            // Check if image field is empty
-            var imageField = document.getElementById('image');
-            if (imageField.value.trim() === '') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please upload an image!',
-                });
-                return false; // Prevent form submission
-            }
-            return true; // Allow form submission
-        }
+    var imageField = document.getElementById('image');
+    if (!imageField || imageField.value.trim() === '') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please upload an image!',
+        });
+        return false; // Prevent form submission
+    }
+    return true; // Allow form submission
+}
+
 
 
         function confirmLogout() {
@@ -518,11 +538,8 @@ $(document).ready(function() {
 
     }
 
-    </script>
 
 
-
-<script>
             document.getElementById('category').addEventListener('change', function() {
                 var otherCategoryGroup = document.getElementById('other-category-group');
                 if (this.value === 'Other') {
@@ -676,6 +693,8 @@ $(document).ready(function() {
         <?php unset($_SESSION['alert_message'], $_SESSION['alert_type']); endif; ?>
 
             
+      
+
         </script>
     
 </body>

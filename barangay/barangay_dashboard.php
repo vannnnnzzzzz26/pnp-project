@@ -134,7 +134,7 @@ function fetchComplaintsByBarangay($pdo, $year, $month,  $month_from, $month_to)
             FROM tbl_complaints c
             JOIN tbl_users_barangay ub ON c.barangays_id = ub.barangays_id
             $whereSql
-            GROUP BY ub.barangay_name
+            GROUP BY ub.saan
         ");
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -150,7 +150,7 @@ $barangayData = fetchComplaintsByBarangay($pdo, $year, $month,  $month_from, $mo
 // Fetch gender data
 function fetchPurokData($pdo, $year, $month, $barangay_name, $month_from, $month_to) {
     try {
-        $whereClauses = ["ub.barangay_name = ?"];
+        $whereClauses = ["ub.saan = ?"];
         $params = [$barangay_name];
 
         if ($year) {
@@ -200,7 +200,7 @@ $purokData = fetchPurokData($pdo, $year, $month, $barangay_name, $month_from, $m
 /// Fetch complaint categories data
 function fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name, $month_from, $month_to) {
     try {
-        $whereClauses = ["ub.barangay_name = ?"];
+        $whereClauses = ["ub.saan = ?"];
         $params = [$barangay_name];
 
         if ($year) {
@@ -245,7 +245,7 @@ function fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name, $mont
 
 
 $categoryData = fetchComplaintCategoriesData($pdo, $year, $month, $barangay_name ,  $month_from, $month_to);
-?>
+?> 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -376,12 +376,25 @@ include '../includes/edit-profile.php';
                 <h2><?php echo htmlspecialchars($data['rejected']); ?></h2>
                 <p>reject complaints</p>
             </div>
-            <div class="card">
-            <i class="fas fa-check-circle" style="font-size:50px;color: blue;"></i>
 
-                <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
-                <p>Settled in Barangay</p>
+
+            <a href="barangay-responder.php" style="text-decoration: none;">
+            <div class="card">
+            <i class="fas fa-times-circle" style="font-size:50px; color: red;"></i>
+
+                <h2><?php echo htmlspecialchars($data['approved']); ?></h2>
+                <p>Approved complaints</p>
             </div>
+            </a>
+            
+            <a href="barangaylogs.php" style="text-decoration: none;">
+    <div class="card">
+        <i class="fas fa-check-circle" style="font-size:50px;color: blue;"></i>
+        <h2><?php echo htmlspecialchars($data['settledInBarangay']); ?></h2>
+        <p>Settled in Barangay</p>
+    </div>
+</a>
+
         </div>
        
 <div class="container mt-4">
@@ -499,84 +512,82 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
- 
-   // Purok Chart
-var ctxPurok = document.getElementById('purokChart').getContext('2d');
-var purokDataValues = <?php echo json_encode(array_column($purokData, 'purok_count')); ?>;
-var purokDataLabels = <?php echo json_encode(array_column($purokData, 'purok')); ?>;
-var totalPurokCount = purokDataValues.reduce((a, b) => a + b, 0); // Total count of puroks
-
-var purokChart = new Chart(ctxPurok, {
-    type: 'doughnut',
-    data: {
-        labels: purokDataLabels.map((label, index) => `${label} (${((purokDataValues[index] / totalPurokCount) * 100).toFixed(1)}%)`), // Add percentages to labels
-        datasets: [{
-            data: purokDataValues,
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-            borderColor: '#fff',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        cutout: '50%',
-        plugins: {
-            legend: {
-                display: false // Hide the legend if needed
-            }
-        }
+document.addEventListener('DOMContentLoaded', function () {
+    // Function to create charts
+    function createChart(ctx, type, labels, data, colors, options) {
+        return new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
     }
-});
 
-// Find the highest value in purok data
-var maxPurokValue = Math.max(...purokDataValues);
-var maxPurokIndex = purokDataValues.indexOf(maxPurokValue);
-document.getElementById('purokMaxInfo').textContent = `${purokDataLabels[maxPurokIndex]}: ${((maxPurokValue / totalPurokCount) * 100).toFixed(1)}%`;
+    // Purok Chart
+    var ctxPurok = document.getElementById('purokChart').getContext('2d');
+    var purokDataValues = <?php echo json_encode(array_column($purokData, 'purok_count')); ?>;
+    var purokDataLabels = <?php echo json_encode(array_column($purokData, 'purok')); ?>;
+    var totalPurokCount = purokDataValues.reduce((a, b) => a + b, 0);
+    var purokLabelsWithPercentages = purokDataLabels.map((label, index) => 
+        `${label} (${((purokDataValues[index] / totalPurokCount) * 100).toFixed(1)}%)`
+    );
 
-    // Most Complaints Report (Category Chart)
-    var ctxCategory = document.getElementById('categoryChart').getContext('2d');
-    var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
-    var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
-    var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0); // Total count of complaints in categories
-
-    var categoryChart = new Chart(ctxCategory, {
-        type: 'pie', // Changed to pie chart
-        data: {
-            labels: categoryDataLabels.map((label, index) => `${label} (${((categoryDataValues[index] / totalCategoryCount) * 100).toFixed(1)}%)`), // Add percentages to labels
-            datasets: [{
-                label: '', // Removed the dataset label
-                data: categoryDataValues,
-                backgroundColor: [
-                    '#4e73df', // Blue
-                    '#1cc88a', // Green
-                    '#36b9cc', // Light Blue
-                    '#f6c23e', // Yellow
-                    '#e74a3b', // Red
-                    '#5a5c69'  // Gray
-                ],
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        options: {
+    createChart(ctxPurok, 'doughnut', purokLabelsWithPercentages, purokDataValues, 
+        ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'], 
+        {
             responsive: true,
+            cutout: '50%',
             plugins: {
                 legend: {
-                    display: false, // Display the legend
-                    position: 'top' // Position the legend at the top
+                    display: false // Set to true if you want to show the legend
                 }
             }
         }
-    });
+    );
 
-    // Find the highest value in category data
+    // Highlight the highest Purok value
+    var maxPurokValue = Math.max(...purokDataValues);
+    var maxPurokIndex = purokDataValues.indexOf(maxPurokValue);
+    document.getElementById('purokMaxInfo').textContent = 
+        `${purokDataLabels[maxPurokIndex]}: ${((maxPurokValue / totalPurokCount) * 100).toFixed(1)}%`;
+
+    // Category Chart
+    var ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    var categoryDataValues = <?php echo json_encode(array_column($categoryData, 'category_count')); ?>;
+    var categoryDataLabels = <?php echo json_encode(array_column($categoryData, 'complaints_category')); ?>;
+    var totalCategoryCount = categoryDataValues.reduce((a, b) => a + b, 0);
+    var categoryLabelsWithPercentages = categoryDataLabels.map((label, index) => 
+        `${label} (${((categoryDataValues[index] / totalCategoryCount) * 100).toFixed(1)}%)`
+    );
+
+    createChart(ctxCategory, 'pie', categoryLabelsWithPercentages, categoryDataValues, 
+        ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#5a5c69'], 
+        {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false, 
+                    position: 'top'
+                }
+            }
+        }
+    );
+
+    // Highlight the highest Category value
     var maxCategoryValue = Math.max(...categoryDataValues);
     var maxCategoryIndex = categoryDataValues.indexOf(maxCategoryValue);
-    document.getElementById('categoryMaxInfo').textContent = `${categoryDataLabels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
+    document.getElementById('categoryMaxInfo').textContent = 
+        `${categoryDataLabels[maxCategoryIndex]}: ${((maxCategoryValue / totalCategoryCount) * 100).toFixed(1)}%`;
 });
 
-
+// Confirm Logout Function
 function confirmLogout() {
     Swal.fire({
         title: "Are you sure?",
@@ -588,10 +599,11 @@ function confirmLogout() {
         confirmButtonText: "Yes, logout"
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = " ../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
+            window.location.href = "../reg/login.php?logout=<?php echo $_SESSION['user_id']; ?>";
         }
     });
 }
+
 
 </script>
 
@@ -600,8 +612,8 @@ function confirmLogout() {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.2/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/chart.umd.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@latest/dist/chartjs-plugin-datalabels.min.js"></script>
 
 

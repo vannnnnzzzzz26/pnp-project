@@ -8,10 +8,10 @@ include '../includes/bypass.php';
 
 
 // Fetch barangay name if not already set in session
-if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
-    $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-    $stmt->execute([$_SESSION['barangays_id']]);
-    $_SESSION['barangay_name'] = $stmt->fetchColumn();
+if (!isset($_SESSION['saan']) && isset($_SESSION['complaints_id'])) {
+    $stmt = $pdo->prepare("SELECT saan FROM tbl_complaints WHERE complaints_id = ?");
+    $stmt->execute([$_SESSION['complaints_id']]);
+    $_SESSION['saan'] = $stmt->fetchColumn();
 }
 
 $firstName = $_SESSION['first_name'];
@@ -31,11 +31,11 @@ $start_from = ($page - 1) * $results_per_page;
 
 function displayComplaints($pdo, $start_from, $results_per_page) {
     try {
-        $barangay_name = $_SESSION['barangay_name'] ?? '';
+        $saan = $_SESSION['saan'] ?? '';
 
         $stmt = $pdo->prepare("
         SELECT c.*, 
-               b.barangay_name, 
+               b.saan, 
                cc.complaints_category,
                u.cp_number,          
                u.gender,            
@@ -53,14 +53,14 @@ function displayComplaints($pdo, $start_from, $results_per_page) {
         JOIN tbl_users u ON c.user_id = u.user_id  
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
         LEFT JOIN tbl_hearing_history h ON c.complaints_id = h.complaints_id
-        WHERE c.status = 'Approved' AND b.barangay_name = ?
+        WHERE c.status = 'Approved' AND b.saan = ?
         GROUP BY c.complaints_id
         ORDER BY c.date_filed ASC
         LIMIT ?, ?
     ");
     
 
-        $stmt->bindParam(1, $barangay_name, PDO::PARAM_STR);
+        $stmt->bindParam(1, $saan, PDO::PARAM_STR);
         $stmt->bindParam(2, $start_from, PDO::PARAM_INT);
         $stmt->bindParam(3, $results_per_page, PDO::PARAM_INT);
 
@@ -206,10 +206,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_hearing'])) {
 
 // Pagination
    // Calculate total pages
-   $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE c.status = 'settled_in_barangay' AND b.barangay_name = ?");
+  /* $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tbl_complaints c JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id WHERE c.status = 'settled_in_barangay' AND b.barangay_name = ?");
    $stmt->execute([$barangay_name]);
    $total_results = $stmt->fetchColumn();
-   $total_pages = ceil($total_results / $results_per_page);
+   $total_pages = ceil($total_results / $results_per_page);*/
 
 ?>
 
@@ -444,7 +444,7 @@ function handleStatusChange(status) {
         <div class="mb-3">
                             <label for="hearing-status" class="form-label">Hearing Status</label>
                             <select class="form-select" id="hearing-status" name="hearing_status" >
-                                <option value="" disabled selected>Select Hearing Status</option>
+                                <option value="">Select Hearing Status</option>
                                 <option value="Attended">Attended</option>
                                 <option value="Not Attended">Not Attended</option>
                                 <option value="Not Resolved">Not Resolved</option>

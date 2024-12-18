@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $place_of_birth = getPostData('place_of_birth'); // Added field for place of birth
     $purok = getPostData('purok'); // Added field for purok
     $educational_background = getPostData('educational_background'); // Added field for educational background
-    $selfie_path = getPostData('selfie_path'); // Added field for educational background
+    $selfie_path = getPostData('selfie_path'); // Added field for selfie path
 
     // Validate form data
     if ($first_name && $middle_name && $last_name && $cp_number && $password && $confirm_password && $accountType && $barangay_name && $security_question && $security_answer && $civil_status && $nationality && $age && $birth_date && $gender && $place_of_birth && $purok && $educational_background) {
@@ -109,24 +109,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Insert into tbl_users_barangay
-        $stmt_barangay = $pdo->prepare("INSERT INTO tbl_users_barangay (barangay_name) VALUES (?)");
-        $stmt_barangay->execute([$barangay_name]);
-        $barangays_id = $pdo->lastInsertId(); // Retrieve the last inserted ID
-
         // Hash the password and security answer
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $hashed_answer = password_hash($security_answer, PASSWORD_DEFAULT);
 
-        // Insert into tbl_users (Fixed fields count and removed invalid variables)
+        // Insert into tbl_users
         $stmt_users = $pdo->prepare("
             INSERT INTO tbl_users 
-            (first_name, middle_name, last_name, extension_name, cp_number, password, accountType, barangays_id, pic_data, selfie_path, security_question, security_answer, civil_status, nationality, age, birth_date, gender, place_of_birth, purok, educational_background) 
+            (first_name, middle_name, last_name, extension_name, cp_number, password, accountType, barangay_name, pic_data, selfie_path, security_question, security_answer, civil_status, nationality, age, birth_date, gender, place_of_birth, purok, educational_background) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt_users->execute([
             $first_name, $middle_name, $last_name, $extension_name, $cp_number, $hashedPassword, $accountType, 
-            $barangays_id, $pic_data, $selfie_path, $security_question, $hashed_answer, 
+            $barangay_name, $pic_data, $selfie_path, $security_question, $hashed_answer, 
             $civil_status, $nationality, $age, $birth_date, $gender, 
             $place_of_birth, $purok, $educational_background
         ]);
@@ -145,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -278,28 +274,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <!-- Barangay Select -->
                 <div class="col-md-6 mb-3">
-                    <label for="barangay" class="form-label">Barangay:</label>
-                    <select id="barangay" name="barangay" class="form-select" required>
-                        <?php
-                        // Array of barangays of echague
-                        $barangays = [
-                            "Angoluan", "Annafunan", "Arabiat", "Aromin", "Babaran", "Bacradal", "Benguet", "Buneg", "Busilelao", "Cabugao (Poblacion)",
-                            "Caniguing", "Carulay", "Castillo", "Dammang East", "Dammang West", "Diasan", "Dicaraoyan", "Dugayong", "Fugu", "Garit Norte",
-                            "Garit Sur", "Gucab", "Gumbauan", "Ipil", "Libertad", "Mabbayad", "Mabuhay", "Madadamian", "Magleticia", "Malibago", "Maligaya",
-                            "Malitao", "Narra", "Nilumisu", "Pag-asa", "Pangal Norte", "Pangal Sur", "Rumang-ay", "Salay", "Salvacion", "San Antonio Ugad",
-                            "San Antonio Minit", "San Carlos", "San Fabian", "San Felipe", "San Juan", "San Manuel (formerly Atelan)", "San Miguel", "San Salvador",
-                            "Santa Ana", "Santa Cruz", "Santa Maria", "Santa Monica", "Santo Domingo", "Silauan Sur (Poblacion)", "Silauan Norte (Poblacion)",
-                            "Sinabbaran", "Soyung (Poblacion)", "Taggappan (Poblacion)", "Villa Agullana", "Villa Concepcion", "Villa Cruz", "Villa Fabia",
-                            "Villa Gomez", "Villa Nuesa", "Villa Padian", "Villa Pereda", "Villa Quirino", "Villa Remedios", "Villa Serafica", "Villa Tanza",
-                            "Villa Verde", "Villa Vicenta", "Villa Ysmael (formerly T. Belen)"
-                        ];
+                    <label for="barangay" class="form-label">Address:</label>
+                    <input type="barangay" id="barangay" name="barangay" class="form-control" placeholder="Enter your Address" required>
 
-                        // Display barangays as options
-                        foreach ($barangays as $barangay) {
-                            echo "<option value=\"$barangay\">$barangay</option>";
-                        }
-                        ?>
-                    </select>
                 </div>
 
 

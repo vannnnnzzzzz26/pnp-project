@@ -183,7 +183,7 @@ include '../includes/pnp-bar.php';
     
                     // Fetch barangay name based on barangays_id
                     if (!empty($row['barangays_id'])) {
-                        $stmtBar = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
+                        $stmtBar = $pdo->prepare("SELECT saan FROM tbl_users_barangay WHERE barangays_id = ?");
                         $stmtBar->execute([$row['barangays_id']]);
                         $barangay_name = htmlspecialchars($stmtBar->fetchColumn());
                     } else {

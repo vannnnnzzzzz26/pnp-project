@@ -34,11 +34,11 @@ function displayComplaintDetails($pdo, $search_query, $start_from, $results_per_
 
         // Modify the SQL query to filter by barangay if selected
         $sql = "
-            SELECT c.complaints_id, c.complaint_name, b.barangay_name
+            SELECT c.complaints_id, c.complaint_name, b.saan
             FROM tbl_complaints c
             LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
             WHERE c.responds = 'pnp'
-            AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
+            AND (c.complaint_name LIKE ? OR b.saan LIKE ?)
         ";
 
         if (!empty($barangay_filter)) {
@@ -98,7 +98,7 @@ $stmt = $pdo->prepare("
     FROM tbl_complaints c
     LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
     WHERE c.responds = 'pnp'
-    AND (c.complaint_name LIKE ? OR b.barangay_name LIKE ?)
+    AND (c.complaint_name LIKE ? OR b.saan LIKE ?)
 ");
 $search_query_like = '%' . $search_query . '%';
 $stmt->execute([$search_query_like, $search_query_like]);

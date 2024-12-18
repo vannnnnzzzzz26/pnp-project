@@ -161,7 +161,7 @@ try {
               JOIN tbl_users u ON c.user_id = u.user_id  
 
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
-    WHERE (c.status IN ('settled_in_barangay', 'rejected')) AND b.barangay_name = ?
+    WHERE (c.status IN ('settled_in_barangay', 'rejected')) AND c.saan = ?
     AND (c.complaint_name LIKE ? OR c.complaints LIKE ? OR cc.complaints_category LIKE ? OR u.gender LIKE ? OR u.place_of_birth LIKE ? OR u.educational_background LIKE ? OR u.civil_status LIKE ?)
     ORDER BY c.date_filed ASC
     LIMIT ?, ?

@@ -5,10 +5,10 @@ include '../barangay/notifications.php';
 
 include '../includes/bypass.php';
 
-if (!isset($_SESSION['barangay_name']) && isset($_SESSION['barangays_id'])) {
-    $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-    $stmt->execute([$_SESSION['barangays_id']]);
-    $_SESSION['barangay_name'] = $stmt->fetchColumn();
+if (!isset($_SESSION['saan']) && isset($_SESSION['complaints_id'])) {
+    $stmt = $pdo->prepare("SELECT saan FROM tbl_complaints WHERE complaints_id = ?");
+    $stmt->execute([$_SESSION['complaints_id']]);
+    $_SESSION['saan'] = $stmt->fetchColumn();
 }
 
 $firstName = $_SESSION['first_name'];
@@ -79,7 +79,7 @@ try {
         JOIN tbl_users u ON c.user_id = u.user_id  
         LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
         LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
-        WHERE c.status = 'inprogress' AND ub.barangay_name = ? AND c.status != 'Rejected'
+        WHERE c.status = 'inprogress' AND c.saan = ? AND c.status != 'Rejected'
         LIMIT ?, ?
     ");
     $stmt->bindValue(1, $barangay_name, PDO::PARAM_STR);

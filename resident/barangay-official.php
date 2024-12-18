@@ -1,24 +1,25 @@
 <?php
-
-
 session_start();
-$firstName = $_SESSION['first_name'];
-$middleName = $_SESSION['middle_name'];
-$lastName = $_SESSION['last_name'];
-$extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'] : '';
-$cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
-$barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
-$pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
+
+// Ensure session variables are available
+$firstName = $_SESSION['first_name'] ?? '';
+$middleName = $_SESSION['middle_name'] ?? '';
+$lastName = $_SESSION['last_name'] ?? '';
+$extensionName = $_SESSION['extension_name'] ?? '';
+$cp_number = $_SESSION['cp_number'] ?? '';
+$barangay_id = $_SESSION['barangays_id'] ?? '';
+$pic_data = $_SESSION['pic_data'] ?? '';
 
 // Include database connection file
 include '../connection/dbconn.php';
 include '../includes/bypass.php';
 
-// Check if barangay_name is not set, attempt to fetch using barangays_id
-if (empty($barangay_name) && isset($_SESSION['barangays_id'])) {
+// Check if barangay_name is already set in the session
+if (empty($_SESSION['barangay_name']) && !empty($barangay_id)) {
     try {
-        $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users_barangay WHERE barangays_id = ?");
-        $stmt->execute([$_SESSION['barangays_id']]);
+        // Fetch barangay_name from tbl_users based on barangays_id
+        $stmt = $pdo->prepare("SELECT barangay_name FROM tbl_users WHERE barangays_id = ?");
+        $stmt->execute([$barangay_id]);
         $barangay_name = $stmt->fetchColumn();
 
         if ($barangay_name) {
@@ -32,6 +33,8 @@ if (empty($barangay_name) && isset($_SESSION['barangays_id'])) {
         echo "Error fetching barangay name: " . htmlspecialchars($e->getMessage());
         exit();
     }
+} else {
+    $barangay_name = $_SESSION['barangay_name'] ?? '';
 }
 
 // Ensure barangay_name is set

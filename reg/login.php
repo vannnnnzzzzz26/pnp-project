@@ -74,9 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Redirect based on account type
             if ($user['accountType'] == 'Barangay Official') {
-                $redirectUrl = "../barangay/barangay_dashboard.php";
+                $redirectUrl = "../barangay/barangay-responder.php";
             } elseif ($user['accountType'] == 'PNP Officer') {
-                $redirectUrl = "../pnp/dashboard.php";
+                $redirectUrl = "../pnp/pnp.php";
             } elseif ($user['accountType'] == 'Resident') {
                 $redirectUrl = "../resident/resident.php";
             } else {

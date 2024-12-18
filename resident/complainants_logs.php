@@ -13,6 +13,7 @@ $extensionName = isset($_SESSION['extension_name']) ? $_SESSION['extension_name'
 $cp_number = isset($_SESSION['cp_number']) ? $_SESSION['cp_number'] : '';
 $barangay = isset($_SESSION['barangays_id']) ? $_SESSION['barangays_id'] : '';
 $pic_data = isset($_SESSION['pic_data']) ? $_SESSION['pic_data'] : '';
+$saan = isset($_SESSION['saan']) ? $_SESSION['saan'] : '';
 
 // Construct user's full name
 $userFullName = $firstName . ' ' . $middleName . ' ' . $lastName;
@@ -21,10 +22,11 @@ if (!empty($extensionName)) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT c.*, cc.complaints_category, b.barangay_name, 
+    SELECT c.*, cc.complaints_category, u.barangay_name, b.saan,
            GROUP_CONCAT(DISTINCT e.evidence_path) AS evidence_paths,
            GROUP_CONCAT(DISTINCT CONCAT(h.hearing_date, '|', h.hearing_time, '|', h.hearing_type, '|', h.hearing_status)) AS hearing_history
     FROM tbl_complaints c
+    LEFT JOIN tbl_users u ON c.user_id = u.user_id  
     LEFT JOIN tbl_complaintcategories cc ON c.category_id = cc.category_id
     LEFT JOIN tbl_users_barangay b ON c.barangays_id = b.barangays_id
     LEFT JOIN tbl_evidence e ON c.complaints_id = e.complaints_id
@@ -32,6 +34,8 @@ $stmt = $pdo->prepare("
     WHERE c.complaint_name = ?
     GROUP BY c.complaints_id
 ");
+
+
 
 $stmt->execute([$userFullName]);
 $complaints = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -10,7 +10,7 @@
         <img src="../assets/logo.png" alt="Sample Image" width="4%" height="6%" class="ms-2 d-none d-lg-inline">
 
         <!-- Navbar Brand -->
-        <a class="navbar-brand mx-auto ms-lg-3" href="#">Barangay Account</a>
+        <a class="navbar-brand mx-auto ms-lg-3" href="#"> <p class='white-text'><?php echo "Barangay $barangay_name "; ?></p>        </a>
 
         <!-- Navbar Toggler for Collapsible Menu -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">

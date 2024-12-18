@@ -9,20 +9,24 @@ try {
     $month_from = isset($_GET['month_from']) ? intval($_GET['month_from']) : '';
     $month_to = isset($_GET['month_to']) ? intval($_GET['month_to']) : '';
     // Fetch data
-    $data = fetchDashboardData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
-    $purokData = fetchPurokData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
-    $categoryData = fetchComplaintCategoriesData($pdo, 'YourBarangayName', $year, $month,  $month_from, $month_to);
+    $data = fetchDashboardData($pdo, '', $year, $month,  $month_from, $month_to);
+    $purokData = fetchPurokData($pdo, '', $year, $month,  $month_from, $month_to);
+    $categoryData = fetchComplaintCategoriesData($pdo, '', $year, $month,  $month_from, $month_to);
 
     // Check and access data
     $settledInBarangay = isset($data['settledInBarangay']) ? $data['settledInBarangay'] : 0;
     $rejectedInBarangay = isset($data['rejectedInBarangay']) ? $data['rejectedInBarangay'] : 0;
-
+    $approved = isset($data['approved']) ? $data['approved'] : 0;
     // Send JSON response
     echo json_encode([
         'purokData' => $purokData,
         'categoryData' => $categoryData,
         'settledInBarangay' => $settledInBarangay,
-        'rejectedInBarangay' => $rejectedInBarangay
+        'rejectedInBarangay' => $rejectedInBarangay,
+
+
+        'approved' => $approved
+
     ]);
 } catch (Exception $e) {
     http_response_code(500);

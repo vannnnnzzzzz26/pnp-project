@@ -9,7 +9,7 @@ if ($id > 0) {
         $stmt = $pdo->prepare("
             SELECT c.complaint_name, c.complaints AS description, c.date_filed, 
                    cc.complaints_category AS category, 
-                   b.barangay_name, u.cp_number, c.complaints_person, 
+                   b.saan, u.cp_number, c.complaints_person, 
                    u.gender, u.place_of_birth, u.age, 
                    u.educational_background, u.civil_status,  u.nationality,
                    GROUP_CONCAT(DISTINCT e.evidence_path ORDER BY e.evidence_path SEPARATOR ',') AS evidence_paths,
@@ -52,7 +52,7 @@ if ($id > 0) {
                 'description' => $result['description'],
                 'date_filed' => $result['date_filed'],
                 'category' => $result['category'],
-                'barangay_name' => $result['barangay_name'],
+                'saan' => $result['saan'],
                 'cp_number' => $result['cp_number'],
                 'complaints_person' => $result['complaints_person'],
                 'gender' => $result['gender'],
